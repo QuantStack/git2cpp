@@ -29,6 +29,11 @@ jobs:
           environment-file: dev-environment.yml
           cache-environment: true
 
+      - name: Debug
+        run: |
+          micromamba list
+          which meson
+
       - name: Build
         run: |
           meson setup build
