@@ -24,10 +24,12 @@ jobs:
           fetch-depth: 0
 
       - name: Create micromamba environment
-        uses: mamba-org/setup-micromamba@main
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-file: dev-environment.yml
           cache-environment: true
+          init-shell: >-
+            bash
 
       - name: Debug
         run: |
