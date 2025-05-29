@@ -43,6 +43,8 @@ jobs:
       - name: Smoke test
         working-directory: build
         run: |
+          pwd
+          ls -l
           ./git2cpp -v
           ./git2cpp -h
 
