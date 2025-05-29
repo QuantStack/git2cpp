@@ -11,7 +11,7 @@ on:
 
 defaults:
   run:
-    shell: bash
+    shell: bash -leo pipefail {0}
 
 jobs:
   test:
@@ -26,14 +26,12 @@ jobs:
       - name: Create micromamba environment
         uses: mamba-org/setup-micromamba@v2
         with:
-          environment-name: git2cpp-dev
           environment-file: dev-environment.yml
-          init-shell: bash
           cache-downloads: true
 
       - name: Debug
         run: |
-          micromamba list
+          micromamba env list
           which meson
 
       - name: Build
