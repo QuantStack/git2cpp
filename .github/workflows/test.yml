@@ -44,9 +44,9 @@ jobs:
         working-directory: build
         run: |
           pwd
-          ls -l
+          ls -l git2cpp
           ./git2cpp -v
-          ./git2cpp -h
+          ./git2cpp --version
 
       - name: Run tests
         run: |
