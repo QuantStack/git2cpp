@@ -2,22 +2,24 @@
 #include <git2.h>  // For version number only
 #include <iostream>
 
-#include "git_exception.hpp"
+#include "src/utils/git_exception.hpp"
 #include "version.hpp"
 #include "subcommand/init_subcommand.hpp"
+// #include "subcommand/status_subcommand.hpp"
 
 int main(int argc, char** argv)
 {
     int exitCode = 0;
     try
     {
+        const libgit2_object lg2_obj;
         CLI::App app{"Git using C++ wrapper of libgit2"};
 
         // Top-level command options.
         auto version = app.add_flag("-v,--version", "Show version");
 
         // Sub commands
-        InitSubcommand init(app);
+        InitSubcommand init(lg2_obj, app);
 
         app.parse(argc, argv);
 

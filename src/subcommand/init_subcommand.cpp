@@ -1,8 +1,7 @@
 #include <filesystem>
 #include "init_subcommand.hpp"
-#include "../wrapper/repository_wrapper.hpp"
 
-InitSubcommand::InitSubcommand(CLI::App& app)
+InitSubcommand::InitSubcommand(const libgit2_object&, CLI::App& app)
 {
     auto *sub = app.add_subcommand("init", "Explanation of init here");
 
@@ -18,6 +17,5 @@ InitSubcommand::InitSubcommand(CLI::App& app)
 
 void InitSubcommand::run()
 {
-    RepositoryWrapper repo;
-    repo.init(directory, bare);
+    RepositoryWrapper::init(directory, bare);
 }

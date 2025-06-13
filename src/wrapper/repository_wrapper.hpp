@@ -1,16 +1,21 @@
 #pragma once
 
-#include "base_wrapper.hpp"
+#include <git2.h>
+#include <string>
 
-class RepositoryWrapper : public BaseWrapper
+#include "../utils/common.hpp"
+
+class RepositoryWrapper : private noncopiable_nonmovable
 {
 public:
-    RepositoryWrapper();
 
-    virtual ~RepositoryWrapper();
+    ~RepositoryWrapper();
 
-    void init(const std::string& directory, bool bare);
+    // static RepositoryWrapper open(const std::string path);
+    static void init(const std::string& directory, bool bare);
 
 private:
-    git_repository *_repo;
+
+    RepositoryWrapper();
+    git_repository* p_repo;
 };

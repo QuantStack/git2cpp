@@ -1,22 +1,24 @@
-#include <iostream>
-#include <string>
-
-#include "../git_exception.hpp"
+#include "src/utils/git_exception.hpp"
 #include "repository_wrapper.hpp"
 
+
 RepositoryWrapper::RepositoryWrapper()
-    : _repo(nullptr)
+        : p_repo(nullptr)
 {}
 
 RepositoryWrapper::~RepositoryWrapper()
 {
-    if (_repo != nullptr) {
-        git_repository_free(_repo);  // no return
-    }
+    git_repository_free(p_repo);
+    p_repo=nullptr;
 }
+
+// RepositoryWrapper::RepositoryWrapper open(const std::string path)
+// {
+//
+// };
 
 void RepositoryWrapper::init(const std::string& directory, bool bare)
 {
-    // what if it is already initialised?  Throw exception or delete and recreate?
-    throwIfError(git_repository_init(&_repo, directory.c_str(), bare));
+    RepositoryWrapper rw;
+    throwIfError(git_repository_init(&(rw.p_repo), directory.c_str(), bare));
 }

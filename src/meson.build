@@ -1,7 +1,7 @@
 subdir('subcommand')
+subdir('utils')
 subdir('wrapper')
 
 src_files = files([
-    'git_exception.cpp',
     'main.cpp'
-]) + subcommand_files + wrapper_files
+]) + subcommand_files + utils_files + wrapper_files
