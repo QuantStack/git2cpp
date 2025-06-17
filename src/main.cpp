@@ -5,7 +5,7 @@
 #include "src/utils/git_exception.hpp"
 #include "version.hpp"
 #include "subcommand/init_subcommand.hpp"
-// #include "subcommand/status_subcommand.hpp"
+#include "subcommand/status_subcommand.hpp"
 
 int main(int argc, char** argv)
 {
@@ -19,7 +19,7 @@ int main(int argc, char** argv)
         auto version = app.add_flag("-v,--version", "Show version");
 
         // Sub commands
-        InitSubcommand init(lg2_obj, app);
+        init_subcommand init(lg2_obj, app);
 
         app.parse(argc, argv);
 

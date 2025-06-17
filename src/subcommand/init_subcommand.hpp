@@ -1,15 +1,16 @@
 #pragma once
 
-#include <CLI/CLI.hpp>
 #include <string>
 
-#include "src/wrapper/repository_wrapper.hpp"
+#include <CLI/CLI.hpp>
 
-class InitSubcommand
+#include "../utils/common.hpp"
+
+class init_subcommand
 {
 public:
 
-    explicit InitSubcommand(const libgit2_object&, CLI::App& app);
+    explicit init_subcommand(const libgit2_object&, CLI::App& app);
     void run();
 
 private:

@@ -1,7 +1,8 @@
-#include <filesystem>
+// #include <filesystem>
 #include "init_subcommand.hpp"
+#include "src/wrapper/repository_wrapper.hpp"
 
-InitSubcommand::InitSubcommand(const libgit2_object&, CLI::App& app)
+init_subcommand::init_subcommand(const libgit2_object&, CLI::App& app)
 {
     auto *sub = app.add_subcommand("init", "Explanation of init here");
 
@@ -10,12 +11,12 @@ InitSubcommand::InitSubcommand(const libgit2_object&, CLI::App& app)
     // If directory not specified, uses cwd.
     sub->add_option("directory", directory, "info about directory arg")
         ->check(CLI::ExistingDirectory | CLI::NonexistentPath)
-        ->default_val(std::filesystem::current_path());
+        ->default_val(get_current_git_path());
 
     sub->callback([this]() { this->run(); });
 }
 
-void InitSubcommand::run()
+void init_subcommand::run()
 {
-    RepositoryWrapper::init(directory, bare);
+    repository_wrapper::init(directory, bare);
 }
