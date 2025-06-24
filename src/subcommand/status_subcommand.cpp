@@ -139,38 +139,64 @@ void status_subcommand::run()
     //     output_format = 3;
     // }
 
+    bool is_long;
+    is_long = ((of == output_format::DEFAULT) || (of == output_format::LONG));
     if (sl.has_tobecommited_header())
     {
-        std::cout << tobecommited_header << std::endl;
+        if (is_long)
+        {
+            std::cout << tobecommited_header << std::endl;
+        }
         print_entries(GIT_STATUS_INDEX_NEW, sl, true, of);
         print_entries(GIT_STATUS_INDEX_MODIFIED, sl, true, of);
         print_entries(GIT_STATUS_INDEX_DELETED, sl, true, of);
         print_entries(GIT_STATUS_INDEX_RENAMED, sl, true, of);
         print_entries(GIT_STATUS_INDEX_TYPECHANGE, sl, true, of);
-        std::cout << std::endl;
+        if (is_long)
+        {
+            std::cout << std::endl;
+        }
     }
 
     if (sl.has_notstagged_header())
     {
-        std::cout << notstagged_header << std::endl;
+        if (is_long)
+        {
+            std::cout << notstagged_header << std::endl;
+        }
         print_entries(GIT_STATUS_WT_MODIFIED, sl, false, of);
         print_entries(GIT_STATUS_WT_DELETED, sl, false, of);
         print_entries(GIT_STATUS_WT_TYPECHANGE, sl, false, of);
         print_entries(GIT_STATUS_WT_RENAMED, sl, false, of);
-        std::cout << std::endl;
+        if (is_long)
+        {
+            std::cout << std::endl;
+        }
     }
 
     if (sl.has_untracked_header())
     {
-        std::cout << untracked_header << std::endl;
+        if (is_long)
+        {
+            std::cout << untracked_header << std::endl;
+        }
         print_entries(GIT_STATUS_WT_NEW, sl, false, of);
-        std::cout << std::endl;
+        if (is_long)
+        {
+            std::cout << std::endl;
+        }
     }
 
     if (sl.has_ignored_header())
     {
-        std::cout << ignored_header << std::endl;
+        if (is_long)
+        {
+            std::cout << ignored_header << std::endl;
+        }
         print_entries(GIT_STATUS_IGNORED, sl, false, of);
-        std::cout << std::endl;
+        if (is_long)
+        {
+            std::cout << std::endl;
+        }
     }
 }
