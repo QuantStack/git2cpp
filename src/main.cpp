@@ -20,6 +20,7 @@ int main(int argc, char** argv)
 
         // Sub commands
         init_subcommand init(lg2_obj, app);
+        status_subcommand status(lg2_obj, app);
 
         app.parse(argc, argv);
 
