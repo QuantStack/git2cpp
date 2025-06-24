@@ -6,7 +6,6 @@
 
 #include "status_subcommand.hpp"
 #include "../wrapper/status_wrapper.hpp"
-#include "git2/diff.h"
 
 status_subcommand::status_subcommand(const libgit2_object&, CLI::App& app)
 {
@@ -27,15 +26,15 @@ status_subcommand::status_subcommand(const libgit2_object&, CLI::App& app)
     sub->callback([this]() { this->run(); });
 };
 
-std::string untracked_header = "Untracked files:\n";
+const std::string untracked_header = "Untracked files:\n";
 // "Untracked files:\n  (use \"git add <file>...\" to include in what will be committed)";
-std::string tobecommited_header = "Changes to be committed:\n";
+const std::string tobecommited_header = "Changes to be committed:\n";
 // "Changes to be committed:\n  (use \"git reset HEAD <file>...\" to unstage)";
-std::string ignored_header = "Ignored files:\n";
+const std::string ignored_header = "Ignored files:\n";
 // "Ignored files:\n  (use \"git add -f <file>...\" to include in what will be committed)"
-std::string notstagged_header = "Changes not staged for commit:\n";
+const std::string notstagged_header = "Changes not staged for commit:\n";
 // "Changes not staged for commit:\n  (use \"git add%s <file>...\" to update what will be committed)\n  (use \"git checkout -- <file>...\" to discard changes in working directory)"
-std::string nothingtocommit_message = "No changes added to commit";
+const std::string nothingtocommit_message = "No changes added to commit";
 // "No changes added to commit (use \"git add\" and/or \"git commit -a\")"
 
 struct status_messages
@@ -53,7 +52,7 @@ const std::map<git_status_t, status_messages> status_msg_map =   //TODO : check 
     { GIT_STATUS_INDEX_RENAMED, {"R  ", "\t renamed:"} },
     { GIT_STATUS_INDEX_TYPECHANGE, {"T  ", "\t typechange:"} },
     { GIT_STATUS_WT_NEW, {"?? ", ""} },
-    { GIT_STATUS_WT_MODIFIED, {" M" , "\t modified:"} },
+    { GIT_STATUS_WT_MODIFIED, {" M " , "\t modified:"} },
     { GIT_STATUS_WT_DELETED, {" D ", "\t deleted:"} },
     { GIT_STATUS_WT_TYPECHANGE, {" T ", "\t typechange:"} },
     { GIT_STATUS_WT_RENAMED, {" R ", "\t renamed:"} },
