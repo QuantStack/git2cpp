@@ -3,19 +3,19 @@
 
 status_list_wrapper::~status_list_wrapper()
 {
-    git_status_list_free(p_ressource);
-    p_ressource = nullptr;
+    git_status_list_free(p_resource);
+    p_resource = nullptr;
 }
 
 status_list_wrapper status_list_wrapper::status_list(const repository_wrapper& rw)
 {
     status_list_wrapper res;
-    throwIfError(git_status_list_new(&(res.p_ressource), rw, nullptr));
+    throwIfError(git_status_list_new(&(res.p_resource), rw, nullptr));
 
-    std::size_t status_list_size = git_status_list_entrycount(res.p_ressource);
+    std::size_t status_list_size = git_status_list_entrycount(res.p_resource);
     for (std::size_t i = 0; i < status_list_size; ++i)
     {
-        auto entry = git_status_byindex(res.p_ressource, i);
+        auto entry = git_status_byindex(res.p_resource, i);
         res.m_entries[entry->status].push_back(entry);
     }
 
