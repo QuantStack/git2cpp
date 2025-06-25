@@ -12,6 +12,7 @@ public:
     void run();
 
 private:
-    bool short_flag = false;
+    bool branch_flag = false;
     bool long_flag = false;
+    bool short_flag = false;
 };

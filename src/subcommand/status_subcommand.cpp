@@ -6,6 +6,8 @@
 
 #include "status_subcommand.hpp"
 #include "../wrapper/status_wrapper.hpp"
+#include "../wrapper/refs_wrapper.hpp"
+
 
 status_subcommand::status_subcommand(const libgit2_object&, CLI::App& app)
 {
@@ -22,6 +24,7 @@ status_subcommand::status_subcommand(const libgit2_object&, CLI::App& app)
     //     This is similar to the short output, but will remain stable across Git versions and regardless of user configuration.
     //     See below for details. The version parameter is used to specify the format version. This is optional and defaults
     //     to the original version v1 format.");
+    sub->add_flag("-b,--branch", branch_flag, "Show the branch and tracking info even in short-format.");
 
     sub->callback([this]() { this->run(); });
 };
@@ -122,6 +125,7 @@ void status_subcommand::run()
     auto bare = false;
     auto repo = repository_wrapper::init(directory, bare);
     auto sl = status_list_wrapper::status_list(repo);
+    auto branch_name = reference_wrapper::get_ref_name(repo);
 
     // TODO: add branch info
 
@@ -141,6 +145,17 @@ void status_subcommand::run()
 
     bool is_long;
     is_long = ((of == output_format::DEFAULT) || (of == output_format::LONG));
+    if (is_long)
+    {
+        std::cout  << "On branch " << branch_name << std::endl;
+    }
+    else
+    {
+        if (branch_flag)
+        {
+            std::cout  << "## " << branch_name << std::endl;
+        }
+    }
     if (sl.has_tobecommited_header())
     {
         if (is_long)
