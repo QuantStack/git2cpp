@@ -15,7 +15,7 @@ public:
     reference_wrapper(reference_wrapper&&) = default;
     reference_wrapper& operator=(reference_wrapper&&) = default;
 
-    static const char* get_ref_name(const repository_wrapper& repo);
+    static std::string get_ref_name(const repository_wrapper& repo);
 
 private:
 
