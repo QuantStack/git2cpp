@@ -44,3 +44,11 @@ jobs:
       - name: Run tests
         run: |
           pytest -v
+
+      - name: Configure CMake
+        run: |
+          cmake -Bbuild -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX
+
+      - name: Build with CMake
+        working-directory: build
+        run: cmake --build . --parallel 8

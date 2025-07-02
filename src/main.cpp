@@ -2,7 +2,7 @@
 #include <git2.h>  // For version number only
 #include <iostream>
 
-#include "src/utils/git_exception.hpp"
+#include "utils/git_exception.hpp"
 #include "version.hpp"
 #include "subcommand/init_subcommand.hpp"
 #include "subcommand/status_subcommand.hpp"

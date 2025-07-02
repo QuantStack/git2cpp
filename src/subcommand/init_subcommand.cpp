@@ -1,6 +1,6 @@
 // #include <filesystem>
 #include "init_subcommand.hpp"
-#include "src/wrapper/repository_wrapper.hpp"
+#include "../wrapper/repository_wrapper.hpp"
 
 init_subcommand::init_subcommand(const libgit2_object&, CLI::App& app)
 {

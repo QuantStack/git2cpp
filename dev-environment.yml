@@ -8,3 +8,5 @@ dependencies:
   - pkg-config
   - python
   - pytest
+  # Missing dependency from libgit2
+  - zlib
