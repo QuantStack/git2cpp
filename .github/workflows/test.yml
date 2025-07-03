@@ -29,11 +29,13 @@ jobs:
           environment-file: dev-environment.yml
           cache-environment: true
 
-      - name: Build
+      - name: Configure CMake
         run: |
-          meson setup build
-          cd build
-          meson compile
+          cmake -Bbuild -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX
+
+      - name: Build with CMake
+        working-directory: build
+        run: cmake --build . --parallel 8
 
       - name: Smoke test
         working-directory: build
@@ -45,10 +47,3 @@ jobs:
         run: |
           pytest -v
 
-      - name: Configure CMake
-        run: |
-          cmake -Bbuild -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX
-
-      - name: Build with CMake
-        working-directory: build
-        run: cmake --build . --parallel 8

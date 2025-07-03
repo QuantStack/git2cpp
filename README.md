@@ -13,9 +13,9 @@ Developer's workflow using `micromamba` to manage the dependencies:
 ```bash
 micromamba create -f dev-environment.yml
 micromamba activate git2cpp-dev
-meson setup build
+cmake -Bbuild $CMAKE_INSALL_PREFIX=$CONDA_PREFIX
 cd build
-meson compile
+make -j8
 ```
 
 The `git2cpp` executable can then be run, e.g. `./git2cpp -v`.
