@@ -4,6 +4,7 @@
 
 #include "utils/git_exception.hpp"
 #include "version.hpp"
+#include "subcommand/add_subcommand.hpp"
 #include "subcommand/init_subcommand.hpp"
 #include "subcommand/status_subcommand.hpp"
 
@@ -21,6 +22,7 @@ int main(int argc, char** argv)
         // Sub commands
         init_subcommand init(lg2_obj, app);
         status_subcommand status(lg2_obj, app);
+        add_subcommand add(lg2_obj, app);
 
         app.parse(argc, argv);
 

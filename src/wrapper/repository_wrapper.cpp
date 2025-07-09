@@ -1,6 +1,5 @@
-#include "../utils/git_exception.hpp"
 #include "repository_wrapper.hpp"
-
+#include "../utils/git_exception.hpp"
 
 repository_wrapper::~repository_wrapper()
 {
@@ -20,4 +19,10 @@ repository_wrapper repository_wrapper::init(const std::string& directory, bool b
     repository_wrapper rw;
     throwIfError(git_repository_init(&(rw.p_resource), directory.c_str(), bare));
     return rw;
+}
+
+index_wrapper repository_wrapper::get_index() const
+{
+    repository_wrapper rw;
+    index_wrapper::init(rw);
 }

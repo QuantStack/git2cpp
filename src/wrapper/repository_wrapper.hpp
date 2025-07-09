@@ -5,6 +5,7 @@
 #include <git2.h>
 
 #include "../utils/common.hpp"
+#include "../wrapper/index_wrapper.hpp"
 
 class repository_wrapper : public wrapper_base<git_repository>
 {
@@ -17,6 +18,7 @@ public:
 
     static repository_wrapper init(const std::string& directory, bool bare);
     static repository_wrapper open(const std::string& directory);
+    index_wrapper get_index() const;
 
 private:
 
