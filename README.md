@@ -13,7 +13,7 @@ Developer's workflow using `micromamba` to manage the dependencies:
 ```bash
 micromamba create -f dev-environment.yml
 micromamba activate git2cpp-dev
-cmake -Bbuild $CMAKE_INSALL_PREFIX=$CONDA_PREFIX
+cmake -Bbuild -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX
 cd build
 make -j8
 ```

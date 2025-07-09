@@ -4,7 +4,7 @@ channels:
 dependencies:
   - cli11
   - libgit2
-  - meson
+  - cmake
   - pkg-config
   - python
   - pytest

@@ -39,6 +39,8 @@ find_package(libgit2)
 # =====
 
 set(GIT2CPP_SRC
+    ${GIT2CPP_SOURCE_DIR}/subcommand/add_subcommand.cpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/add_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/init_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/init_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/status_subcommand.cpp
@@ -47,6 +49,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/utils/common.hpp
     ${GIT2CPP_SOURCE_DIR}/utils/git_exception.cpp
     ${GIT2CPP_SOURCE_DIR}/utils/git_exception.hpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/index_wrapper.cpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/index_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/refs_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/refs_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/repository_wrapper.cpp
@@ -59,4 +63,3 @@ set(GIT2CPP_SRC
 
 add_executable(git2cpp ${GIT2CPP_SRC})
 target_link_libraries(git2cpp PRIVATE libgit2::libgit2package)
-
