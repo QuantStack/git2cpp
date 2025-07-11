@@ -17,13 +17,11 @@ index_wrapper index_wrapper::init(repository_wrapper& rw)
 
 void index_wrapper::add_entry(const git_index_entry* entry)
 {
-    index_wrapper index;
-    throwIfError(git_index_add(index, entry));
+    throwIfError(git_index_add(*this, entry));
 }
 
 void index_wrapper::add_all()
 {
-    index_wrapper index;
     git_strarray array = {0};   // array of strings, array of path patterns
-    throwIfError(git_index_add_all(index, &array, 0, NULL, NULL));
+    throwIfError(git_index_add_all(*this, &array, 0, NULL, NULL));
 }

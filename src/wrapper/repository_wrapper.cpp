@@ -21,9 +21,8 @@ repository_wrapper repository_wrapper::init(const std::string& directory, bool b
     return rw;
 }
 
-index_wrapper repository_wrapper::get_index() const
+index_wrapper repository_wrapper::make_index()
 {
-    repository_wrapper rw;
-    index_wrapper index = index_wrapper::init(rw);
+    index_wrapper index = index_wrapper::init(*this);
     return index;
 }

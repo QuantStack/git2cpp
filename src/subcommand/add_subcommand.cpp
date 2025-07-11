@@ -9,6 +9,8 @@ add_subcommand::add_subcommand(const libgit2_object&, CLI::App& app)
 {
     auto *sub = app.add_subcommand("add", "Add file contents to the index");
 
+    sub->add_option("files", add_files, "Files to add");
+
     sub->add_flag("-A,--all,--no-ignore-removal", all_flag, "");
     // sub->add_flag("-n,--dryrun", dryrun_flag, "");
     // sub->add_flag("-u,--update", update_flag, "");
@@ -17,20 +19,26 @@ add_subcommand::add_subcommand(const libgit2_object&, CLI::App& app)
     sub->callback([this]() { this->run(); });
 };
 
+
 void add_subcommand::run()
 {
     auto directory = get_current_git_path();
     auto bare = false;
     auto repo = repository_wrapper::init(directory, bare);
 
-    index_wrapper index = repo.get_index();
+    index_wrapper index = repo.make_index();
 
     if (all_flag)
     {
         index.add_all();
     }
-    // else
-    // {
-    //     index.add_entry();
-    // }
+    else
+    {
+        for (const auto& path : add_files)
+        {
+            git_index_entry* entry;
+            entry->path = path.c_str();
+            index.add_entry(entry);
+        }
+    }
 }

@@ -13,4 +13,5 @@ public:
 
 private:
     bool all_flag = false;
+    std::vector<std::string> add_files;
 };
