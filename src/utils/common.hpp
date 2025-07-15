@@ -36,7 +36,7 @@ public:
     wrapper_base& operator=(wrapper_base&& rhs)
     {
         std::swap(p_resource, rhs.p_resource);
-        return this;
+        return *this;
     }
 
     operator resource_type*() const noexcept

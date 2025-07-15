@@ -2,6 +2,8 @@
 #include "../utils/git_exception.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 
+#include <iostream>
+
 index_wrapper::~index_wrapper()
 {
     git_index_free(p_resource);
@@ -22,6 +24,8 @@ void index_wrapper::add_entry(const git_index_entry* entry)
 
 void index_wrapper::add_all()
 {
-    git_strarray array = {0};   // array of strings, array of path patterns
+    const char* patterns[] = {"."};
+    git_strarray array{(char**)patterns, 1};
     throwIfError(git_index_add_all(*this, &array, 0, NULL, NULL));
+    throwIfError(git_index_write(*this));
 }
