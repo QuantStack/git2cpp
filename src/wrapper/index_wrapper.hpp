@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <git2.h>
 
 #include "../utils/common.hpp"
@@ -17,11 +20,12 @@ public:
 
     static index_wrapper init(repository_wrapper& rw);
 
-    void add_entry(const git_index_entry* entry);
+    void add_entries(std::vector<std::string> patterns);
     void add_all();
 
 
 private:
 
     index_wrapper() = default;
+    void add_impl(std::vector<std::string> patterns);
 };

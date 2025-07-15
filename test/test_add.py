@@ -4,15 +4,21 @@ import subprocess
 import pytest
 
 
-@pytest.mark.parametrize("all_flag", ["-A", "--all", "--no-ignore-removal"])
+@pytest.mark.parametrize("all_flag", ["", "-A", "--all", "--no-ignore-removal"])
 def test_add(git2cpp_path, all_flag):
     with open("./test/mook_file.txt", "x") as f:
+        pass
+    f.close()
+
+    with open("./test/mook_file_2.txt", "x") as f:
         pass
     f.close()
 
     cmd_add = [git2cpp_path, 'add']
     if all_flag != "":
         cmd_add.append(all_flag)
+    else:
+        cmd_add.append("test/mook_file.txt")
     subprocess.run(cmd_add, capture_output=True, text=True)
 
     cmd_status = [git2cpp_path, 'status', "--long"]
@@ -27,3 +33,5 @@ def test_add(git2cpp_path, all_flag):
     # assert "modified" in p.stdout
     #
     os.remove("./test/mook_file.txt")
+    os.remove("./test/mook_file_2.txt")
+    subprocess.run(cmd_add, capture_output=True, text=True)

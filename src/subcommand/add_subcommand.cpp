@@ -34,11 +34,6 @@ void add_subcommand::run()
     }
     else
     {
-        for (const auto& path : add_files)
-        {
-            git_index_entry* entry;
-            entry->path = path.c_str();
-            index.add_entry(entry);
-        }
+        index.add_entry(add_files);
     }
 }

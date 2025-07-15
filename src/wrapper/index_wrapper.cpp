@@ -3,6 +3,7 @@
 #include "../wrapper/repository_wrapper.hpp"
 
 #include <iostream>
+#include <vector>
 
 index_wrapper::~index_wrapper()
 {
@@ -17,15 +18,23 @@ index_wrapper index_wrapper::init(repository_wrapper& rw)
     return index;
 }
 
-void index_wrapper::add_entry(const git_index_entry* entry)
+void index_wrapper::add_entries(std::vector<std::string> patterns)
 {
-    throwIfError(git_index_add(*this, entry));
+    add_impl(std::move(patterns));
 }
 
 void index_wrapper::add_all()
 {
-    const char* patterns[] = {"."};
-    git_strarray array{(char**)patterns, 1};
+    add_impl({{"."}});
+}
+
+void index_wrapper::add_impl(std::vector<std::string> patterns)
+{
+    git_strarray array{new char*[patterns.size()], patterns.size()};
+    for (size_t i=0; i<patterns.size(); ++i)
+    {
+        array.strings[i] = const_cast<char*>(patterns[i].c_str());
+    }
     throwIfError(git_index_add_all(*this, &array, 0, NULL, NULL));
     throwIfError(git_index_write(*this));
 }
