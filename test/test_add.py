@@ -24,14 +24,13 @@ def test_add(git2cpp_path, all_flag):
     cmd_status = [git2cpp_path, 'status', "--long"]
     p_status = subprocess.run(cmd_status, capture_output=True, text=True)
 
-    print(p_status.stdout)
-    # assert "Changes to be committed" in p.stdout
-    # assert "Changes not staged for commit" in p.stdout
-    # assert "Untracked files" in p.stdout
-    # assert "new file" in p.stdout
-    # assert "deleted" in p.stdout
-    # assert "modified" in p.stdout
-    #
+    assert "Changes to be committed" in p_status.stdout
+    assert "new file" in p_status.stdout
+    if all_flag != "":
+        assert "Untracked files" not in p_status.stdout
+    else:
+        assert "Untracked files" in p_status.stdout
+
     os.remove("./test/mook_file.txt")
     os.remove("./test/mook_file_2.txt")
-    subprocess.run(cmd_add, capture_output=True, text=True)
+    subprocess.run(cmd_add, capture_output=True, text=True)   # TODO: replace with a reset when implemented ?
