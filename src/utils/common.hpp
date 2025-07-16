@@ -68,12 +68,13 @@ public:
         : m_patterns{}
         , m_array{nullptr, 0}
     {}
-    git_strarray_wrapper(std::vector<std::string> m_patterns);
+    git_strarray_wrapper(std::vector<std::string> patterns);
 
     git_strarray_wrapper(const git_strarray_wrapper&) = delete;
     git_strarray_wrapper& operator=(const git_strarray_wrapper&) = delete;
 
     git_strarray_wrapper(git_strarray_wrapper&& rhs);
+    git_strarray_wrapper& operator=(git_strarray_wrapper&&);
 
     ~git_strarray_wrapper();
 
@@ -83,5 +84,6 @@ private:
     std::vector<std::string> m_patterns;
     git_strarray m_array;
 
+    void reset_str_array();
     void init_str_array();
 };

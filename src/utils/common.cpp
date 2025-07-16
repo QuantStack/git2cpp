@@ -24,8 +24,8 @@ std::string get_current_git_path()
 //     ->check(CLI::ExistingDirectory | CLI::NonexistentPath)
 //     ->default_val(std::filesystem::current_path());
 
-git_strarray_wrapper::git_strarray_wrapper(std::vector<std::string> m_patterns)
-    : m_patterns(std::move(m_patterns))
+git_strarray_wrapper::git_strarray_wrapper(std::vector<std::string> patterns)
+    : m_patterns(std::move(patterns))
 {
     init_str_array();
 }
@@ -34,11 +34,21 @@ git_strarray_wrapper::git_strarray_wrapper(git_strarray_wrapper&& rhs)
     : m_patterns(std::move(rhs.m_patterns))
 {
     init_str_array();
+    rhs.reset_str_array();
+}
+
+git_strarray_wrapper& git_strarray_wrapper::operator=(git_strarray_wrapper&& rhs)
+{
+    using std::swap;
+    swap(m_patterns, rhs.m_patterns);
+    swap(m_array.strings, rhs.m_array.strings);
+    swap(m_array.count, rhs.m_array.count);
+    return *this;
 }
 
 git_strarray_wrapper::~git_strarray_wrapper()
 {
-    delete[] m_array.strings;
+    reset_str_array();
 }
 
 git_strarray_wrapper::operator git_strarray*()
@@ -46,11 +56,18 @@ git_strarray_wrapper::operator git_strarray*()
     return &m_array;
 }
 
+void git_strarray_wrapper::reset_str_array()
+{
+    delete[] m_array.strings;
+    m_array={nullptr, 0};
+}
+
 void git_strarray_wrapper::init_str_array()
 {
-    git_strarray array{new char*[m_patterns.size()], m_patterns.size()};
+    m_array.strings = new char*[m_patterns.size()];
+    m_array.count = m_patterns.size();
     for (size_t i=0; i<m_patterns.size(); ++i)
     {
-        array.strings[i] = const_cast<char*>(m_patterns[i].c_str());
+        m_array.strings[i] = const_cast<char*>(m_patterns[i].c_str());
     }
 }
