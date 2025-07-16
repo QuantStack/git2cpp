@@ -24,7 +24,29 @@ std::string get_current_git_path()
 //     ->check(CLI::ExistingDirectory | CLI::NonexistentPath)
 //     ->default_val(std::filesystem::current_path());
 
-git_strarray git_strarray_wrapper::init_str_array()
+git_strarray_wrapper::git_strarray_wrapper(std::vector<std::string> m_patterns)
+    : m_patterns(std::move(m_patterns))
+{
+    init_str_array();
+}
+
+git_strarray_wrapper::git_strarray_wrapper(git_strarray_wrapper&& rhs)
+    : m_patterns(std::move(rhs.m_patterns))
+{
+    init_str_array();
+}
+
+git_strarray_wrapper::~git_strarray_wrapper()
+{
+    delete[] m_array.strings;
+}
+
+git_strarray_wrapper::operator git_strarray*()
+{
+    return &m_array;
+}
+
+void git_strarray_wrapper::init_str_array()
 {
     git_strarray_wrapper aw;
     git_strarray array{new char*[aw.m_patterns.size()], aw.m_patterns.size()};
@@ -32,5 +54,4 @@ git_strarray git_strarray_wrapper::init_str_array()
     {
         array.strings[i] = const_cast<char*>(aw.m_patterns[i].c_str());
     }
-    return array;
 }

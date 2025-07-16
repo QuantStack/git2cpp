@@ -68,34 +68,20 @@ public:
         : m_patterns{}
         , m_array{nullptr, 0}
     {}
-    git_strarray_wrapper(std::vector<std::string> m_patterns)
-        : m_patterns(std::move(m_patterns))
-    {
-        init_str_array();
-    }
+    git_strarray_wrapper(std::vector<std::string> m_patterns);
 
     git_strarray_wrapper(const git_strarray_wrapper&) = delete;
     git_strarray_wrapper& operator=(const git_strarray_wrapper&) = delete;
 
-    git_strarray_wrapper(git_strarray_wrapper&& rhs)
-        : m_patterns(std::move(rhs.m_patterns))
-    {
-        init_str_array();
-    }
+    git_strarray_wrapper(git_strarray_wrapper&& rhs);
 
-    ~git_strarray_wrapper()
-    {
-        delete[] m_array.strings;
-    }
+    ~git_strarray_wrapper();
 
-    operator git_strarray*()
-    {
-        return &m_array;
-    }
+    operator git_strarray*();
 
-    static git_strarray init_str_array();
-
-protected:
+private:
     std::vector<std::string> m_patterns;
     git_strarray m_array;
+
+    void init_str_array();
 };
