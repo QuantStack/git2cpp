@@ -23,3 +23,14 @@ std::string get_current_git_path()
 // sub->add_option("directory", directory, "info about directory arg")
 //     ->check(CLI::ExistingDirectory | CLI::NonexistentPath)
 //     ->default_val(std::filesystem::current_path());
+
+git_strarray git_strarray_wrapper::init_str_array()
+{
+    git_strarray_wrapper aw;
+    git_strarray array{new char*[aw.m_patterns.size()], aw.m_patterns.size()};
+    for (size_t i=0; i<aw.m_patterns.size(); ++i)
+    {
+        array.strings[i] = const_cast<char*>(aw.m_patterns[i].c_str());
+    }
+    return array;
+}

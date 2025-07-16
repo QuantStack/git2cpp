@@ -2,6 +2,9 @@
 
 #include <string>
 #include <utility>
+#include <vector>
+
+#include <git2.h>
 
 class noncopyable_nonmovable
 {
@@ -57,3 +60,42 @@ public:
 };
 
 std::string get_current_git_path();
+
+class git_strarray_wrapper
+{
+public:
+    git_strarray_wrapper()
+        : m_patterns{}
+        , m_array{nullptr, 0}
+    {}
+    git_strarray_wrapper(std::vector<std::string> m_patterns)
+        : m_patterns(std::move(m_patterns))
+    {
+        init_str_array();
+    }
+
+    git_strarray_wrapper(const git_strarray_wrapper&) = delete;
+    git_strarray_wrapper& operator=(const git_strarray_wrapper&) = delete;
+
+    git_strarray_wrapper(git_strarray_wrapper&& rhs)
+        : m_patterns(std::move(rhs.m_patterns))
+    {
+        init_str_array();
+    }
+
+    ~git_strarray_wrapper()
+    {
+        delete[] m_array.strings;
+    }
+
+    operator git_strarray*()
+    {
+        return &m_array;
+    }
+
+    static git_strarray init_str_array();
+
+protected:
+    std::vector<std::string> m_patterns;
+    git_strarray m_array;
+};
