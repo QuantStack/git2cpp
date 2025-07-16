@@ -33,4 +33,4 @@ def test_add(git2cpp_path, all_flag):
 
     os.remove("./test/mook_file.txt")
     os.remove("./test/mook_file_2.txt")
-    subprocess.run(cmd_add, capture_output=True, text=True)   # TODO: replace with a reset when implemented ?
+    subprocess.run(cmd_add, capture_output=True, text=True)

@@ -2,7 +2,6 @@
 #include "../utils/git_exception.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 
-#include <iostream>
 #include <vector>
 
 index_wrapper::~index_wrapper()

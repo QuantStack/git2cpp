@@ -34,6 +34,6 @@ void add_subcommand::run()
     }
     else
     {
-        index.add_entry(add_files);
+        index.add_entries(add_files);
     }
 }
