@@ -1,6 +1,6 @@
 #pragma once
 
-// #include <string>
+ #include <string>
 
 #include <git2.h>
 
@@ -13,8 +13,8 @@ public:
 
     ~reference_wrapper();
 
-    reference_wrapper(reference_wrapper&&) = default;
-    reference_wrapper& operator=(reference_wrapper&&) = default;
+    reference_wrapper(reference_wrapper&&) noexcept = default;
+    reference_wrapper& operator=(reference_wrapper&&) noexcept = default;
 
     static std::string get_ref_name(const repository_wrapper& repo);
 

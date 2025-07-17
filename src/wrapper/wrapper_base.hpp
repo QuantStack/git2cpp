@@ -10,12 +10,12 @@ public:
     wrapper_base(const wrapper_base&) = delete;
     wrapper_base& operator=(const wrapper_base&) = delete;
 
-    wrapper_base(wrapper_base&& rhs)
+    wrapper_base(wrapper_base&& rhs) noexcept
         : p_resource(rhs.p_resource)
     {
         rhs.p_resource = nullptr;
     }
-    wrapper_base& operator=(wrapper_base&& rhs)
+    wrapper_base& operator=(wrapper_base&& rhs) noexcept
     {
         std::swap(p_resource, rhs.p_resource);
         return *this;

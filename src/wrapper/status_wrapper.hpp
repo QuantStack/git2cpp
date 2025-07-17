@@ -15,8 +15,8 @@ public:
 
     ~status_list_wrapper();
 
-    status_list_wrapper(status_list_wrapper&&) = default;
-    status_list_wrapper& operator=(status_list_wrapper&&) = default;
+    status_list_wrapper(status_list_wrapper&&) noexcept = default;
+    status_list_wrapper& operator=(status_list_wrapper&&) noexcept = default;
 
     static status_list_wrapper status_list(const repository_wrapper& wrapper);
 

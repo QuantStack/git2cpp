@@ -13,8 +13,8 @@ public:
 
     ~repository_wrapper();
 
-    repository_wrapper(repository_wrapper&&) = default;
-    repository_wrapper& operator=(repository_wrapper&&) = default;
+    repository_wrapper(repository_wrapper&&) noexcept = default;
+    repository_wrapper& operator=(repository_wrapper&&) noexcept = default;
 
     static repository_wrapper init(const std::string& directory, bool bare);
     static repository_wrapper open(const std::string& directory);

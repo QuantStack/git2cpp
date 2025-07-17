@@ -13,8 +13,8 @@ public:
 
     ~commit_wrapper();
 
-    commit_wrapper(commit_wrapper&&) = default;
-    commit_wrapper& operator=(commit_wrapper&&) = default;
+    commit_wrapper(commit_wrapper&&) noexcept = default;
+    commit_wrapper& operator=(commit_wrapper&&) noexcept = default;
 
     static commit_wrapper
     last_commit(const repository_wrapper& repo, const std::string& ref_name = "HEAD");

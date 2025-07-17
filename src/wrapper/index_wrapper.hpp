@@ -15,8 +15,8 @@ public:
 
     ~index_wrapper();
 
-    index_wrapper(index_wrapper&&) = default;
-    index_wrapper& operator=(index_wrapper&&) = default;
+    index_wrapper(index_wrapper&&) noexcept = default;
+    index_wrapper& operator=(index_wrapper&&) noexcept = default;
 
     static index_wrapper init(repository_wrapper& rw);
 
