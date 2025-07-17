@@ -4,7 +4,6 @@
 
 #include <git2.h>
 
-#include "../utils/common.hpp"
 #include "../wrapper/index_wrapper.hpp"
 #include "../wrapper/wrapper_base.hpp"
 

@@ -1,4 +1,5 @@
 #include "index_wrapper.hpp"
+#include "../utils/common.hpp"
 #include "../utils/git_exception.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 
