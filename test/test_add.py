@@ -8,11 +8,9 @@ import pytest
 def test_add(git2cpp_path, all_flag):
     with open("./test/mook_file.txt", "x") as f:
         pass
-    f.close()
 
     with open("./test/mook_file_2.txt", "x") as f:
         pass
-    f.close()
 
     cmd_add = [git2cpp_path, 'add']
     if all_flag != "":
@@ -33,4 +31,6 @@ def test_add(git2cpp_path, all_flag):
 
     os.remove("./test/mook_file.txt")
     os.remove("./test/mook_file_2.txt")
+
+    # undo the add, to leave the test directory at the end the same as it was at the start
     subprocess.run(cmd_add, capture_output=True, text=True)
