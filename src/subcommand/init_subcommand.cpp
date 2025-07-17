@@ -6,10 +6,10 @@ init_subcommand::init_subcommand(const libgit2_object&, CLI::App& app)
 {
     auto *sub = app.add_subcommand("init", "Explanation of init here");
 
-    sub->add_flag("--bare", bare, "info about bare arg");
+    sub->add_flag("--bare", m_bare, "info about bare arg");
 
     // If directory not specified, uses cwd.
-    sub->add_option("directory", directory, "info about directory arg")
+    sub->add_option("directory", m_directory, "info about directory arg")
         ->check(CLI::ExistingDirectory | CLI::NonexistentPath)
         ->default_val(get_current_git_path());
 
@@ -18,5 +18,5 @@ init_subcommand::init_subcommand(const libgit2_object&, CLI::App& app)
 
 void init_subcommand::run()
 {
-    repository_wrapper::init(directory, bare);
+    repository_wrapper::init(m_directory, m_bare);
 }

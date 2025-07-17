@@ -29,7 +29,7 @@ void index_wrapper::add_all()
 
 void index_wrapper::add_impl(std::vector<std::string> patterns)
 {
-    git_strarray_wrapper array=git_strarray_wrapper(patterns);
+    git_strarray_wrapper array{patterns};
     throwIfError(git_index_add_all(*this, array, 0, NULL, NULL));
     throwIfError(git_index_write(*this));
 }
