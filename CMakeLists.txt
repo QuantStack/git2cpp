@@ -57,6 +57,7 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/wrapper/repository_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/status_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/status_wrapper.hpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/wrapper_base.hpp
     ${GIT2CPP_SOURCE_DIR}/main.cpp
     ${GIT2CPP_SOURCE_DIR}/version.hpp
 )

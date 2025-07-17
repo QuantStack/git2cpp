@@ -6,6 +6,7 @@
 #include <git2.h>
 
 #include "../wrapper/repository_wrapper.hpp"
+#include "../wrapper/wrapper_base.hpp"
 
 class status_list_wrapper : public wrapper_base<git_status_list>
 {

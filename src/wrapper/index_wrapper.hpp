@@ -6,6 +6,7 @@
 #include <git2.h>
 
 #include "../utils/common.hpp"
+#include "../wrapper/wrapper_base.hpp"
 
 class repository_wrapper;
 

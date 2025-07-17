@@ -6,6 +6,7 @@
 
 #include "../utils/common.hpp"
 #include "../wrapper/index_wrapper.hpp"
+#include "../wrapper/wrapper_base.hpp"
 
 class repository_wrapper : public wrapper_base<git_repository>
 {
