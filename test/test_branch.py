@@ -12,7 +12,7 @@ def rename_git():
 def test_branch_list(rename_git, git2cpp_path):
     cmd = [git2cpp_path, 'branch']
     p = subprocess.run(cmd, capture_output=True, cwd="test/data/status_data", text=True)
-    assert('main' in p.stdout == 'main\n')
+    assert(p.stdout == 'main\n')
 
 def test_branch_create_delete(rename_git, git2cpp_path):
     create_cmd = [git2cpp_path, 'branch', 'foregone']

@@ -49,6 +49,6 @@ branch_wrapper repository_wrapper::find_branch(const std::string& name)
 branch_iterator repository_wrapper::iterate_branches(git_branch_t type) const
 {
     git_branch_iterator* iter = nullptr;
-    git_branch_iterator_new(&iter, *this, type);
+    throwIfError(git_branch_iterator_new(&iter, *this, type));
     return branch_iterator(iter);
 }

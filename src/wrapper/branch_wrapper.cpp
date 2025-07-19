@@ -13,7 +13,7 @@ branch_wrapper::branch_wrapper(git_reference* polna_ref)
 branch_wrapper::~branch_wrapper()
 {
     git_reference_free(p_resource);
-    p_resource=nullptr;
+    p_resource = nullptr;
 }
 
 std::string_view branch_wrapper::name() const
