@@ -28,7 +28,11 @@ public:
 
 protected:
     // Allocation and deletion of p_resource must be handled by inheriting class.
-    wrapper_base() = default;
+    explicit wrapper_base(resource_type* resource = nullptr)
+        : p_resource(resource)
+    {
+    }
+
     ~wrapper_base() = default;
 
     resource_type* p_resource = nullptr;

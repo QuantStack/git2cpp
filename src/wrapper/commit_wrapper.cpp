@@ -1,5 +1,6 @@
-#include "commit_wrapper.hpp"
 #include "../utils/git_exception.hpp"
+#include "../wrapper/commit_wrapper.hpp"
+#include "../wrapper/repository_wrapper.hpp"
 
 commit_wrapper::~commit_wrapper()
 {
@@ -8,7 +9,7 @@ commit_wrapper::~commit_wrapper()
 }
 
 
-commit_wrapper commit_wrapper::last_commit(const repository_wrapper& repo, const std::string& ref_name)
+commit_wrapper commit_wrapper::from_reference_name(const repository_wrapper& repo, const std::string& ref_name)
 {
     git_oid oid_parent_commit;
     throwIfError(git_reference_name_to_id(&oid_parent_commit, repo, ref_name.c_str()));
