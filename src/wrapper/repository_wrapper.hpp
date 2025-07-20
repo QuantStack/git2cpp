@@ -7,6 +7,7 @@
 #include "../wrapper/branch_wrapper.hpp"
 #include "../wrapper/commit_wrapper.hpp"
 #include "../wrapper/index_wrapper.hpp"
+#include "../wrapper/refs_wrapper.hpp"
 #include "../wrapper/wrapper_base.hpp"
 
 class repository_wrapper : public wrapper_base<git_repository>
@@ -20,6 +21,8 @@ public:
 
     static repository_wrapper init(const std::string& directory, bool bare);
     static repository_wrapper open(const std::string& directory);
+
+    reference_wrapper head() const;
 
     index_wrapper make_index();
 

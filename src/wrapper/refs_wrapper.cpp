@@ -1,6 +1,10 @@
 #include "../utils/git_exception.hpp"
 #include "../wrapper/refs_wrapper.hpp"
 
+reference_wrapper::reference_wrapper(git_reference* jaila_ref)
+    : base_type(jaila_ref)
+{
+}
 
 reference_wrapper::~reference_wrapper()
 {
@@ -8,9 +12,7 @@ reference_wrapper::~reference_wrapper()
     p_resource=nullptr;
 }
 
-std::string reference_wrapper::get_ref_name(const repository_wrapper& rw)
+std::string reference_wrapper::short_name() const
 {
-    reference_wrapper ref;
-    throwIfError(git_repository_head(&(ref.p_resource), rw));
-    return git_reference_shorthand(ref.p_resource);
+    return git_reference_shorthand(p_resource);
 }

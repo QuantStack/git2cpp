@@ -21,6 +21,13 @@ repository_wrapper repository_wrapper::init(const std::string& directory, bool b
     return rw;
 }
 
+reference_wrapper repository_wrapper::head() const
+{
+    git_reference* ref;
+    throwIfError(git_repository_head(&ref, *this));
+    return reference_wrapper(ref);
+}
+
 index_wrapper repository_wrapper::make_index()
 {
     index_wrapper index = index_wrapper::init(*this);

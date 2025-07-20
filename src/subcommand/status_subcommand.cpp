@@ -186,7 +186,7 @@ void status_subcommand::run()
     auto bare = false;
     auto repo = repository_wrapper::init(directory, bare);
     auto sl = status_list_wrapper::status_list(repo);
-    auto branch_name = reference_wrapper::get_ref_name(repo);
+    auto branch_name = repo.head().short_name();
 
     std::set<std::string> tracked_dir_set{};
     std::set<std::string> untracked_dir_set{};
