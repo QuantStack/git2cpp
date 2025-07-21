@@ -28,6 +28,13 @@ reference_wrapper repository_wrapper::head() const
     return reference_wrapper(ref);
 }
 
+reference_wrapper repository_wrapper::find_reference(std::string_view ref_name) const
+{
+    git_reference* ref;
+    throwIfError(git_reference_lookup(&ref, *this, ref_name.data()));
+    return reference_wrapper(ref);
+}
+
 index_wrapper repository_wrapper::make_index()
 {
     index_wrapper index = index_wrapper::init(*this);
@@ -46,7 +53,7 @@ branch_wrapper repository_wrapper::create_branch(std::string_view name, const co
     return branch_wrapper(branch);
 }
 
-branch_wrapper repository_wrapper::find_branch(std::string_view name)
+branch_wrapper repository_wrapper::find_branch(std::string_view name) const
 {
     git_reference* branch = nullptr;
     throwIfError(git_branch_lookup(&branch, *this, name.data(), GIT_BRANCH_LOCAL));
@@ -73,4 +80,11 @@ commit_wrapper repository_wrapper::find_commit(const git_oid& id) const
     git_commit* commit;
     throwIfError(git_commit_lookup(&commit, *this, &id));
     return commit_wrapper(commit);
+}
+
+annotated_commit_wrapper repository_wrapper::find_annotated_commit(const git_oid& id) const
+{
+    git_annotated_commit* commit;
+    throwIfError(git_annotated_commit_lookup(&commit, *this, &id));
+    return annotated_commit_wrapper(commit);
 }

@@ -51,6 +51,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/utils/common.hpp
     ${GIT2CPP_SOURCE_DIR}/utils/git_exception.cpp
     ${GIT2CPP_SOURCE_DIR}/utils/git_exception.hpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/annotated_commit_wrapper.cpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/annotated_commit_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/branch_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/branch_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/commit_wrapper.cpp

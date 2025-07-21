@@ -15,6 +15,8 @@ public:
     commit_wrapper(commit_wrapper&&) noexcept = default;
     commit_wrapper& operator=(commit_wrapper&&) noexcept = default;
 
+    const git_oid& oid() const;
+
 private:
 
     commit_wrapper(git_commit* commit);

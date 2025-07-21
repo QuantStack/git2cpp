@@ -11,12 +11,8 @@ commit_wrapper::~commit_wrapper()
     p_resource = nullptr;
 }
 
-/*commit_wrapper commit_wrapper::from_reference_name(const repository_wrapper& repo, const std::string& ref_name)
+const git_oid& commit_wrapper::oid() const
 {
-    git_oid oid_parent_commit;
-    throwIfError(git_reference_name_to_id(&oid_parent_commit, repo, ref_name.c_str()));
+    return *git_commit_id(p_resource);
+}
 
-    commit_wrapper cw;
-    throwIfError(git_commit_lookup(&(cw.p_resource), repo, &oid_parent_commit));
-    return cw;
-}*/
