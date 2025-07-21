@@ -1,5 +1,6 @@
 #pragma once
 
+#include <utility>
 
 template <class T>
 class wrapper_base

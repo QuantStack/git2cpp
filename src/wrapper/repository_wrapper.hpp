@@ -33,6 +33,11 @@ public:
 
     branch_iterator iterate_branches(git_branch_t type) const;
 
+    // Commits
+    
+    commit_wrapper find_commit(const std::string& ref_name = "HEAD") const;
+    commit_wrapper find_commit(const git_oid& id) const;
+
 private:
 
     repository_wrapper() = default;

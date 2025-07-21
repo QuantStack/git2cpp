@@ -36,7 +36,7 @@ index_wrapper repository_wrapper::make_index()
 
 branch_wrapper repository_wrapper::create_branch(const std::string& name, bool force)
 {
-    return create_branch(name, commit_wrapper::from_reference_name(*this), force);
+    return create_branch(name, find_commit(), force);
 }
 
 branch_wrapper repository_wrapper::create_branch(const std::string& name, const commit_wrapper& commit, bool force)
@@ -58,4 +58,19 @@ branch_iterator repository_wrapper::iterate_branches(git_branch_t type) const
     git_branch_iterator* iter = nullptr;
     throwIfError(git_branch_iterator_new(&iter, *this, type));
     return branch_iterator(iter);
+}
+
+
+commit_wrapper repository_wrapper::find_commit(const std::string& ref_name) const
+{
+    git_oid oid_parent_commit;
+    throwIfError(git_reference_name_to_id(&oid_parent_commit, *this, ref_name.c_str()));
+    return find_commit(oid_parent_commit);
+}
+
+commit_wrapper repository_wrapper::find_commit(const git_oid& id) const
+{
+    git_commit* commit;
+    throwIfError(git_commit_lookup(&commit, *this, &id));
+    return commit_wrapper(commit);
 }
