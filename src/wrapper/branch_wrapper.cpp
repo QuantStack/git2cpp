@@ -5,8 +5,8 @@
 
 #include <iostream>
 
-branch_wrapper::branch_wrapper(git_reference* polna_ref)
-    : base_type(polna_ref)
+branch_wrapper::branch_wrapper(git_reference* ref)
+    : base_type(ref)
 {    
 }
 

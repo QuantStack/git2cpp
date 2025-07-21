@@ -1,8 +1,8 @@
 #include "../utils/git_exception.hpp"
 #include "../wrapper/refs_wrapper.hpp"
 
-reference_wrapper::reference_wrapper(git_reference* jaila_ref)
-    : base_type(jaila_ref)
+reference_wrapper::reference_wrapper(git_reference* ref)
+    : base_type(ref)
 {
 }
 
