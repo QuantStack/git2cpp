@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include <string_view>
 
 #include <git2.h>
 
@@ -19,23 +19,23 @@ public:
     repository_wrapper(repository_wrapper&&) noexcept = default;
     repository_wrapper& operator=(repository_wrapper&&) noexcept = default;
 
-    static repository_wrapper init(const std::string& directory, bool bare);
-    static repository_wrapper open(const std::string& directory);
+    static repository_wrapper init(std::string_view directory, bool bare);
+    static repository_wrapper open(std::string_view directory);
 
     reference_wrapper head() const;
 
     index_wrapper make_index();
 
-    branch_wrapper create_branch(const std::string& name, bool force);
-    branch_wrapper create_branch(const std::string& name, const commit_wrapper& commit, bool force);
+    branch_wrapper create_branch(std::string_view name, bool force);
+    branch_wrapper create_branch(std::string_view name, const commit_wrapper& commit, bool force);
 
-    branch_wrapper find_branch(const std::string& name);
+    branch_wrapper find_branch(std::string_view name);
 
     branch_iterator iterate_branches(git_branch_t type) const;
 
     // Commits
     
-    commit_wrapper find_commit(const std::string& ref_name = "HEAD") const;
+    commit_wrapper find_commit(std::string_view ref_name = "HEAD") const;
     commit_wrapper find_commit(const git_oid& id) const;
 
 private:
