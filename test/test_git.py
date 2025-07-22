@@ -14,6 +14,6 @@ def test_version(git2cpp_path, arg):
 def test_error_on_unknown_option(git2cpp_path):
     cmd = [git2cpp_path, '--unknown']
     p = subprocess.run(cmd, capture_output=True)
-    assert p.returncode == 1
+    assert p.returncode == 109
     assert p.stdout == b''
     assert p.stderr.startswith(b"The following argument was not expected: --unknown")

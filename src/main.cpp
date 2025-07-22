@@ -28,11 +28,16 @@ int main(int argc, char** argv)
         branch_subcommand(lg2_obj, app);
         checkout_subcommand(lg2_obj, app);
 
-        app.parse(argc, argv);
+        CLI11_PARSE(app, argc, argv);
 
         if (version->count())
         {
             std::cout << "git2cpp version " << GIT2CPP_VERSION_STRING << " (libgit2 " << LIBGIT2_VERSION << ")" << std::endl;
+        }
+
+        if (app.get_subcommands().size() == 0)
+        {
+            std::cout << app.help() << std::endl;
         }
     }
     catch (const CLI::Error& e)
