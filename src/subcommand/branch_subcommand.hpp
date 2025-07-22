@@ -16,6 +16,7 @@ public:
 
 private:
 
+    void run_list(const repository_wrapper& repo);
     void run_deletion(repository_wrapper& repo);
     void run_creation(repository_wrapper& repo);
 

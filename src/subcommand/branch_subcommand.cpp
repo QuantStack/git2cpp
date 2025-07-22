@@ -25,19 +25,7 @@ void branch_subcommand::run()
 
     if (m_list_flag || m_branch_name.empty())
     {
-        auto head_name = repo.head().short_name();
-        std::cout << "* " << head_name << std::endl;
-        git_branch_t type = m_all_flag ? GIT_BRANCH_ALL : (m_remote_flag ? GIT_BRANCH_REMOTE : GIT_BRANCH_LOCAL);
-        auto iter = repo.iterate_branches(type);
-        auto br = iter.next();
-        while (br)
-        {
-            if (br->name() != head_name)
-            {
-                std::cout << "  " << br->name() << std::endl;
-            }
-            br = iter.next();
-        }
+        run_list(repo);
     }
     else if (m_deletion_flag)
     {
@@ -46,6 +34,26 @@ void branch_subcommand::run()
     else
     {
         run_creation(repo);
+    }
+}
+
+void branch_subcommand::run_list(const repository_wrapper& repo)
+{
+    auto head_name = repo.head().short_name();
+    git_branch_t type = m_all_flag ? GIT_BRANCH_ALL : (m_remote_flag ? GIT_BRANCH_REMOTE : GIT_BRANCH_LOCAL);
+    auto iter = repo.iterate_branches(type);
+    auto br = iter.next();
+    while (br)
+    {
+        if (br->name() != head_name)
+        {
+            std::cout << "  " << br->name() << std::endl;
+        }
+        else
+        {
+            std::cout << "* " << br->name() << std::endl;
+        }
+        br = iter.next();
     }
 }
 
