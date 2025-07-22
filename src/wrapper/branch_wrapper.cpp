@@ -19,8 +19,14 @@ branch_wrapper::~branch_wrapper()
 std::string_view branch_wrapper::name() const
 {
     const char* out = nullptr;
-    throwIfError(git_branch_name(&out, p_resource));
+    throwIfError(git_branch_name(&out, *this));
     return std::string_view(out);
+}
+
+std::string_view branch_wrapper::reference_name() const
+{
+    const char* out = git_reference_name(*this);
+    return out ? out : std::string_view();
 }
 
 void delete_branch(branch_wrapper&& branch)

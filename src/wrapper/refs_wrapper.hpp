@@ -1,6 +1,6 @@
 #pragma once
 
- #include <string>
+#include <string>
 
 #include <git2.h>
 
@@ -18,6 +18,7 @@ public:
     reference_wrapper& operator=(reference_wrapper&&) noexcept = default;
 
     std::string short_name() const;
+    bool is_remote() const;
 
 private:
 

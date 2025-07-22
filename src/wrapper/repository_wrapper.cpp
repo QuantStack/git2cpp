@@ -21,6 +21,11 @@ repository_wrapper repository_wrapper::init(std::string_view directory, bool bar
     return rw;
 }
 
+git_repository_state_t repository_wrapper::state() const
+{
+    return git_repository_state_t(git_repository_state(*this));
+}
+
 reference_wrapper repository_wrapper::head() const
 {
     git_reference* ref;
@@ -33,6 +38,13 @@ reference_wrapper repository_wrapper::find_reference(std::string_view ref_name) 
     git_reference* ref;
     throwIfError(git_reference_lookup(&ref, *this, ref_name.data()));
     return reference_wrapper(ref);
+}
+
+std::optional<reference_wrapper> repository_wrapper::find_reference_dwim(std::string_view ref_name) const
+{
+    git_reference* ref;
+    int rc = git_reference_dwim(&ref, *this, ref_name.data());
+    return rc == 0 ? std::make_optional(reference_wrapper(ref)) : std::nullopt;
 }
 
 index_wrapper repository_wrapper::make_index()
@@ -53,6 +65,13 @@ branch_wrapper repository_wrapper::create_branch(std::string_view name, const co
     return branch_wrapper(branch);
 }
 
+branch_wrapper repository_wrapper::create_branch(std::string_view name, const annotated_commit_wrapper& commit, bool force)
+{
+    git_reference* branch = nullptr;
+    throwIfError(git_branch_create_from_annotated(&branch, *this, name.data(), commit, force));
+    return branch_wrapper(branch);
+}
+
 branch_wrapper repository_wrapper::find_branch(std::string_view name) const
 {
     git_reference* branch = nullptr;
@@ -66,7 +85,6 @@ branch_iterator repository_wrapper::iterate_branches(git_branch_t type) const
     throwIfError(git_branch_iterator_new(&iter, *this, type));
     return branch_iterator(iter);
 }
-
 
 commit_wrapper repository_wrapper::find_commit(std::string_view ref_name) const
 {
@@ -87,4 +105,21 @@ annotated_commit_wrapper repository_wrapper::find_annotated_commit(const git_oid
     git_annotated_commit* commit;
     throwIfError(git_annotated_commit_lookup(&commit, *this, &id));
     return annotated_commit_wrapper(commit);
+}
+
+std::optional<object_wrapper> repository_wrapper::revparse_single(std::string_view spec) const
+{
+    git_object* obj;
+    int rc = git_revparse_single(&obj, *this, spec.data());
+    return rc == 0 ? std::make_optional(object_wrapper(obj)) : std::nullopt;
+}
+
+void repository_wrapper::set_head(std::string_view ref_name)
+{
+    throwIfError(git_repository_set_head(*this, ref_name.data()));
+}
+
+void repository_wrapper::set_head_detached(const annotated_commit_wrapper& commit)
+{
+    throwIfError(git_repository_set_head_detached_from_annotated(*this, commit));
 }

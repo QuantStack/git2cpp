@@ -6,6 +6,7 @@
 #include "version.hpp"
 #include "subcommand/add_subcommand.hpp"
 #include "subcommand/branch_subcommand.hpp"
+#include "subcommand/checkout_subcommand.hpp"
 #include "subcommand/init_subcommand.hpp"
 #include "subcommand/status_subcommand.hpp"
 
@@ -25,6 +26,7 @@ int main(int argc, char** argv)
         status_subcommand status(lg2_obj, app);
         add_subcommand add(lg2_obj, app);
         branch_subcommand(lg2_obj, app);
+        checkout_subcommand(lg2_obj, app);
 
         app.parse(argc, argv);
 

@@ -3,12 +3,6 @@ import subprocess
 
 import pytest
 
-@pytest.fixture
-def rename_git():
-    os.rename("test/data/status_data/embedded_git/", "test/data/status_data/.git/")
-    yield
-    os.rename("test/data/status_data/.git/", "test/data/status_data/embedded_git/")
-
 def test_branch_list(rename_git, git2cpp_path):
     cmd = [git2cpp_path, 'branch']
     p = subprocess.run(cmd, capture_output=True, cwd="test/data/status_data", text=True)

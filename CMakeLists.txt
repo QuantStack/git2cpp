@@ -43,6 +43,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/subcommand/add_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/branch_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/branch_subcommand.hpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/checkout_subcommand.cpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/checkout_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/init_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/init_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/status_subcommand.cpp
@@ -59,6 +61,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/wrapper/commit_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/index_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/index_wrapper.hpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/object_wrapper.cpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/object_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/refs_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/refs_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/repository_wrapper.cpp

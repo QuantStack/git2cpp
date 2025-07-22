@@ -21,6 +21,7 @@ public:
     branch_wrapper& operator=(branch_wrapper&&) = default;
 
     std::string_view name() const;
+    std::string_view reference_name() const;
 
 private:
     

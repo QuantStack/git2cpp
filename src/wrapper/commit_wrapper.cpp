@@ -11,6 +11,11 @@ commit_wrapper::~commit_wrapper()
     p_resource = nullptr;
 }
 
+commit_wrapper::operator git_object*() const noexcept
+{
+    return reinterpret_cast<git_object*>(p_resource);
+}
+
 const git_oid& commit_wrapper::oid() const
 {
     return *git_commit_id(p_resource);
