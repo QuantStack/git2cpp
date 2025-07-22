@@ -96,7 +96,7 @@ void checkout_subcommand::checkout_tree
 )
 {
     auto target_commit = repo.find_commit(target_annotated_commit.oid());
-    throwIfError(git_checkout_tree(repo, target_commit, &options));
+    throw_if_error(git_checkout_tree(repo, target_commit, &options));
 }
 
 void checkout_subcommand::update_head

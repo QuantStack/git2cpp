@@ -2,24 +2,25 @@
 
 #include "git_exception.hpp"
 
-void throwIfError(int exitCode)
+void throw_if_error(int exit_code)
 {
-    if (exitCode < 0) {
-        throw GitException(git_error_last()->message, exitCode);
+    if (exit_code < 0)
+    {
+        throw git_exception("error: " + std::string(git_error_last()->message), exit_code);
     }
 }
 
 
-GitException::GitException(const std::string& message, int errorCode)
-    : _message(message), _errorCode(errorCode)
+git_exception::git_exception(const std::string& message, int error_code)
+    : m_message(message), m_error_code(error_code)
 {}
 
-int GitException::errorCode() const
+int git_exception::error_code() const
 {
-    return _errorCode;
+    return m_error_code;
 }
 
-const char* GitException::what() const noexcept
+const char* git_exception::what() const noexcept
 {
-    return _message.c_str();
+    return m_message.c_str();
 }

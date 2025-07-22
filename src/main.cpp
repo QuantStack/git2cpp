@@ -12,7 +12,7 @@
 
 int main(int argc, char** argv)
 {
-    int exitCode = 0;
+    int exit_code = 0;
     try
     {
         const libgit2_object lg2_obj;
@@ -38,17 +38,17 @@ int main(int argc, char** argv)
     catch (const CLI::Error& e)
     {
         std::cerr << e.what() << std::endl;
-        exitCode = 1;
+        exit_code = 1;
     }
-    catch (const GitException& e)
+    catch (const git_exception& e)
     {
         std::cerr << e.what() << std::endl;
-        exitCode = e.errorCode();
+        exit_code = e.error_code();
     }
     catch (std::exception& e) {
         std::cerr << e.what() << std::endl;
-        exitCode = 1;
+        exit_code = 1;
     }
 
-    return exitCode;
+    return exit_code;
 }

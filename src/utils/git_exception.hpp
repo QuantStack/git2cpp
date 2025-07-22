@@ -3,18 +3,18 @@
 #include <exception>
 #include <string>
 
-void throwIfError(int exitCode);
+void throw_if_error(int exit_code);
 
-class GitException : public std::exception
+class git_exception : public std::exception
 {
 public:
-    GitException(const std::string& message, int errorCode);
+    git_exception(const std::string& message, int error_code);
 
-    int errorCode() const;
+    int error_code() const;
 
     const char* what() const noexcept override;
 
 private:
-    std::string _message;
-    int _errorCode;
+    std::string m_message;
+    int m_error_code;
 };

@@ -10,14 +10,14 @@ repository_wrapper::~repository_wrapper()
 repository_wrapper repository_wrapper::open(std::string_view directory)
 {
     repository_wrapper rw;
-    throwIfError(git_repository_open(&(rw.p_resource), directory.data()));
+    throw_if_error(git_repository_open(&(rw.p_resource), directory.data()));
     return rw;
 }
 
 repository_wrapper repository_wrapper::init(std::string_view directory, bool bare)
 {
     repository_wrapper rw;
-    throwIfError(git_repository_init(&(rw.p_resource), directory.data(), bare));
+    throw_if_error(git_repository_init(&(rw.p_resource), directory.data(), bare));
     return rw;
 }
 
@@ -29,14 +29,14 @@ git_repository_state_t repository_wrapper::state() const
 reference_wrapper repository_wrapper::head() const
 {
     git_reference* ref;
-    throwIfError(git_repository_head(&ref, *this));
+    throw_if_error(git_repository_head(&ref, *this));
     return reference_wrapper(ref);
 }
 
 reference_wrapper repository_wrapper::find_reference(std::string_view ref_name) const
 {
     git_reference* ref;
-    throwIfError(git_reference_lookup(&ref, *this, ref_name.data()));
+    throw_if_error(git_reference_lookup(&ref, *this, ref_name.data()));
     return reference_wrapper(ref);
 }
 
@@ -61,49 +61,49 @@ branch_wrapper repository_wrapper::create_branch(std::string_view name, bool for
 branch_wrapper repository_wrapper::create_branch(std::string_view name, const commit_wrapper& commit, bool force)
 {
     git_reference* branch = nullptr;
-    throwIfError(git_branch_create(&branch, *this, name.data(), commit, force));
+    throw_if_error(git_branch_create(&branch, *this, name.data(), commit, force));
     return branch_wrapper(branch);
 }
 
 branch_wrapper repository_wrapper::create_branch(std::string_view name, const annotated_commit_wrapper& commit, bool force)
 {
     git_reference* branch = nullptr;
-    throwIfError(git_branch_create_from_annotated(&branch, *this, name.data(), commit, force));
+    throw_if_error(git_branch_create_from_annotated(&branch, *this, name.data(), commit, force));
     return branch_wrapper(branch);
 }
 
 branch_wrapper repository_wrapper::find_branch(std::string_view name) const
 {
     git_reference* branch = nullptr;
-    throwIfError(git_branch_lookup(&branch, *this, name.data(), GIT_BRANCH_LOCAL));
+    throw_if_error(git_branch_lookup(&branch, *this, name.data(), GIT_BRANCH_LOCAL));
     return branch_wrapper(branch);
 }
 
 branch_iterator repository_wrapper::iterate_branches(git_branch_t type) const
 {
     git_branch_iterator* iter = nullptr;
-    throwIfError(git_branch_iterator_new(&iter, *this, type));
+    throw_if_error(git_branch_iterator_new(&iter, *this, type));
     return branch_iterator(iter);
 }
 
 commit_wrapper repository_wrapper::find_commit(std::string_view ref_name) const
 {
     git_oid oid_parent_commit;
-    throwIfError(git_reference_name_to_id(&oid_parent_commit, *this, ref_name.data()));
+    throw_if_error(git_reference_name_to_id(&oid_parent_commit, *this, ref_name.data()));
     return find_commit(oid_parent_commit);
 }
 
 commit_wrapper repository_wrapper::find_commit(const git_oid& id) const
 {
     git_commit* commit;
-    throwIfError(git_commit_lookup(&commit, *this, &id));
+    throw_if_error(git_commit_lookup(&commit, *this, &id));
     return commit_wrapper(commit);
 }
 
 annotated_commit_wrapper repository_wrapper::find_annotated_commit(const git_oid& id) const
 {
     git_annotated_commit* commit;
-    throwIfError(git_annotated_commit_lookup(&commit, *this, &id));
+    throw_if_error(git_annotated_commit_lookup(&commit, *this, &id));
     return annotated_commit_wrapper(commit);
 }
 
@@ -116,10 +116,10 @@ std::optional<object_wrapper> repository_wrapper::revparse_single(std::string_vi
 
 void repository_wrapper::set_head(std::string_view ref_name)
 {
-    throwIfError(git_repository_set_head(*this, ref_name.data()));
+    throw_if_error(git_repository_set_head(*this, ref_name.data()));
 }
 
 void repository_wrapper::set_head_detached(const annotated_commit_wrapper& commit)
 {
-    throwIfError(git_repository_set_head_detached_from_annotated(*this, commit));
+    throw_if_error(git_repository_set_head_detached_from_annotated(*this, commit));
 }

@@ -10,7 +10,7 @@ status_list_wrapper::~status_list_wrapper()
 status_list_wrapper status_list_wrapper::status_list(const repository_wrapper& rw)
 {
     status_list_wrapper res;
-    throwIfError(git_status_list_new(&(res.p_resource), rw, nullptr));
+    throw_if_error(git_status_list_new(&(res.p_resource), rw, nullptr));
 
     std::size_t status_list_size = git_status_list_entrycount(res.p_resource);
     for (std::size_t i = 0; i < status_list_size; ++i)

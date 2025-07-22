@@ -19,7 +19,7 @@ branch_wrapper::~branch_wrapper()
 std::string_view branch_wrapper::name() const
 {
     const char* out = nullptr;
-    throwIfError(git_branch_name(&out, *this));
+    throw_if_error(git_branch_name(&out, *this));
     return std::string_view(out);
 }
 
@@ -31,7 +31,7 @@ std::string_view branch_wrapper::reference_name() const
 
 void delete_branch(branch_wrapper&& branch)
 {
-    throwIfError(git_branch_delete(branch));
+    throw_if_error(git_branch_delete(branch));
 }
 
 branch_iterator::branch_iterator(git_branch_iterator* iter)

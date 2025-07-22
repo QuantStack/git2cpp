@@ -72,6 +72,6 @@ template <std::convertible_to<git_reference*> T>
 annotated_commit_wrapper repository_wrapper::find_annotated_commit(const T& wrapper) const
 {
     git_annotated_commit* commit;
-    throwIfError(git_annotated_commit_from_ref(&commit, *this, wrapper));
+    throw_if_error(git_annotated_commit_from_ref(&commit, *this, wrapper));
     return annotated_commit_wrapper(commit);
 }
