@@ -26,6 +26,7 @@ public:
 
     static repository_wrapper init(std::string_view directory, bool bare);
     static repository_wrapper open(std::string_view directory);
+    static repository_wrapper clone(std::string_view url, std::string_view path, const git_clone_options& opts);
 
     git_repository_state_t state() const;
 

@@ -45,6 +45,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/subcommand/branch_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/checkout_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/checkout_subcommand.hpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/clone_subcommand.cpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/clone_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/init_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/init_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/status_subcommand.cpp

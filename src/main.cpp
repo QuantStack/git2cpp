@@ -7,6 +7,7 @@
 #include "subcommand/add_subcommand.hpp"
 #include "subcommand/branch_subcommand.hpp"
 #include "subcommand/checkout_subcommand.hpp"
+#include "subcommand/clone_subcommand.hpp"
 #include "subcommand/init_subcommand.hpp"
 #include "subcommand/status_subcommand.hpp"
 
@@ -25,8 +26,11 @@ int main(int argc, char** argv)
         init_subcommand init(lg2_obj, app);
         status_subcommand status(lg2_obj, app);
         add_subcommand add(lg2_obj, app);
-        branch_subcommand(lg2_obj, app);
-        checkout_subcommand(lg2_obj, app);
+        branch_subcommand branch(lg2_obj, app);
+        checkout_subcommand checkout(lg2_obj, app);
+        clone_subcommand clone(lg2_obj, app);
+
+        app.require_subcommand(/* min */ 0, /* max */ 1);
 
         CLI11_PARSE(app, argc, argv);
 

@@ -21,6 +21,13 @@ repository_wrapper repository_wrapper::init(std::string_view directory, bool bar
     return rw;
 }
 
+repository_wrapper repository_wrapper::clone(std::string_view url, std::string_view path, const git_clone_options& opts)
+{
+    repository_wrapper rw;
+    throw_if_error(git_clone(&(rw.p_resource), url.data(), path.data(), &opts));
+    return rw;
+}
+
 git_repository_state_t repository_wrapper::state() const
 {
     return git_repository_state_t(git_repository_state(*this));
