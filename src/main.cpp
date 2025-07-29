@@ -39,7 +39,7 @@ int main(int argc, char** argv)
             std::cout << "git2cpp version " << GIT2CPP_VERSION_STRING << " (libgit2 " << LIBGIT2_VERSION << ")" << std::endl;
         }
 
-        if (app.get_subcommands().size() == 0)
+        if (app.get_subcommands().size() == 0 && !version)
         {
             std::cout << app.help() << std::endl;
         }
