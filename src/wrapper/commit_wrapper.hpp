@@ -2,6 +2,7 @@
 
 #include <git2.h>
 
+#include "../wrapper/repository_wrapper.hpp"
 #include "../wrapper/wrapper_base.hpp"
 
 class commit_wrapper : public wrapper_base<git_commit>

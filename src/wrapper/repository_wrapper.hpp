@@ -13,6 +13,7 @@
 #include "../wrapper/index_wrapper.hpp"
 #include "../wrapper/object_wrapper.hpp"
 #include "../wrapper/refs_wrapper.hpp"
+#include "../wrapper/signature_wrapper.hpp"
 #include "../wrapper/wrapper_base.hpp"
 
 class repository_wrapper : public wrapper_base<git_repository>
@@ -50,6 +51,7 @@ public:
     // Commits
     commit_wrapper find_commit(std::string_view ref_name = "HEAD") const;
     commit_wrapper find_commit(const git_oid& id) const;
+    void create_commit(const signature_wrapper::author_committer_signatures&, const std::string&);
 
     // Annotated commits
     annotated_commit_wrapper find_annotated_commit(const git_oid& id) const;

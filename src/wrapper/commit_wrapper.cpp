@@ -20,4 +20,3 @@ const git_oid& commit_wrapper::oid() const
 {
     return *git_commit_id(p_resource);
 }
-

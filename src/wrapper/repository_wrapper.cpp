@@ -107,6 +107,25 @@ commit_wrapper repository_wrapper::find_commit(const git_oid& id) const
     return commit_wrapper(commit);
 }
 
+void repository_wrapper::create_commit(const signature_wrapper::author_committer_signatures& author_committer_signatures,
+    const std::string& message)
+{
+    git_oid* commit_id;
+    const char* update_ref = "ḦEAD";
+    auto parent = revparse_single(update_ref);
+    std::size_t parent_count = 0;
+    const git_commit* parents[1] = {nullptr};
+    if (parent)
+    {
+        parent_count = 1;
+        parents[0] = *parent;
+    }
+    const char* message_encoding = "UTF-8";
+    const git_tree* tree;
+    throw_if_error(git_commit_create(commit_id, *this, update_ref, author_committer_signatures.first, author_committer_signatures.second,
+        message_encoding, message.c_str(), tree, parent_count, parents));
+}
+
 annotated_commit_wrapper repository_wrapper::find_annotated_commit(const git_oid& id) const
 {
     git_annotated_commit* commit;

@@ -17,6 +17,8 @@ public:
 
     const git_oid& oid() const;
 
+    operator git_commit*() const noexcept;
+
 private:
 
     object_wrapper(git_object* obj);
