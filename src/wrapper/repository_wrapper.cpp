@@ -1,4 +1,5 @@
 #include "../utils/git_exception.hpp"
+#include "object_wrapper.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 
 repository_wrapper::~repository_wrapper()
@@ -148,4 +149,9 @@ void repository_wrapper::set_head(std::string_view ref_name)
 void repository_wrapper::set_head_detached(const annotated_commit_wrapper& commit)
 {
     throw_if_error(git_repository_set_head_detached_from_annotated(*this, commit));
+}
+
+void repository_wrapper::reset(const object_wrapper& target, git_reset_t reset_type, const git_checkout_options& checkout_options)
+{
+    throw_if_error(git_reset(*this, target, reset_type, &checkout_options));
 }

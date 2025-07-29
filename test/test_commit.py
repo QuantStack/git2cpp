@@ -18,7 +18,7 @@ def test_add(git2cpp_path, all_flag):
     assert "Changes to be committed" in p_status.stdout
     assert "new file" in p_status.stdout
 
-    cmd_commit = [git2cpp_path, 'commit', "-m", "test commit"]
+    cmd_commit = [git2cpp_path, 'commit', "--soft", "-m", "test commit"]
     subprocess.run(cmd_commit, capture_output=True, text=True)
 
     cmd_status_2 = [git2cpp_path, 'status', "--long"]

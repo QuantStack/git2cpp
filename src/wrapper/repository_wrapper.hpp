@@ -62,9 +62,10 @@ public:
     // Objects
     std::optional<object_wrapper> revparse_single(std::string_view spec) const;
 
-    // Set head
+    // Head manipulations
     void set_head(std::string_view ref_name);
     void set_head_detached(const annotated_commit_wrapper& commit);
+    void reset(const object_wrapper& target, git_reset_t reset_type, const git_checkout_options& checkout_options);
 
 private:
 

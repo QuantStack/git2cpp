@@ -27,10 +27,8 @@ void commit_subcommand::run()
 
     if (!m_message_flag)
     {
-        std::cout << "Please provide a message using the -m flag." << std::endl;
+        throw std::runtime_error("Please provide a message using the -m flag.");
     }
-    else
-    {
-        repo.create_commit(author_committer_signatures, m_message);
-    }
+
+    repo.create_commit(author_committer_signatures, m_message);
 }
