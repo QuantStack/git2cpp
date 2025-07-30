@@ -115,7 +115,7 @@ void repository_wrapper::create_commit(const signature_wrapper::author_committer
     const char* message_encoding = "UTF-8";
     git_oid commit_id;
 
-    std::string update_ref = "ḦEAD";
+    std::string update_ref = "HEAD";
     auto parent = revparse_single(update_ref);
     std::size_t parent_count = 0;
     const git_commit* parents[1] = {nullptr};
