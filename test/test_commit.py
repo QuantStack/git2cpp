@@ -5,8 +5,8 @@ import pytest
 
 
 @pytest.mark.parametrize("all_flag", ["", "-A", "--all", "--no-ignore-removal"])
-def test_add(git2cpp_path, all_flag):
-    checkout_cmd = [git2cpp_path, 'checkout', '-b', 'foregone']
+def test_commit(rename_git, git2cpp_path, all_flag):
+    checkout_cmd = [git2cpp_path, 'checkout', '-b', 'commit_test_branch']
     subprocess.run(checkout_cmd, cwd="test/data/status_data", text=True)
 
     with open("./test/mook_file.txt", "x"):
@@ -36,5 +36,5 @@ def test_add(git2cpp_path, all_flag):
     checkout_cmd[2] = 'main'
     subprocess.run(checkout_cmd, cwd="test/data/status_data", text=True)
 
-    del_cmd = [git2cpp_path, 'branch', '-d', 'foregone']
+    del_cmd = [git2cpp_path, 'branch', '-d', 'commit_test_branch']
     subprocess.run(del_cmd, cwd="test/data/status_data", text=True)
