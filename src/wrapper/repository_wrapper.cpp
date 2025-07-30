@@ -113,9 +113,9 @@ void repository_wrapper::create_commit(const signature_wrapper::author_committer
     const std::string& message)
 {
     const char* message_encoding = "UTF-8";
-    git_oid* commit_id;
+    git_oid commit_id;
 
-    const char* update_ref = "ḦEAD";
+    std::string update_ref = "ḦEAD";
     auto parent = revparse_single(update_ref);
     std::size_t parent_count = 0;
     const git_commit* parents[1] = {nullptr};
@@ -132,7 +132,7 @@ void repository_wrapper::create_commit(const signature_wrapper::author_committer
 
     throw_if_error(git_tree_lookup(&tree, *this, &tree_id));
 
-    throw_if_error(git_commit_create(commit_id, *this, update_ref, author_committer_signatures.first, author_committer_signatures.second,
+    throw_if_error(git_commit_create(&commit_id, *this, update_ref.c_str(), author_committer_signatures.first, author_committer_signatures.second,
         message_encoding, message.c_str(), tree, parent_count, parents));
 
     git_tree_free(tree);

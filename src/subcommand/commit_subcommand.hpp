@@ -12,6 +12,6 @@ public:
     void run();
 
 private:
-    bool m_message_flag = true;   // TODO: change to false when a message can be provided if the "-m" flag is not provided
-    std::string m_message;
+    bool m_commit_message_flag = true;   // TODO: change to false when a message can be provided if the "-m" flag is not provided
+    std::string m_commit_message;
 };

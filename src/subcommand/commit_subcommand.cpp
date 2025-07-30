@@ -10,9 +10,9 @@ commit_subcommand::commit_subcommand(const libgit2_object&, CLI::App& app)
 {
     auto *sub = app.add_subcommand("commit", "Record changes to the repository");
 
-    sub->add_option("message", m_message, "Commit message");
+    sub->add_option("commit_message", m_commit_message, "Commit message");
 
-    sub->add_flag("-m,--message", m_message_flag, "");
+    sub->add_flag("-m,--message", m_commit_message_flag, "");
 
     sub->callback([this]() { this->run(); });
 };
@@ -25,10 +25,10 @@ void commit_subcommand::run()
     auto repo = repository_wrapper::init(directory, bare);
     auto author_committer_signatures =  signature_wrapper::get_default_signature_from_env(repo);
 
-    if (!m_message_flag)
+    if (!m_commit_message_flag)
     {
         throw std::runtime_error("Please provide a message using the -m flag.");
     }
 
-    repo.create_commit(author_committer_signatures, m_message);
+    repo.create_commit(author_committer_signatures, m_commit_message);
 }
