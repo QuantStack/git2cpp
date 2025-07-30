@@ -15,3 +15,8 @@ const git_oid& object_wrapper::oid() const
 {
     return *git_object_id(*this);
 }
+
+object_wrapper::operator git_commit*() const noexcept
+{
+     return reinterpret_cast<git_commit*>(p_resource);
+}

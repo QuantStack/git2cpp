@@ -20,6 +20,9 @@ public:
 
     static index_wrapper init(repository_wrapper& rw);
 
+    void write();
+    git_oid write_tree();
+
     void add_entries(std::vector<std::string> patterns);
     void add_all();
 

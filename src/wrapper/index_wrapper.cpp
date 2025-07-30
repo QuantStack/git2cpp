@@ -32,5 +32,17 @@ void index_wrapper::add_impl(std::vector<std::string> patterns)
 {
     git_strarray_wrapper array{patterns};
     throw_if_error(git_index_add_all(*this, array, 0, NULL, NULL));
+    // throw_if_error(git_index_write(*this));
+}
+
+void index_wrapper::write()
+{
     throw_if_error(git_index_write(*this));
+}
+
+git_oid index_wrapper::write_tree()
+{
+    git_oid tree_id;
+    throw_if_error(git_index_write_tree(&tree_id, *this));
+    return tree_id;
 }

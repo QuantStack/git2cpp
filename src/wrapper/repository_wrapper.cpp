@@ -1,5 +1,6 @@
 #include "../utils/git_exception.hpp"
-#include "object_wrapper.hpp"
+#include "../wrapper/index_wrapper.hpp"
+#include "../wrapper/object_wrapper.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 
 repository_wrapper::~repository_wrapper()
@@ -111,7 +112,9 @@ commit_wrapper repository_wrapper::find_commit(const git_oid& id) const
 void repository_wrapper::create_commit(const signature_wrapper::author_committer_signatures& author_committer_signatures,
     const std::string& message)
 {
+    const char* message_encoding = "UTF-8";
     git_oid* commit_id;
+
     const char* update_ref = "ḦEAD";
     auto parent = revparse_single(update_ref);
     std::size_t parent_count = 0;
@@ -121,10 +124,18 @@ void repository_wrapper::create_commit(const signature_wrapper::author_committer
         parent_count = 1;
         parents[0] = *parent;
     }
-    const char* message_encoding = "UTF-8";
-    const git_tree* tree;
+
+    git_tree* tree;
+    index_wrapper index = this->make_index();
+    git_oid tree_id = index.write_tree();
+    index.write();
+
+    throw_if_error(git_tree_lookup(&tree, *this, &tree_id));
+
     throw_if_error(git_commit_create(commit_id, *this, update_ref, author_committer_signatures.first, author_committer_signatures.second,
         message_encoding, message.c_str(), tree, parent_count, parents));
+
+    git_tree_free(tree);
 }
 
 annotated_commit_wrapper repository_wrapper::find_annotated_commit(const git_oid& id) const
@@ -153,5 +164,7 @@ void repository_wrapper::set_head_detached(const annotated_commit_wrapper& commi
 
 void repository_wrapper::reset(const object_wrapper& target, git_reset_t reset_type, const git_checkout_options& checkout_options)
 {
+    // TODO: gerer l'index
+
     throw_if_error(git_reset(*this, target, reset_type, &checkout_options));
 }

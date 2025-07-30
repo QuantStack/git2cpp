@@ -31,6 +31,8 @@ def test_add(git2cpp_path, all_flag):
     os.remove("./test/mook_file.txt")
 
     # TODO: git reset
+    #
+    # run status + assert
 
     # undo the add, to leave the test directory at the end the same as it was at the start
     subprocess.run(cmd_add, capture_output=True, text=True)

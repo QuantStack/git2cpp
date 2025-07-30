@@ -31,9 +31,11 @@ void add_subcommand::run()
     if (m_all_flag)
     {
         index.add_all();
+        index.write();
     }
     else
     {
         index.add_entries(m_add_files);
+        index.write();
     }
 }
