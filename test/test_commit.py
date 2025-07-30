@@ -22,9 +22,9 @@ def test_add(git2cpp_path, all_flag):
     subprocess.run(cmd_commit, capture_output=True, text=True)
 
     cmd_status_2 = [git2cpp_path, 'status', "--long"]
-    subprocess.run(cmd_status_2, capture_output=True, text=True)
+    p_status_2 = subprocess.run(cmd_status_2, capture_output=True, text=True)
 
-    assert "mook_file" not in p_status.stdout
+    assert "mook_file" not in p_status_2.stdout
 
     cmd_reset = [git2cpp_path, 'reset', "--hard", "HEAD~1"]
     subprocess.run(cmd_reset, capture_output=True, text=True)
