@@ -18,21 +18,13 @@ def test_add(git2cpp_path, all_flag):
     assert "Changes to be committed" in p_status.stdout
     assert "new file" in p_status.stdout
 
-    cmd_commit = [git2cpp_path, 'commit', "--soft", "-m", "test commit"]
+    cmd_commit = [git2cpp_path, 'commit', "-m", "test commit"]
     subprocess.run(cmd_commit, capture_output=True, text=True)
 
     cmd_status_2 = [git2cpp_path, 'status', "--long"]
-    p_status_2 = subprocess.run(cmd_status_2, capture_output=True, text=True)
+    subprocess.run(cmd_status_2, capture_output=True, text=True)
 
-    print(p_status_2.stdout)
+    assert "mook_file" not in p_status.stdout
 
-    # assert "mook_file" not in p_status.stdout
-
-    os.remove("./test/mook_file.txt")
-
-    # TODO: git reset
-    #
-    # run status + assert
-
-    # undo the add, to leave the test directory at the end the same as it was at the start
-    subprocess.run(cmd_add, capture_output=True, text=True)
+    cmd_reset = [git2cpp_path, 'reset', "--hard", "HEAD~1"]
+    subprocess.run(cmd_reset, capture_output=True, text=True)
