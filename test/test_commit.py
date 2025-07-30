@@ -9,10 +9,10 @@ def test_commit(rename_git, git2cpp_path, all_flag):
     checkout_cmd = [git2cpp_path, 'checkout', '-b', 'commit_test_branch']
     subprocess.run(checkout_cmd, cwd="test/data/status_data", text=True)
 
-    with open("./test/mook_file.txt", "x"):
+    with open("./test/data/status_data/mook_file.txt", "x"):
         pass
 
-    cmd_add = [git2cpp_path, 'add', "test/mook_file.txt"]
+    cmd_add = [git2cpp_path, 'add', "mook_file.txt"]
     subprocess.run(cmd_add, cwd="test/data/status_data", text=True)
 
     cmd_status = [git2cpp_path, 'status', "--long"]
