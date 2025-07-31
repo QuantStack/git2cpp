@@ -25,7 +25,7 @@ void commit_subcommand::run()
 
     if (m_commit_message.empty())
     {
-        std::cout << "Please enter a commit message: " << std::endl;
+        std::cout << "Please enter a commit message:" << std::endl;
         std::getline(std::cin, m_commit_message);
         if (m_commit_message.empty())
         {
