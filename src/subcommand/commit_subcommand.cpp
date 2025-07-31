@@ -10,11 +10,7 @@ commit_subcommand::commit_subcommand(const libgit2_object&, CLI::App& app)
 {
     auto *sub = app.add_subcommand("commit", "Record changes to the repository");
 
-    // TODO: merge the following option and flag into: sub->add_option("-m,--message", m_commit_message, "Commit message")
-    // when we have a solution to ask for a message when not using the -m flag.
-    sub->add_option("commit_message", m_commit_message, "Commit message");
-
-    sub->add_flag("-m,--message", m_commit_message_flag, "");
+    sub->add_option("-m,--message", m_commit_message, "Commit message");
 
     sub->callback([this]() { this->run(); });
 };
@@ -27,13 +23,14 @@ void commit_subcommand::run()
     auto repo = repository_wrapper::init(directory, bare);
     auto author_committer_signatures = signature_wrapper::get_default_signature_from_env(repo);
 
-    if (!m_commit_message_flag)
-    {
-        throw std::runtime_error("Please provide a message using the -m flag.");
-    }
     if (m_commit_message.empty())
     {
-        throw std::runtime_error("Please provide a commit message.");
+        std::cout << "Please enter a commit message: " << std::endl;
+        std::getline(std::cin, m_commit_message);
+        if (m_commit_message.empty())
+        {
+            throw std::runtime_error("Aborting, no commit message specified.");
+        }
     }
 
     repo.create_commit(author_committer_signatures, m_commit_message);
