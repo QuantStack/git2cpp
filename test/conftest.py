@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import pytest
 import subprocess
+from genericpath import exists
 
 
 # Fixture to run test in current tmp_path
@@ -31,9 +32,11 @@ def xtl_clone(git2cpp_path):
 
 @pytest.fixture
 def git_config(git2cpp_path):
-    with open("test/data/.gitconfig", "a") as f:
-        f.write("[user]\n name = Jane Doe\n email = jane.doe@blabla.com")
+    gitconfig_path = "~/.gitconfig"
+    if not(os.path.isfile(gitconfig_path)):
+        with open("~/.gitconfig", "a") as f:
+            f.write("[user]\n name = Jane Doe\n email = jane.doe@blabla.com")
 
-    yield
+        yield
 
-    os.remove("test/data/.gitconfig")
+        os.remove("test/data/.gitconfig")
