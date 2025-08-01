@@ -27,6 +27,3 @@ def test_commit(xtl_clone, git2cpp_path, all_flag):
     p_status_2 = subprocess.run(cmd_status_2, capture_output=True, cwd=working_dir, text=True)
 
     assert "mook_file" not in p_status_2.stdout
-
-    cmd_reset = [git2cpp_path, 'reset', "--hard", "HEAD~1"]
-    subprocess.run(cmd_reset, cwd=working_dir, text=True)
