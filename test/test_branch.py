@@ -3,20 +3,24 @@ import subprocess
 
 import pytest
 
-def test_branch_list(rename_git, git2cpp_path):
+
+working_dir = 'test/data/xtl'
+
+def test_branch_list(xtl_clone, git2cpp_path):
     cmd = [git2cpp_path, 'branch']
-    p = subprocess.run(cmd, capture_output=True, cwd="test/data/status_data", text=True)
-    assert(p.stdout == '* main\n')
+    p = subprocess.run(cmd, capture_output=True, cwd=working_dir, text=True)
+    print()
+    assert(p.stdout == '* master\n')
 
-def test_branch_create_delete(rename_git, git2cpp_path):
+
+def test_branch_create_delete(xtl_clone, git2cpp_path):
     create_cmd = [git2cpp_path, 'branch', 'foregone']
-    subprocess.run(create_cmd, capture_output=True, cwd="test/data/status_data", text=True)
+    subprocess.run(create_cmd, capture_output=True, cwd=working_dir, text=True)
     list_cmd = [git2cpp_path, 'branch']
-    p = subprocess.run(list_cmd, capture_output=True, cwd="test/data/status_data", text=True)
-    assert(p.stdout == '  foregone\n* main\n')
+    p = subprocess.run(list_cmd, capture_output=True, cwd=working_dir, text=True)
+    assert(p.stdout == '  foregone\n* master\n')
+
     del_cmd = [git2cpp_path, 'branch', '-d', 'foregone']
-    subprocess.run(del_cmd, capture_output=True, cwd="test/data/status_data", text=True)
-    p2 = subprocess.run(list_cmd, capture_output=True, cwd="test/data/status_data", text=True)
-    assert(p2.stdout == '* main\n')
-
-
+    subprocess.run(del_cmd, capture_output=True, cwd=working_dir, text=True)
+    p2 = subprocess.run(list_cmd, capture_output=True, cwd=working_dir, text=True)
+    assert(p2.stdout == '* master\n')

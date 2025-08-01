@@ -1,7 +1,7 @@
 #include <git2.h>
 #include <unistd.h>
 
-#include "commit_subcommand.hpp"
+#include "../subcommand/commit_subcommand.hpp"
 #include "../wrapper/index_wrapper.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 

@@ -3,6 +3,7 @@ import subprocess
 
 import pytest
 
+
 def test_clone(git2cpp_path):
     url = 'https://github.com/xtensor-stack/xtl.git'
     working_dir = 'test/data'
@@ -15,4 +16,3 @@ def test_clone(git2cpp_path):
 
     cleanup_cmd = ['rm', '-rf', 'xtl']
     subprocess.run(cleanup_cmd, capture_output=True, cwd = working_dir, text=True)
-
