@@ -28,3 +28,12 @@ def xtl_clone(git2cpp_path):
 
     cleanup_cmd = ['rm', '-rf', 'xtl']
     subprocess.run(cleanup_cmd, capture_output=True, cwd = clone_working_dir, text=True)
+
+@pytest.fixture
+def git_config(git2cpp_path):
+    with open("test/data/.gitconfig", "a") as f:
+        f.write("[user]\n name = Jane Doe\n email = jane.doe@blabla.com")
+
+    yield
+
+    os.remove("test/data/.gitconfig")
