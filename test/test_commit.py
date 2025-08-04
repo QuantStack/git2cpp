@@ -7,7 +7,7 @@ import pytest
 working_dir = 'test/data/xtl'
 
 @pytest.mark.parametrize("all_flag", ["", "-A", "--all", "--no-ignore-removal"])
-def test_commit(xtl_clone, git_config, git2cpp_path, all_flag):
+def test_commit(xtl_clone, git_config, git2cpp_path, monkeypatch, all_flag):
     with open("./test/data/xtl/mook_file.txt", "x"):
         pass
 
