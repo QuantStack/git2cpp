@@ -31,12 +31,6 @@ def xtl_clone(git2cpp_path):
     subprocess.run(cleanup_cmd, capture_output=True, cwd = clone_working_dir, text=True)
 
 @pytest.fixture
-def git_config(git2cpp_path):
-    gitconfig_path = "~/.gitconfig"
-    if not(os.path.isfile(gitconfig_path)):
-        with open("~/.gitconfig", "a") as f:
-            f.write("[user]\n name = Jane Doe\n email = jane.doe@blabla.com")
-
-        yield
-
-        os.remove("test/data/.gitconfig")
+def git_config(git2cpp_path, monkeypatch):
+    monkeypatch.setenv("GIT_AUTHOR_NAME", "Jane Doe")
+    monkeypatch.setenv("GIT_AUTHOR_EMAIL", "jane.doe@blabla.com")
