@@ -31,15 +31,6 @@ def xtl_clone(git2cpp_path):
     subprocess.run(cleanup_cmd, capture_output=True, cwd = clone_working_dir, text=True)
 
 @pytest.fixture
-def git_config(git2cpp_path):
-    os.environ["GIT_AUTHOR_NAME"] = "Jane Doe"
-    os.environ["GIT_AUTHOR_EMAIL"] = "jane.doe@blabla.com"
-    os.environ["GIT_COMMITTER_NAME"] = "Jane Doe"
-    os.environ["GIT_COMMITTER_EMAIL"] = "jane.doe@blabla.com"
-
-    yield
-
-    del(os.environ["GIT_AUTHOR_NAME"])
-    del(os.environ["GIT_AUTHOR_EMAIL"])
-    del(os.environ["GIT_COMMITTER_NAME"])
-    del(os.environ["GIT_COMMITTER_EMAIL"])
+def git_config(git2cpp_path, monkeypatch):
+    monkeypatch.setenv("GIT_COMMITTER_NAME", "Jane Doe")
+    monkeypatch.setenv("GIT_COMMITTER_EMAIL", "jane.doe@blabla.com")
