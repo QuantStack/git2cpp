@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 import pytest
 import subprocess
-from genericpath import exists
 
 
 # Fixture to run test in current tmp_path
@@ -31,7 +30,7 @@ def xtl_clone(git2cpp_path):
     subprocess.run(cleanup_cmd, capture_output=True, cwd = clone_working_dir, text=True)
 
 @pytest.fixture
-def git_config(git2cpp_path, monkeypatch):
+def git_config(monkeypatch):
     monkeypatch.setenv("GIT_AUTHOR_NAME", "Jane Doe")
     monkeypatch.setenv("GIT_AUTHOR_EMAIL", "jane.doe@blabla.com")
     monkeypatch.setenv("GIT_COMMITTER_NAME", "Jane Doe")

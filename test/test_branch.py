@@ -9,7 +9,6 @@ working_dir = 'test/data/xtl'
 def test_branch_list(xtl_clone, git2cpp_path):
     cmd = [git2cpp_path, 'branch']
     p = subprocess.run(cmd, capture_output=True, cwd=working_dir, text=True)
-    print()
     assert(p.stdout == '* master\n')
 
 
