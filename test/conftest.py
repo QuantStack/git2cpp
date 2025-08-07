@@ -17,17 +17,16 @@ def git2cpp_path():
     return Path(__file__).parent.parent / 'build' / 'git2cpp'
 
 @pytest.fixture
-def xtl_clone(git2cpp_path):
+def xtl_clone(git2cpp_path, tmp_path, run_in_tmp_path):
     url = 'https://github.com/xtensor-stack/xtl.git'
-    clone_working_dir = 'test/data'
-
     clone_cmd = [git2cpp_path, 'clone', url]
-    subprocess.run(clone_cmd, capture_output=True, cwd = clone_working_dir, text=True)
+    subprocess.run(clone_cmd, capture_output=True, cwd = tmp_path, text=True)
 
+    # remove what's following ?
     yield
 
     cleanup_cmd = ['rm', '-rf', 'xtl']
-    subprocess.run(cleanup_cmd, capture_output=True, cwd = clone_working_dir, text=True)
+    subprocess.run(cleanup_cmd, capture_output=True, cwd = tmp_path, text=True)
 
 @pytest.fixture
 def git_config(monkeypatch):
