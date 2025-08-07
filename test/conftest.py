@@ -32,5 +32,7 @@ def xtl_clone(git2cpp_path):
 
 @pytest.fixture
 def git_config(git2cpp_path, monkeypatch):
+    monkeypatch.setenv("GIT_AUTHOR_NAME", "Jane Doe")
+    monkeypatch.setenv("GIT_AUTHOR_EMAIL", "jane.doe@blabla.com")
     monkeypatch.setenv("GIT_COMMITTER_NAME", "Jane Doe")
     monkeypatch.setenv("GIT_COMMITTER_EMAIL", "jane.doe@blabla.com")
