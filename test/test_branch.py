@@ -28,7 +28,7 @@ def test_branch_create_delete(xtl_clone, git2cpp_path, tmp_path, run_in_tmp_path
     assert(p_list.stdout == '  foregone\n* master\n')
 
     # Problem of right for "delete"? Maybe need a -D instead of -d
-    del_cmd = [git2cpp_path, 'branch', '-d', '-f', 'foregone']
+    del_cmd = [git2cpp_path, 'branch', '-d', 'foregone']
     p_del = subprocess.run(del_cmd, capture_output=True, cwd=xtl_path, text=True)
     assert p_del.returncode == 0
 
