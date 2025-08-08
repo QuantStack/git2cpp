@@ -45,3 +45,7 @@ def test_checkout_b(xtl_clone, git2cpp_path, tmp_path, run_in_tmp_path):
     checkout_cmd[2] = 'master'
     p_checkout2 = subprocess.run(checkout_cmd, cwd=xtl_path, text=True)
     assert p_checkout2.returncode == 0
+
+    p_branch2 = subprocess.run(branch_cmd, capture_output=True, cwd=xtl_path, text=True)
+    assert p_branch2.returncode == 0
+    assert(p_branch2.stdout == '  foregone\n* master\n')
