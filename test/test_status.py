@@ -7,21 +7,24 @@ import pytest
 
 @pytest.mark.parametrize("short_flag", ["", "-s", "--short"])
 @pytest.mark.parametrize("long_flag", ["", "--long"])
-def test_status_new_file(xtl_clone, git2cpp_path, tmp_path, run_in_tmp_path, tmp_path_factory, short_flag, long_flag):
-    f = tmp_path / "xtl/mook_file.txt"   # Untracked files
-    f.write_text('')
+def test_status_new_file(xtl_clone, git2cpp_path, tmp_path, run_in_tmp_path, short_flag, long_flag):
+    assert (tmp_path / "xtl").exists()
+    xtl_path = tmp_path / "xtl"
 
-    fw = tmp_path / "xtl/CMakeLists.txt"   # Changes not staged for commit / modified
-    fw.write("blablabla")
+    p = xtl_path / "mook_file.txt"   # Untracked files
+    p.write_text('')
 
-    os.remove(tmp_path / "xtl/README.md")   # Changes not staged for commit / deleted
+    pw = xtl_path / "CMakeLists.txt"   # Changes not staged for commit / modified
+    pw.write_text("blablabla")
+
+    os.remove(xtl_path / "README.md")   # Changes not staged for commit / deleted
 
     cmd = [git2cpp_path, 'status']
     if short_flag != "":
         cmd.append(short_flag)
     if long_flag != "":
         cmd.append(long_flag)
-    p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
+    p = subprocess.run(cmd, capture_output=True, cwd=xtl_path, text=True)
 
     if (long_flag == "--long") or ((long_flag == "") & (short_flag == "")):
         assert "On branch master" in p.stdout
