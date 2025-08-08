@@ -24,6 +24,7 @@ def test_status_new_file(xtl_clone, git2cpp_path, short_flag, long_flag):
     if long_flag != "":
         cmd.append(long_flag)
     p = subprocess.run(cmd, capture_output=True, cwd=working_dir, text=True)
+    assert p.returncode == 0
 
     if (long_flag == "--long") or ((long_flag == "") & (short_flag == "")):
         assert "On branch master" in p.stdout
@@ -47,7 +48,8 @@ def test_status_add_file(xtl_clone, git2cpp_path, short_flag, long_flag):
     os.remove("./test/data/xtl/README.md")   # Changes to be committed / deleted
 
     cmd_add = [git2cpp_path, 'add', "--all"]
-    subprocess.run(cmd_add, cwd=working_dir, text=True)
+    p = subprocess.run(cmd_add, cwd=working_dir, text=True)
+    assert p.returncode == 0
 
     cmd_status = [git2cpp_path, 'status']
     if short_flag != "":
