@@ -25,3 +25,11 @@ The CLI is tested using `python`. From the top-level directory:
 ```bash
 pytest -v
 ```
+
+# JupyterLite deployment
+
+The `lite-deploy` directory contains everything needed to build the local `git2cpp` source code as
+an [Emscripten-forge](https://emscripten-forge.org/) package and create a local JupyterLite
+deployment that can run it in a [terminal](https://github.com/jupyterlite/terminal).
+
+See the `README.md` in the `lite-deploy` directory for further details.
