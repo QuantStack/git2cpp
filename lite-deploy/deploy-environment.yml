@@ -1,0 +1,14 @@
+name: git2cpp-deploy
+channels:
+  - conda-forge
+dependencies:
+  # To modify emscripten-forge recipe
+  - python
+  - pyyaml
+  # To build emscripten-forge recipe
+  - pixi
+  - rattler-build
+  # For JupyterLite deployment
+  - jupyter_server
+  - jupyterlite-terminal
+  - nodejs

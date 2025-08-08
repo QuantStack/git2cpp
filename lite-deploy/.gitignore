@@ -1,0 +1,6 @@
+.cockle_temp/
+.jupyterlite.doit.db
+cockle-config.json
+cockle_wasm_env/
+dist/
+em-forge-recipes/
