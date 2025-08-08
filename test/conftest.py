@@ -22,12 +22,6 @@ def xtl_clone(git2cpp_path, tmp_path, run_in_tmp_path):
     clone_cmd = [git2cpp_path, 'clone', url]
     subprocess.run(clone_cmd, capture_output=True, cwd = tmp_path, text=True)
 
-    # remove what's following ?
-    yield
-
-    cleanup_cmd = ['rm', '-rf', 'xtl']
-    subprocess.run(cleanup_cmd, capture_output=True, cwd = tmp_path, text=True)
-
 @pytest.fixture
 def git_config(monkeypatch):
     monkeypatch.setenv("GIT_AUTHOR_NAME", "Jane Doe")
