@@ -5,7 +5,7 @@ import pytest
 
 
 @pytest.mark.parametrize("all_flag", ["", "-A", "--all", "--no-ignore-removal"])
-def test_add(xtl_clone, git2cpp_path, tmp_path, run_in_tmp_path, all_flag):
+def test_add(xtl_clone, git2cpp_path, tmp_path, all_flag):
     assert (tmp_path / "xtl").exists()
     xtl_path = tmp_path / "xtl"
 

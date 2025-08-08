@@ -4,7 +4,7 @@ import subprocess
 import pytest
 
 
-def test_branch_list(xtl_clone, git2cpp_path, tmp_path, run_in_tmp_path):
+def test_branch_list(xtl_clone, git2cpp_path, tmp_path):
     assert (tmp_path / "xtl").exists()
     xtl_path = tmp_path / "xtl"
 
@@ -14,7 +14,7 @@ def test_branch_list(xtl_clone, git2cpp_path, tmp_path, run_in_tmp_path):
     assert(p.stdout == '* master\n')
 
 
-def test_branch_create_delete(xtl_clone, git2cpp_path, tmp_path, run_in_tmp_path):
+def test_branch_create_delete(xtl_clone, git2cpp_path, tmp_path):
     assert (tmp_path / "xtl").exists()
     xtl_path = tmp_path / "xtl"
 

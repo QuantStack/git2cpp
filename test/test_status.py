@@ -7,7 +7,7 @@ import pytest
 
 @pytest.mark.parametrize("short_flag", ["", "-s", "--short"])
 @pytest.mark.parametrize("long_flag", ["", "--long"])
-def test_status_new_file(xtl_clone, git2cpp_path, tmp_path, run_in_tmp_path, short_flag, long_flag):
+def test_status_new_file(xtl_clone, git2cpp_path, tmp_path, short_flag, long_flag):
     assert (tmp_path / "xtl").exists()
     xtl_path = tmp_path / "xtl"
 
@@ -41,7 +41,7 @@ def test_status_new_file(xtl_clone, git2cpp_path, tmp_path, run_in_tmp_path, sho
 
 @pytest.mark.parametrize("short_flag", ["", "-s", "--short"])
 @pytest.mark.parametrize("long_flag", ["", "--long"])
-def test_status_add_file(xtl_clone, git2cpp_path, tmp_path, run_in_tmp_path, short_flag, long_flag):
+def test_status_add_file(xtl_clone, git2cpp_path, tmp_path, short_flag, long_flag):
     assert (tmp_path / "xtl").exists()
     xtl_path = tmp_path / "xtl"
 

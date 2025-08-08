@@ -4,7 +4,7 @@ import subprocess
 import pytest
 
 
-def test_checkout(xtl_clone, git2cpp_path, tmp_path, run_in_tmp_path):
+def test_checkout(xtl_clone, git2cpp_path, tmp_path):
     assert (tmp_path / "xtl").exists()
     xtl_path = tmp_path / "xtl"
 
@@ -27,7 +27,7 @@ def test_checkout(xtl_clone, git2cpp_path, tmp_path, run_in_tmp_path):
     assert p_checkout2.returncode == 0
 
 
-def test_checkout_b(xtl_clone, git2cpp_path, tmp_path, run_in_tmp_path):
+def test_checkout_b(xtl_clone, git2cpp_path, tmp_path):
     assert (tmp_path / "xtl").exists()
     xtl_path = tmp_path / "xtl"
 
