@@ -1,0 +1,28 @@
+{
+  "name": "cockle-deploy",
+  "scripts": {
+    "build": "rspack build",
+    "postbuild": "node node_modules/@jupyterlite/cockle/lib/tools/prepare_wasm.js --copy assets",
+    "serve": "rspack serve",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@rspack/cli": "^1.0.4",
+    "@rspack/core": "^1.0.4",
+    "css-loader": "^7.1.2",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@jupyterlite/cockle": "^1.0.0",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
+    "deepmerge-ts": "^7.1.4"
+  }
+}
