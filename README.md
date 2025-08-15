@@ -25,3 +25,11 @@ The CLI is tested using `python`. From the top-level directory:
 ```bash
 pytest -v
 ```
+
+# Cockle deployment
+
+The `cockle-deploy` directory contains everything needed to build the local `git2cpp` source code as
+an [Emscripten-forge](https://emscripten-forge.org/) package and create a local `cockle`
+deployment that runs in a browser.
+
+See the `README.md` in the `cockle-deploy` directory for further details.
