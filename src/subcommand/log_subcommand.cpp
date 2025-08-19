@@ -54,7 +54,7 @@ void print_commit(const commit_wrapper& commit, std::string m_format_flag)
     signature_wrapper author = signature_wrapper::get_commit_author(commit);
     signature_wrapper committer = signature_wrapper::get_commit_committer(commit);
 
-    std::cout << "\033[0;33m" << "commit " << buf << "\033[0m" << std::endl;
+    std::cout << message_colour.at("yellow") << "commit " << buf << message_colour.at("colour_close") << std::endl;
     if (m_format_flag=="fuller")
     {
         std::cout << "Author:\t    " <<  author.name() << " " << author.email() << std::endl;

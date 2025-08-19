@@ -1,7 +1,7 @@
 #pragma once
 
+#include <map>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include <git2.h>
@@ -25,6 +25,14 @@ public:
 
     libgit2_object();
     ~libgit2_object();
+};
+
+const std::map<std::string, std::string> message_colour =
+{
+    {"red", "\033[0;31m"},
+    {"green", "\033[0;32m"},
+    {"yellow", "\033[0;33m"},
+    {"colour_close","\033[0m"},
 };
 
 std::string get_current_git_path();
