@@ -13,6 +13,7 @@ public:
     void run();
 
 private:
-    int m_max_count_flag;
+    std::string m_format_flag;
+    // int m_max_count_flag;
     // bool m_oneline_flag = false;
 };
