@@ -94,4 +94,6 @@ void log_subcommand::run()
         commit_wrapper commit = repo.find_commit(commit_oid);
         print_commit(commit, m_format_flag);
     }
+
+    git_revwalk_free(walker);
 }
