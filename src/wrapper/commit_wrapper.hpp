@@ -19,6 +19,7 @@ public:
     operator git_object*() const noexcept;
 
     const git_oid& oid() const;
+    std::string commit_oid_tostr() const;
 
 private:
 

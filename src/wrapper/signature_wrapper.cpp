@@ -4,7 +4,10 @@
 
 signature_wrapper::~signature_wrapper()
 {
-    git_signature_free(p_resource);
+    if (m_ownership)
+    {
+        git_signature_free(p_resource);
+    }
     p_resource=nullptr;
 }
 
@@ -35,12 +38,14 @@ signature_wrapper signature_wrapper::get_commit_author(const commit_wrapper& cw)
 {
     signature_wrapper author;
     author.p_resource = const_cast<git_signature*>(git_commit_author(cw));
+    author.m_ownership = false;
     return author;
 }
 
 signature_wrapper signature_wrapper::get_commit_committer(const commit_wrapper& cw)
 {
-    signature_wrapper author;
-    author.p_resource = const_cast<git_signature*>(git_commit_committer(cw));
-    return author;
+    signature_wrapper committer;
+    committer.p_resource = const_cast<git_signature*>(git_commit_committer(cw));
+    committer.m_ownership = false;
+    return committer;
 }

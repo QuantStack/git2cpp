@@ -1,19 +1,12 @@
-// #include <iostream>
-// #include <ostream>
-// #include <string>
-
+#include <format>
 #include <git2.h>
 #include <git2/revwalk.h>
 #include <git2/types.h>
+#include <string_view>
 
 #include "log_subcommand.hpp"
 #include "../wrapper/repository_wrapper.hpp"
-
-// TODO: put in another file
-/** Size (in bytes) of a raw/binary sha1 oid */
-#define GIT_OID_SHA1_SIZE       20
-/** Size (in bytes) of a hex formatted sha1 oid */
-#define GIT_OID_SHA1_HEXSIZE   (GIT_OID_SHA1_SIZE * 2)
+#include "../wrapper/commit_wrapper.hpp"
 
 log_subcommand::log_subcommand(const libgit2_object&, CLI::App& app)
 {
@@ -26,7 +19,7 @@ log_subcommand::log_subcommand(const libgit2_object&, CLI::App& app)
     sub->callback([this]() { this->run(); });
 };
 
-void print_time(git_time intime, const char *prefix)
+void print_time(git_time intime, std::string prefix)
 {
 	char sign, out[32];
 	struct tm *intm;
@@ -37,7 +30,9 @@ void print_time(git_time intime, const char *prefix)
 	if (offset < 0) {
 		sign = '-';
 		offset = -offset;
-	} else {
+	}
+	else
+	{
 		sign = '+';
 	}
 
@@ -49,38 +44,37 @@ void print_time(git_time intime, const char *prefix)
 	intm = gmtime(&t);
 	strftime(out, sizeof(out), "%a %b %e %T %Y", intm);
 
-	printf("%s%s %c%02d%02d\n", prefix, out, sign, hours, minutes);
+	std::cout << prefix << out << " " << sign << std::format("{:02d}", hours) << std::format("{:02d}", minutes) <<std::endl;
 }
 
 void print_commit(const commit_wrapper& commit, std::string m_format_flag)
 {
-    // TODO: put in commit_wrapper ?
-    char buf[GIT_OID_SHA1_HEXSIZE + 1];
-    int i, count;
-
-    git_oid_tostr(buf, sizeof(buf), &commit.oid());
-    // TODO end
+    std::string buf = commit.commit_oid_tostr();
 
     signature_wrapper author = signature_wrapper::get_commit_author(commit);
     signature_wrapper committer = signature_wrapper::get_commit_committer(commit);
 
     std::cout << "\033[0;33m" << "commit " << buf << "\033[0m" << std::endl;
-    std::cout << "Author:\t" <<  author.name() << " " << author.email() << std::endl;
-    if (m_format_flag=="full")
+    if (m_format_flag=="fuller")
     {
-        std::cout << "Commit:\t" <<  committer.name() << " " << committer.email() << std::endl;
-    }
-    else if (m_format_flag=="fuller")
-    {
-        print_time(author.when(), "AuthorDate:\t");
-        std::cout << "Commit:\t" <<  committer.name() << " " << committer.email() << std::endl;
-        print_time(committer.when(), "CommitDate:\t");
+        std::cout << "Author:\t    " <<  author.name() << " " << author.email() << std::endl;
+        print_time(author.when(), "AuthorDate: ");
+        std::cout << "Commit:\t    " <<  committer.name() << " " << committer.email() << std::endl;
+        print_time(committer.when(), "CommitDate: ");
     }
     else
     {
-        print_time(author.when(), "Date:\t");
+        std::cout << "Author:\t" <<  author.name() << " " << author.email() << std::endl;
+        if (m_format_flag=="full")
+        {
+            std::cout << "Commit:\t" <<  committer.name() << " " << committer.email() << std::endl;
+        }
+        else
+        {
+            print_time(author.when(), "Date:\t");
+        }
     }
-    std::cout << git_commit_message(commit) << "\n" << std::endl;
+    std::cout << "\n    " << git_commit_message(commit) << "\n" << std::endl;
 }
 
 void log_subcommand::run()

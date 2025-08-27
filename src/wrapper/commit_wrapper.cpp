@@ -20,3 +20,9 @@ const git_oid& commit_wrapper::oid() const
 {
     return *git_commit_id(p_resource);
 }
+
+std::string commit_wrapper::commit_oid_tostr() const
+{
+    char buf[GIT_OID_SHA1_HEXSIZE + 1];
+    return git_oid_tostr(buf, sizeof(buf), &this->oid());
+}

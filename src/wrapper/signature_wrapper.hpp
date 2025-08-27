@@ -31,4 +31,5 @@ public:
 private:
 
     signature_wrapper() = default;
+    bool m_ownership=true;
 };
