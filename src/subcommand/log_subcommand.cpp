@@ -13,7 +13,7 @@ log_subcommand::log_subcommand(const libgit2_object&, CLI::App& app)
     auto *sub = app.add_subcommand("log", "Shows commit logs");
 
     sub->add_flag("--format", m_format_flag, "Pretty-print the contents of the commit logs in a given format, where <format> can be one of full and fuller");
-    // sub->add_flag("-n,--max-count", m_max_count_flag, "Limit the output to <number> commits.");
+    sub->add_option("-n,--max-count", m_max_count_flag, "Limit the output to <number> commits.");
     // sub->add_flag("--oneline", m_oneline_flag, "This is a shorthand for --pretty=oneline --abbrev-commit used together.");
 
     sub->callback([this]() { this->run(); });
@@ -88,11 +88,13 @@ void log_subcommand::run()
     git_revwalk_new(&walker, repo);
     git_revwalk_push_head(walker);
 
+    std::size_t i=0;
     git_oid commit_oid;
-    while (!git_revwalk_next(&commit_oid, walker))
+    while (!git_revwalk_next(&commit_oid, walker) && i<m_max_count_flag)
     {
         commit_wrapper commit = repo.find_commit(commit_oid);
         print_commit(commit, m_format_flag);
+        i+=1;
     }
 
     git_revwalk_free(walker);

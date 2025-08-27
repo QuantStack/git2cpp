@@ -1,6 +1,8 @@
 #pragma once
 
 #include <CLI/CLI.hpp>
+#include <cstddef>
+#include <limits>
 
 #include "../utils/common.hpp"
 
@@ -14,6 +16,6 @@ public:
 
 private:
     std::string m_format_flag;
-    // int m_max_count_flag;
+    int m_max_count_flag=std::numeric_limits<int>::max();
     // bool m_oneline_flag = false;
 };
