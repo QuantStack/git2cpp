@@ -1,7 +1,6 @@
 #pragma once
 
 #include <CLI/CLI.hpp>
-#include <cstddef>
 #include <limits>
 
 #include "../utils/common.hpp"
