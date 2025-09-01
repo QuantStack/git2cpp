@@ -51,7 +51,8 @@ public:
     // Commits
     commit_wrapper find_commit(std::string_view ref_name = "HEAD") const;
     commit_wrapper find_commit(const git_oid& id) const;
-    void create_commit(const signature_wrapper::author_committer_signatures&, const std::string&);
+    void create_commit(const signature_wrapper::author_committer_signatures&, const std::string&, const std::optional<commit_list_wrapper>& parents_list);
+    std::optional<annotated_commit_wrapper> resolve_local_ref(const std::string& target_name) const;
 
     // Annotated commits
     annotated_commit_wrapper find_annotated_commit(const git_oid& id) const;
@@ -61,11 +62,15 @@ public:
 
     // Objects
     std::optional<object_wrapper> revparse_single(std::string_view spec) const;
+    object_wrapper find_object(const git_oid* id, git_object_t type);
 
     // Head manipulations
     void set_head(std::string_view ref_name);
     void set_head_detached(const annotated_commit_wrapper& commit);
     void reset(const object_wrapper& target, git_reset_t reset_type, const git_checkout_options& checkout_options);
+
+    // Trees
+    void checkout_tree(const object_wrapper& target, const git_checkout_options* opts);
 
 private:
 

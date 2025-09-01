@@ -5,7 +5,9 @@
 
 #include <git2.h>
 
+#include "../utils/git_exception.hpp"
 #include "../wrapper/wrapper_base.hpp"
+#include "../wrapper/object_wrapper.hpp"
 
 class reference_wrapper : public wrapper_base<git_reference>
 {
@@ -20,6 +22,8 @@ public:
 
     std::string short_name() const;
     bool is_remote() const;
+    const git_oid* target() const;
+    reference_wrapper new_ref(const git_oid* target_oid);
 
     template <class W>
     W peel() const;

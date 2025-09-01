@@ -32,5 +32,5 @@ void commit_subcommand::run()
         }
     }
 
-    repo.create_commit(author_committer_signatures, m_commit_message);
+    repo.create_commit(author_committer_signatures, m_commit_message, std::nullopt);
 }

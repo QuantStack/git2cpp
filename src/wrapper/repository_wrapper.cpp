@@ -1,6 +1,7 @@
 #include "../utils/git_exception.hpp"
 #include "../wrapper/index_wrapper.hpp"
 #include "../wrapper/object_wrapper.hpp"
+#include "../wrapper/commit_wrapper.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 
 repository_wrapper::~repository_wrapper()
@@ -35,6 +36,8 @@ git_repository_state_t repository_wrapper::state() const
     return git_repository_state_t(git_repository_state(*this));
 }
 
+// References
+
 reference_wrapper repository_wrapper::head() const
 {
     git_reference* ref;
@@ -56,11 +59,15 @@ std::optional<reference_wrapper> repository_wrapper::find_reference_dwim(std::st
     return rc == 0 ? std::make_optional(reference_wrapper(ref)) : std::nullopt;
 }
 
+// Index
+
 index_wrapper repository_wrapper::make_index()
 {
     index_wrapper index = index_wrapper::init(*this);
     return index;
 }
+
+// Branches
 
 branch_wrapper repository_wrapper::create_branch(std::string_view name, bool force)
 {
@@ -95,6 +102,8 @@ branch_iterator repository_wrapper::iterate_branches(git_branch_t type) const
     return branch_iterator(iter);
 }
 
+// Commits
+
 commit_wrapper repository_wrapper::find_commit(std::string_view ref_name) const
 {
     git_oid oid_parent_commit;
@@ -110,20 +119,36 @@ commit_wrapper repository_wrapper::find_commit(const git_oid& id) const
 }
 
 void repository_wrapper::create_commit(const signature_wrapper::author_committer_signatures& author_committer_signatures,
-    const std::string& message)
+    const std::string& message, const std::optional<commit_list_wrapper>& parents_list)
 {
     const char* message_encoding = "UTF-8";
     git_oid commit_id;
 
     std::string update_ref = "HEAD";
-    auto parent = revparse_single(update_ref);
-    std::size_t parent_count = 0;
-    const git_commit* parents[1] = {nullptr};
-    if (parent)
+    const git_commit* placeholder[1] = {nullptr};
+
+    auto [parents, parents_count] = [&]() -> std::pair<const git_commit**, size_t>
     {
-        parent_count = 1;
-        parents[0] = *parent;
-    }
+        if (parents_list)
+        {
+            // TODO: write a "as_const" function to replace the following
+            auto pl_size = parents_list.value().size();
+            git_commit** pl_value = parents_list.value();
+            auto pl_value_const = const_cast<const git_commit**>(pl_value);
+            return {pl_value_const, pl_size};
+        }
+        else
+        {
+            auto parent = revparse_single(update_ref);
+            size_t parents_count = 0;
+            if (parent)
+            {
+                parents_count = 1;
+                placeholder[0] = *parent;
+            }
+            return {placeholder, parents_count};
+        }
+    }();
 
     git_tree* tree;
     index_wrapper index = this->make_index();
@@ -133,10 +158,31 @@ void repository_wrapper::create_commit(const signature_wrapper::author_committer
     throw_if_error(git_tree_lookup(&tree, *this, &tree_id));
 
     throw_if_error(git_commit_create(&commit_id, *this, update_ref.c_str(), author_committer_signatures.first, author_committer_signatures.second,
-        message_encoding, message.c_str(), tree, parent_count, parents));
+        message_encoding, message.c_str(), tree, parents_count, parents));
 
     git_tree_free(tree);
 }
+
+std::optional<annotated_commit_wrapper> repository_wrapper::resolve_local_ref
+(
+    const std::string& target_name
+) const
+{
+    if (auto ref = this->find_reference_dwim(target_name))
+    {
+        return this->find_annotated_commit(*ref);
+    }
+    else if (auto obj = this->revparse_single(target_name))
+    {
+        return this->find_annotated_commit(obj->oid());
+    }
+    else
+    {
+        return std::nullopt;
+    }
+}
+
+// Annotated commits
 
 annotated_commit_wrapper repository_wrapper::find_annotated_commit(const git_oid& id) const
 {
@@ -145,12 +191,23 @@ annotated_commit_wrapper repository_wrapper::find_annotated_commit(const git_oid
     return annotated_commit_wrapper(commit);
 }
 
+// Objects
+
 std::optional<object_wrapper> repository_wrapper::revparse_single(std::string_view spec) const
 {
     git_object* obj;
     int rc = git_revparse_single(&obj, *this, spec.data());
     return rc == 0 ? std::make_optional(object_wrapper(obj)) : std::nullopt;
 }
+
+object_wrapper repository_wrapper::find_object(const git_oid* id, git_object_t type)
+{
+    git_object* object;
+    git_object_lookup(&object, *this, id, type);
+    return object_wrapper(object);
+}
+
+// Head manipulations
 
 void repository_wrapper::set_head(std::string_view ref_name)
 {
@@ -167,4 +224,11 @@ void repository_wrapper::reset(const object_wrapper& target, git_reset_t reset_t
     // TODO: gerer l'index
 
     throw_if_error(git_reset(*this, target, reset_type, &checkout_options));
+}
+
+// Trees
+
+void repository_wrapper::checkout_tree(const object_wrapper& target, const git_checkout_options* opts)
+{
+    throw_if_error(git_checkout_tree(*this, target, opts));
 }
