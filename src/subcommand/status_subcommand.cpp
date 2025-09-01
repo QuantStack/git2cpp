@@ -73,7 +73,7 @@ struct print_entry
     std::string item;
 };
 
-std::string get_print_status(git_status_t status, output_format of)  //TODO: add colours, but depends on the status, so needs another parameter
+std::string get_print_status(git_status_t status, output_format of)
 {
     std::string entry_status;
     if ((of == output_format::DEFAULT) || (of == output_format::LONG))
@@ -100,7 +100,7 @@ void update_tracked_dir_set(const char* old_path, const char* new_path, std::set
     }
 }
 
-std::string get_print_item(const char* old_path, const char* new_path)  //TODO: add colours, but depends on the status, so needs another parameter
+std::string get_print_item(const char* old_path, const char* new_path)
 {
     std::string entry_item;
     if (old_path && new_path && std::strcmp(old_path, new_path))
