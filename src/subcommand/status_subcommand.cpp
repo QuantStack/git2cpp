@@ -78,7 +78,7 @@ std::string get_print_status(git_status_t status, output_format of)  //TODO: add
     std::string entry_status;
     if ((of == output_format::DEFAULT) || (of == output_format::LONG))
     {
-        entry_status = status_msg_map.at(status).long_mod + "\t";
+        entry_status = status_msg_map.at(status).long_mod + "   ";
     }
     else if (of == output_format::SHORT)
     {
@@ -144,9 +144,13 @@ void print_entries(std::vector<print_entry> entries_to_print, bool is_long, std:
     for (auto e: entries_to_print)
     {
         if (is_long)
-        std::cout << colour << e.status << e.item << message_colour.at("colour_close") << std::endl;
+        {
+            std::cout << colour << e.status << e.item << message_colour.at("colour_close") << std::endl;
+        }
         else
-        std::cout << colour << e.status << message_colour.at("colour_close") << e.item << std::endl;
+        {
+            std::cout << colour << e.status << message_colour.at("colour_close") << e.item << std::endl;
+        }
     }
 }
 
