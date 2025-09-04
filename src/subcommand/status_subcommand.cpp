@@ -4,6 +4,7 @@
 #include <string>
 
 #include <git2.h>
+#include <termcolor/termcolor.hpp>
 
 #include "status_subcommand.hpp"
 #include "../wrapper/status_wrapper.hpp"
@@ -139,23 +140,25 @@ std::vector<print_entry> get_entries_to_print(git_status_t status, status_list_w
     return entries_to_print;
 }
 
-void print_entries(std::vector<print_entry> entries_to_print, bool is_long, std::string colour)
+using str_colour_fn = std::ostream& (*)(std::ostream&);
+
+void print_entries(std::vector<print_entry> entries_to_print, bool is_long, str_colour_fn colour)
 {
     for (auto e: entries_to_print)
     {
         if (is_long)
         {
-            std::cout << colour << e.status << e.item << message_colour.at("colour_close") << std::endl;
+            std::cout << colour << e.status << e.item << termcolor::reset << std::endl;
         }
         else
         {
-            std::cout << colour << e.status << message_colour.at("colour_close") << e.item << std::endl;
+            std::cout << colour << e.status << termcolor::reset << e.item << std::endl;
         }
     }
 }
 
 void print_not_tracked(const std::vector<print_entry>& entries_to_print, const std::set<std::string>& tracked_dir_set,
-        std::set<std::string>& untracked_dir_set, bool is_long, std::string colour)
+        std::set<std::string>& untracked_dir_set, bool is_long, str_colour_fn colour)
 {
     std::vector<print_entry> not_tracked_entries_to_print{};
     for (auto e: entries_to_print)
@@ -163,7 +166,7 @@ void print_not_tracked(const std::vector<print_entry>& entries_to_print, const s
         const size_t first_slash_idx = e.item.find('/');
         if (std::string::npos != first_slash_idx)
         {
-            auto directory = e.item.substr(0, first_slash_idx) + "/";
+            auto directory = "\t" + e.item.substr(0, first_slash_idx) + "/";
             if (tracked_dir_set.contains(directory))
             {
                 not_tracked_entries_to_print.push_back(e);
@@ -230,10 +233,10 @@ void status_subcommand::run()
 
     if (sl.has_tobecommited_header())
     {
-        std::string colour = message_colour.at("green");
+        str_colour_fn colour =  termcolor::green;
         if (is_long)
         {
-            std::cout << tobecommited_header << std::endl;
+            std::cout << tobecommited_header;
         }
         print_entries(get_entries_to_print(GIT_STATUS_INDEX_NEW, sl, true, of, &tracked_dir_set), is_long, colour);
         print_entries(get_entries_to_print(GIT_STATUS_INDEX_MODIFIED, sl, true, of, &tracked_dir_set), is_long, colour);
@@ -248,10 +251,10 @@ void status_subcommand::run()
 
     if (sl.has_notstagged_header())
     {
-        std::string colour = message_colour.at("red");
+        str_colour_fn colour = termcolor::red;
         if (is_long)
         {
-            std::cout << notstagged_header << std::endl;
+            std::cout << notstagged_header;
         }
         print_entries(get_entries_to_print(GIT_STATUS_WT_MODIFIED, sl, false, of, &tracked_dir_set), is_long, colour);
         print_entries(get_entries_to_print(GIT_STATUS_WT_DELETED, sl, false, of, &tracked_dir_set), is_long, colour);
@@ -265,10 +268,10 @@ void status_subcommand::run()
 
     if (sl.has_untracked_header())
     {
-        std::string colour = message_colour.at("red");
+        str_colour_fn colour = termcolor::red;
         if (is_long)
         {
-            std::cout << untracked_header << std::endl;
+            std::cout << untracked_header;
         }
         print_not_tracked(get_entries_to_print(GIT_STATUS_WT_NEW, sl, false, of), tracked_dir_set, untracked_dir_set, is_long, colour);
         if (is_long)
@@ -279,10 +282,10 @@ void status_subcommand::run()
 
     // if (sl.has_ignored_header())
     // {
-    //     std::string colour = message_colour.at("red");
+    //     str_colour_fn colour = termcolor::red;
     //     if (is_long)
     //     {
-    //         std::cout << ignored_header << std::endl;
+    //         std::cout << ignored_header;
     //     }
     //     print_not_tracked(get_entries_to_print(GIT_STATUS_IGNORED, sl, false, of), tracked_dir_set, untracked_dir_set, is_long, colour);
     //     if (is_long)

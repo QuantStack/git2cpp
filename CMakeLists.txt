@@ -33,6 +33,7 @@ message(STATUS "Building git2cpp v${CMAKE_PROJECT_VERSION}")
 # ============
 
 find_package(libgit2)
+find_package(termcolor)
 # CLI11 is a single header, not packaged for cmake
 
 # Build
@@ -86,4 +87,4 @@ set(GIT2CPP_SRC
 )
 
 add_executable(git2cpp ${GIT2CPP_SRC})
-target_link_libraries(git2cpp PRIVATE libgit2::libgit2package)
+target_link_libraries(git2cpp PRIVATE libgit2::libgit2package termcolor::termcolor)

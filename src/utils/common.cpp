@@ -1,4 +1,6 @@
 #include <filesystem>
+#include <iostream>
+#include <unistd.h>
 
 #include <git2.h>
 

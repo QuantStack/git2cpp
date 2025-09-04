@@ -8,5 +8,6 @@ dependencies:
   - pkg-config
   - python
   - pytest
+  - termcolor-cpp
   # Missing dependency from libgit2
   - zlib
