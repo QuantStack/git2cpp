@@ -29,6 +29,8 @@ public:
 
 std::string get_current_git_path();
 
+using stream_colour_fn = std::ostream& (*)(std::ostream&);
+
 class git_strarray_wrapper
 {
 public:

@@ -140,9 +140,7 @@ std::vector<print_entry> get_entries_to_print(git_status_t status, status_list_w
     return entries_to_print;
 }
 
-using str_colour_fn = std::ostream& (*)(std::ostream&);
-
-void print_entries(std::vector<print_entry> entries_to_print, bool is_long, str_colour_fn colour)
+void print_entries(std::vector<print_entry> entries_to_print, bool is_long, stream_colour_fn colour)
 {
     for (auto e: entries_to_print)
     {
@@ -158,7 +156,7 @@ void print_entries(std::vector<print_entry> entries_to_print, bool is_long, str_
 }
 
 void print_not_tracked(const std::vector<print_entry>& entries_to_print, const std::set<std::string>& tracked_dir_set,
-        std::set<std::string>& untracked_dir_set, bool is_long, str_colour_fn colour)
+        std::set<std::string>& untracked_dir_set, bool is_long, stream_colour_fn colour)
 {
     std::vector<print_entry> not_tracked_entries_to_print{};
     for (auto e: entries_to_print)
@@ -233,7 +231,7 @@ void status_subcommand::run()
 
     if (sl.has_tobecommited_header())
     {
-        str_colour_fn colour =  termcolor::green;
+        stream_colour_fn colour =  termcolor::green;
         if (is_long)
         {
             std::cout << tobecommited_header;
@@ -251,7 +249,7 @@ void status_subcommand::run()
 
     if (sl.has_notstagged_header())
     {
-        str_colour_fn colour = termcolor::red;
+        stream_colour_fn colour = termcolor::red;
         if (is_long)
         {
             std::cout << notstagged_header;
@@ -268,7 +266,7 @@ void status_subcommand::run()
 
     if (sl.has_untracked_header())
     {
-        str_colour_fn colour = termcolor::red;
+        stream_colour_fn colour = termcolor::red;
         if (is_long)
         {
             std::cout << untracked_header;
@@ -282,7 +280,7 @@ void status_subcommand::run()
 
     // if (sl.has_ignored_header())
     // {
-    //     str_colour_fn colour = termcolor::red;
+    //     stream_colour_fn colour = termcolor::red;
     //     if (is_long)
     //     {
     //         std::cout << ignored_header;

@@ -4,6 +4,8 @@
 #include <git2/types.h>
 #include <string_view>
 
+#include <termcolor/termcolor.hpp>
+
 #include "log_subcommand.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 #include "../wrapper/commit_wrapper.hpp"
@@ -54,7 +56,8 @@ void print_commit(const commit_wrapper& commit, std::string m_format_flag)
     signature_wrapper author = signature_wrapper::get_commit_author(commit);
     signature_wrapper committer = signature_wrapper::get_commit_committer(commit);
 
-    std::cout << message_colour.at("yellow") << "commit " << buf << message_colour.at("colour_close") << std::endl;
+    stream_colour_fn colour = termcolor::yellow;
+    std::cout << colour << "commit " << buf << termcolor::reset << std::endl;
     if (m_format_flag=="fuller")
     {
         std::cout << "Author:\t    " <<  author.name() << " " << author.email() << std::endl;
