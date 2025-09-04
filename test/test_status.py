@@ -38,6 +38,10 @@ def test_status_new_file(xtl_clone, git2cpp_path, tmp_path, short_flag, long_fla
         assert " D " in p.stdout
         assert "?? " in p.stdout
 
+def test_status_nogit(git2cpp_path, tmp_path):
+    cmd = [git2cpp_path, 'status']
+    p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p.returncode != 0
 
 @pytest.mark.parametrize("short_flag", ["", "-s", "--short"])
 @pytest.mark.parametrize("long_flag", ["", "--long"])

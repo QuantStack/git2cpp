@@ -32,3 +32,11 @@ def test_add(xtl_clone, git2cpp_path, tmp_path, all_flag):
         assert "Untracked files" not in p_status.stdout
     else:
         assert "Untracked files" in p_status.stdout
+
+def test_add_nogit(git2cpp_path, tmp_path):
+    p = tmp_path / "mook_file.txt"
+    p.write_text('')
+
+    cmd_add = [git2cpp_path, 'add', 'mook_file.txt']
+    p_add = subprocess.run(cmd_add, cwd=tmp_path, text=True)
+    assert p_add.returncode != 0

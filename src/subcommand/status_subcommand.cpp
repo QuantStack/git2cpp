@@ -183,8 +183,7 @@ void print_not_tracked(const std::vector<print_entry>& entries_to_print, const s
 void status_subcommand::run()
 {
     auto directory = get_current_git_path();
-    auto bare = false;
-    auto repo = repository_wrapper::init(directory, bare);
+    auto repo = repository_wrapper::open(directory);
     auto sl = status_list_wrapper::status_list(repo);
     auto branch_name = repo.head().short_name();
 

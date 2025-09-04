@@ -33,3 +33,8 @@ def test_branch_create_delete(xtl_clone, git2cpp_path, tmp_path):
     p_list2 = subprocess.run(list_cmd, capture_output=True, cwd=xtl_path, text=True)
     assert p_list2.returncode == 0
     assert(p_list2.stdout == '* master\n')
+
+def test_branch_nogit(git2cpp_path, tmp_path):
+    cmd = [git2cpp_path, 'branch']
+    p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p.returncode != 0

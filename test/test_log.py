@@ -35,6 +35,11 @@ def test_log(xtl_clone, git_config, git2cpp_path, tmp_path, monkeypatch, format_
         else:
             assert "CommitDate" in p_log.stdout
 
+def test_log_nogit(git_config, git2cpp_path, tmp_path):
+    cmd_log = [git2cpp_path, 'log']
+    p_log = subprocess.run(cmd_log, capture_output=True, cwd=tmp_path, text=True)
+    assert p_log.returncode != 0
+
 
 @pytest.mark.parametrize("max_count_flag", ["", "-n", "--max-count"])
 def test_max_count(xtl_clone, git_config, git2cpp_path, tmp_path, monkeypatch, max_count_flag):

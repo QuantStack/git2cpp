@@ -80,8 +80,7 @@ void print_commit(const commit_wrapper& commit, std::string m_format_flag)
 void log_subcommand::run()
 {
     auto directory = get_current_git_path();
-    auto bare = false;
-    auto repo = repository_wrapper::init(directory, bare);
+    auto repo = repository_wrapper::open(directory);
     // auto branch_name = repo.head().short_name();
 
     git_revwalk* walker;

@@ -31,3 +31,9 @@ def test_reset(xtl_clone, git_config, git2cpp_path, tmp_path, monkeypatch):
     p_log = subprocess.run(cmd_log_2, capture_output=True, cwd=xtl_path, text=True)
     assert p_log.returncode == 0
     assert "Jane Doe" not in p_log.stdout
+
+def test_reset_nogit(git2cpp_path, tmp_path):
+    cmd_reset = [git2cpp_path, "reset", "--hard", "HEAD~1"]
+    p_reset = subprocess.run(cmd_reset, capture_output=True, cwd=tmp_path, text=True)
+    assert p_reset.returncode != 0
+

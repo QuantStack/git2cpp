@@ -19,8 +19,7 @@ commit_subcommand::commit_subcommand(const libgit2_object&, CLI::App& app)
 void commit_subcommand::run()
 {
     auto directory = get_current_git_path();
-    auto bare = false;
-    auto repo = repository_wrapper::init(directory, bare);
+    auto repo = repository_wrapper::open(directory);
     auto author_committer_signatures = signature_wrapper::get_default_signature_from_env(repo);
 
     if (m_commit_message.empty())
