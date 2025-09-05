@@ -231,7 +231,7 @@ void status_subcommand::run()
 
     if (sl.has_tobecommited_header())
     {
-        stream_colour_fn colour =  termcolor::green;
+        stream_colour_fn colour = termcolor::green;
         if (is_long)
         {
             std::cout << tobecommited_header;
