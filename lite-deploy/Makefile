@@ -10,7 +10,10 @@ $(EM_FORGE_RECIPES_DIR):
 	git clone https://github.com/emscripten-forge/recipes --depth 1 $@
 	rm -rf $@/.git
 
-modify-recipe: $(EM_FORGE_RECIPES_DIR)
+.pixi: $(EM_FORGE_RECIPES_DIR)
+	cd $(EM_FORGE_RECIPES_DIR) && pixi run setup
+
+modify-recipe: .pixi
 	python modify-recipe.py $(EM_FORGE_RECIPES_DIR)/$(GIT2CPP_RECIPE_DIR)
 
 build-recipe: modify-recipe
