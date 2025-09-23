@@ -1,5 +1,6 @@
 #pragma once
 
+#include <concepts>
 #include <string>
 
 #include <git2.h>
@@ -20,9 +21,38 @@ public:
     std::string short_name() const;
     bool is_remote() const;
 
+    template <class W>
+    W peel() const;
+
 private:
 
     reference_wrapper(git_reference* ref);
 
     friend class repository_wrapper;
 };
+
+class commit_wrapper;
+class object_wrapper;
+
+// TODO: add constraints on W
+// For now it accepts commit_wrapper and object_wrapper only
+template <class W>
+W reference_wrapper::peel() const
+{
+    constexpr git_object_t obj_type = []
+    {
+        if constexpr (std::same_as<W, commit_wrapper>)
+        {
+            return GIT_OBJECT_COMMIT;
+        }
+        else // Default case
+        {
+            return GIT_OBJECT_ANY;
+        }
+    }();
+
+    using resource_type = typename W::resoure_type;
+    git_object* resource = nullptr;
+    throw_if_error(git_reference_peel(&resource, this->p_resource, obj_type));
+    return W(reinterpret_cast<resource_type*>(resource));
+}

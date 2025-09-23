@@ -26,4 +26,5 @@ private:
     commit_wrapper(git_commit* commit);
 
     friend class repository_wrapper;
+    friend class reference_wrapper;
 };
