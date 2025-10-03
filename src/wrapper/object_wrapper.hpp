@@ -24,4 +24,5 @@ private:
     object_wrapper(git_object* obj);
 
     friend class repository_wrapper;
+    friend class reference_wrapper;
 };

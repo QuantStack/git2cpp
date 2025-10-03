@@ -54,6 +54,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/subcommand/init_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/log_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/log_subcommand.hpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/merge_subcommand.cpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/merge_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/reset_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/reset_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/status_subcommand.cpp
