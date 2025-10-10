@@ -55,7 +55,7 @@ private:
 
 
     bool m_grabbed;
-    std::ostringstream m_oss;
+    std::stringbuf m_stringbuf;
     std::streambuf* m_cout_rdbuf;
     std::vector<std::string> m_lines;
     size_t m_rows, m_columns;

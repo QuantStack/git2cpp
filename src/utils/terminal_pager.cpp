@@ -49,7 +49,7 @@ void terminal_pager::maybe_grab_cout()
     if (!m_grabbed && termcolor::_internal::is_atty(std::cout))
     {
         // Should we do anything with cerr?
-        m_cout_rdbuf = std::cout.rdbuf(m_oss.rdbuf());
+        m_cout_rdbuf = std::cout.rdbuf(&m_stringbuf);
         m_grabbed = true;
     }
 }
@@ -173,7 +173,7 @@ void terminal_pager::show()
 
     release_cout();
 
-    split_input_at_newlines(m_oss.view());
+    split_input_at_newlines(m_stringbuf.view());
 
     update_terminal_size();
     if (m_rows == 0 || m_lines.size() <= m_rows - 1)
