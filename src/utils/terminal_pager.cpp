@@ -6,11 +6,11 @@
 
 // OS-specific libraries.
 #include <sys/ioctl.h>
-#include <termios.h>
 
 #include <termcolor/termcolor.hpp>
 
 #include "ansi_code.hpp"
+#include "output.hpp"
 #include "terminal_pager.hpp"
 
 terminal_pager::terminal_pager()
@@ -181,14 +181,7 @@ void terminal_pager::show()
         return;
     }
 
-    struct termios old_termios;
-    tcgetattr(fileno(stdin), &old_termios);
-    auto new_termios = old_termios;
-    // Disable canonical mode (buffered I/O) and echo from stdin to stdout.
-    new_termios.c_lflag &= (~ICANON & ~ECHO);
-    tcsetattr(fileno(stdin), TCSANOW, &new_termios);
-
-    std::cout << ansi_code::enable_alternative_buffer;
+    alternative_buffer alt_buffer;
 
     m_start_row_index = 0;
     render_terminal();
@@ -198,11 +191,6 @@ void terminal_pager::show()
     {
         stop = process_input(get_input());
     } while (!stop);
-
-    std::cout << ansi_code::disable_alternative_buffer;
-
-    // Restore original termios settings.
-    tcsetattr(fileno(stdin), TCSANOW, &old_termios);
 
     m_lines.clear();
     m_start_row_index = 0;
