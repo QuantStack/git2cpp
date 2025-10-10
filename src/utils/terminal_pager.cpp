@@ -57,7 +57,7 @@ void terminal_pager::maybe_grab_cout()
     }
 }
 
-bool terminal_pager::process_input(const std::string& input)
+bool terminal_pager::process_input(std::string input)
 {
     if (input.size() == 0)
     {

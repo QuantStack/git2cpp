@@ -41,7 +41,7 @@ private:
     void maybe_grab_cout();
 
     // Return true if should stop pager.
-    bool process_input(const std::string& input);
+    bool process_input(std::string input);
 
     void release_cout();
 
