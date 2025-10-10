@@ -54,7 +54,6 @@ private:
     void update_terminal_size();
 
 
-    bool m_grabbed;
     std::stringbuf m_stringbuf;
     std::streambuf* m_cout_rdbuf;
     std::vector<std::string> m_lines;

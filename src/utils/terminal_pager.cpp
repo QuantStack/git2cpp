@@ -13,7 +13,7 @@
 #include "terminal_pager.hpp"
 
 terminal_pager::terminal_pager()
-    : m_grabbed(false), m_rows(0), m_columns(0), m_start_row_index(0)
+    : m_rows(0), m_columns(0), m_start_row_index(0)
 {
     maybe_grab_cout();
 }
@@ -46,11 +46,14 @@ std::string terminal_pager::get_input() const
 void terminal_pager::maybe_grab_cout()
 {
     // Unfortunately need to access _internal namespace of termcolor to check if a tty.
-    if (!m_grabbed && termcolor::_internal::is_atty(std::cout))
+    if (termcolor::_internal::is_atty(std::cout))
     {
         // Should we do anything with cerr?
         m_cout_rdbuf = std::cout.rdbuf(&m_stringbuf);
-        m_grabbed = true;
+    }
+    else
+    {
+        m_cout_rdbuf = std::cout.rdbuf();
     }
 }
 
@@ -98,11 +101,7 @@ bool terminal_pager::process_input(const std::string& input)
 
 void terminal_pager::release_cout()
 {
-    if (m_grabbed)
-    {
-        std::cout.rdbuf(m_cout_rdbuf);
-        m_grabbed = false;
-    }
+    std::cout.rdbuf(m_cout_rdbuf);
 }
 
 void terminal_pager::render_terminal() const
@@ -166,11 +165,6 @@ void terminal_pager::scroll(bool up, bool page)
 
 void terminal_pager::show()
 {
-    if (!m_grabbed)
-    {
-        return;
-    }
-
     release_cout();
 
     split_input_at_newlines(m_stringbuf.view());
