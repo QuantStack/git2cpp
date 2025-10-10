@@ -10,6 +10,7 @@
 
 #include <termcolor/termcolor.hpp>
 
+#include "ansi_code.hpp"
 #include "terminal_pager.hpp"
 
 terminal_pager::terminal_pager()
@@ -31,7 +32,7 @@ std::string terminal_pager::get_input() const
     std::cin.get(ch);
     str += ch;
 
-    if (ch == '\e')  // Start of ANSI escape sequence.
+    if (ansi_code::is_escape_char(ch))  // Start of ANSI escape sequence.
     {
         do
         {
@@ -83,19 +84,19 @@ bool terminal_pager::process_input(std::string input)
             return false;
         case '\e':  // ANSI escape sequence.
             // Cannot switch on a std::string.
-            if (input == "\e[A" || input == "\e[1A]")  // Up arrow.
+            if (ansi_code::is_up_arrow(input))
             {
                 scroll(true, false);  // Up a line.
                 return false;
             }
-            else if (input == "\e[B" || input == "\e[1B]")  // Down arrow.
+            else if (ansi_code::is_down_arrow(input))
             {
                 scroll(false, false);  // Down a line.
                 return false;
             }
     }
 
-    std::cout << '\a';  // Emit BEL for visual feedback.
+    std::cout << ansi_code::bel;
     return false;
 }
 
@@ -108,8 +109,8 @@ void terminal_pager::render_terminal() const
 {
     auto end_row_index = m_start_row_index + m_rows - 1;
 
-    std::cout << "\e[2J";  // Erase screen.
-    std::cout << "\e[H";  // Cursor to top.
+    std::cout << ansi_code::erase_screen;
+    std::cout << ansi_code::cursor_to_top;
 
     for (size_t i = m_start_row_index; i < end_row_index; i++)
     {
@@ -120,7 +121,7 @@ void terminal_pager::render_terminal() const
         std::cout << m_lines[i] << std::endl;
     }
 
-    std::cout << "\e[" << m_rows << "H";  // Move cursor to bottom row of terminal.
+    std::cout << ansi_code::cursor_to_row(m_rows);  // Move cursor to bottom row of terminal.
     std::cout << ":";
 }
 
@@ -154,8 +155,7 @@ void terminal_pager::scroll(bool up, bool page)
 
     if (m_start_row_index == old_start_row_index)
     {
-        // No change, emit BEL for visual feedback.
-        std::cout << '\a';
+        std::cout << ansi_code::bel;
     }
     else
     {
@@ -188,7 +188,7 @@ void terminal_pager::show()
     new_termios.c_lflag &= (~ICANON & ~ECHO);
     tcsetattr(fileno(stdin), TCSANOW, &new_termios);
 
-    std::cout << "\e[?1049h";  // Enable alternative buffer.
+    std::cout << ansi_code::enable_alternative_buffer;
 
     m_start_row_index = 0;
     render_terminal();
@@ -199,7 +199,7 @@ void terminal_pager::show()
         stop = process_input(get_input());
     } while (!stop);
 
-    std::cout << "\e[?1049l";  // Disable alternative buffer.
+    std::cout << ansi_code::disable_alternative_buffer;
 
     // Restore original termios settings.
     tcsetattr(fileno(stdin), TCSANOW, &old_termios);
