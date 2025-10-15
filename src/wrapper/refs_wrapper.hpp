@@ -51,7 +51,7 @@ W reference_wrapper::peel() const
         }
     }();
 
-    using resource_type = typename W::resoure_type;
+    using resource_type = typename W::resource_type;
     git_object* resource = nullptr;
     throw_if_error(git_reference_peel(&resource, this->p_resource, obj_type));
     return W(reinterpret_cast<resource_type*>(resource));
