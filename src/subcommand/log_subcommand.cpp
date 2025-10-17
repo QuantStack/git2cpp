@@ -7,6 +7,7 @@
 #include <termcolor/termcolor.hpp>
 
 #include "log_subcommand.hpp"
+#include "../utils/terminal_pager.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 #include "../wrapper/commit_wrapper.hpp"
 
@@ -90,6 +91,8 @@ void log_subcommand::run()
     git_revwalk_new(&walker, repo);
     git_revwalk_push_head(walker);
 
+    terminal_pager pager;
+
     std::size_t i=0;
     git_oid commit_oid;
     while (!git_revwalk_next(&commit_oid, walker) && i<m_max_count_flag)
@@ -100,4 +103,6 @@ void log_subcommand::run()
     }
 
     git_revwalk_free(walker);
+
+    pager.show();
 }

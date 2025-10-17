@@ -58,11 +58,16 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/subcommand/reset_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/status_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/status_subcommand.hpp
+    ${GIT2CPP_SOURCE_DIR}/utils/ansi_code.cpp
+    ${GIT2CPP_SOURCE_DIR}/utils/ansi_code.hpp
     ${GIT2CPP_SOURCE_DIR}/utils/common.cpp
     ${GIT2CPP_SOURCE_DIR}/utils/common.hpp
     ${GIT2CPP_SOURCE_DIR}/utils/git_exception.cpp
     ${GIT2CPP_SOURCE_DIR}/utils/git_exception.hpp
+    ${GIT2CPP_SOURCE_DIR}/utils/output.cpp
     ${GIT2CPP_SOURCE_DIR}/utils/output.hpp
+    ${GIT2CPP_SOURCE_DIR}/utils/terminal_pager.cpp
+    ${GIT2CPP_SOURCE_DIR}/utils/terminal_pager.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/annotated_commit_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/annotated_commit_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/branch_wrapper.cpp
