@@ -43,7 +43,7 @@ void checkout_subcommand::run()
     }
     else
     {
-        auto optional_commit = resolve_local_ref(repo, m_branch_name);
+        auto optional_commit = repo.resolve_local_ref(m_branch_name);
         if (!optional_commit)
         {
             // TODO: handle remote refs
