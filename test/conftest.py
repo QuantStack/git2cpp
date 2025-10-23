@@ -3,6 +3,10 @@ from pathlib import Path
 import pytest
 import subprocess
 
+GIT2CPP_TEST_WASM = os.getenv('GIT2CPP_TEST_WASM') == "1"
+
+if GIT2CPP_TEST_WASM:
+    from .conftest_wasm import *
 
 # Fixture to run test in current tmp_path
 @pytest.fixture
@@ -15,8 +19,10 @@ def run_in_tmp_path(tmp_path):
 
 @pytest.fixture(scope="session")
 def git2cpp_path():
-    return Path(__file__).parent.parent / "build" / "git2cpp"
-
+    if GIT2CPP_TEST_WASM:
+        return 'git2cpp'
+    else:
+        return Path(__file__).parent.parent / 'build' / 'git2cpp'
 
 @pytest.fixture
 def xtl_clone(git2cpp_path, tmp_path, run_in_tmp_path):

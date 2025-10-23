@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "composite": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "incremental": true,
+    "lib": ["es2022", "webworker"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noEmitOnError": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "preserveWatchOutput": true,
+    "resolveJsonModule": true,
+    "outDir": "../serve/cockle",
+    "rootDir": "src",
+    "strict": true,
+    "strictNullChecks": true,
+    "target": "es2022",
+    "sourceMap": true
+  },
+  "include": ["src/**/*"]
+}

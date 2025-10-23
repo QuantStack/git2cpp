@@ -1,0 +1,19 @@
+# Environment for building, deploying and testing WebAssembly build of git2cpp.
+name: git2cpp-wasm
+channels:
+  - conda-forge
+dependencies:
+  # To modify emscripten-forge recipe
+  - python
+  - pyyaml
+  # To build emscripten-forge recipe
+  - micromamba
+  - rattler-build
+  # For JupyterLite deployment
+  - jupyter_server
+  - jupyterlite-terminal
+  # For cockle and JupyterLite deployments
+  - nodejs
+  # For testing
+  - pytest
+  - pytest-playwright

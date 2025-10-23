@@ -1,0 +1,5 @@
+assets/*
+cockle_wasm_env/
+lib/
+node_modules/
+package-lock.json
