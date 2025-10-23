@@ -25,3 +25,13 @@ The CLI is tested using `python`. From the top-level directory:
 ```bash
 pytest -v
 ```
+
+# WebAssembly build and deployment
+
+The `wasm` directory contains everything needed to build the local `git2cpp` source code as an
+WebAssembly [Emscripten-forge](https://emscripten-forge.org/) package, create local
+[cockle](https://github.com/jupyterlite/cockle) and
+[JupyterLite terminal](https://github.com/jupyterlite/terminal) deployments that run in a browser,
+and test the WebAssembly build.
+
+See the `README.md` in the `wasm` directory for further details.
