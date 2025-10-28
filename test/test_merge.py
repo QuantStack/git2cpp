@@ -5,6 +5,7 @@ import pytest
 
 
 # TODO: Have a different "person" for the commit and for the merge
+# TODO: Test "unborn" case, but how ?
 def test_merge_fast_forward(xtl_clone, git_config, git2cpp_path, tmp_path, monkeypatch):
     assert (tmp_path / "xtl").exists()
     xtl_path = tmp_path / "xtl"

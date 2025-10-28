@@ -151,21 +151,21 @@ void merge_subcommand::run()
         assert(num_commits_to_merge == 1);
         perform_fastforward(repo, target_oid, (analysis & GIT_MERGE_ANALYSIS_UNBORN));
     }
-    else if (analysis & GIT_MERGE_ANALYSIS_NORMAL)
-    {
-        git_merge_options merge_opts = GIT_MERGE_OPTIONS_INIT;
-		git_checkout_options checkout_opts = GIT_CHECKOUT_OPTIONS_INIT;
+  //   else if (analysis & GIT_MERGE_ANALYSIS_NORMAL)
+  //   {
+  //       git_merge_options merge_opts = GIT_MERGE_OPTIONS_INIT;
+		// git_checkout_options checkout_opts = GIT_CHECKOUT_OPTIONS_INIT;
 
-		merge_opts.flags = 0;
-		merge_opts.file_flags = GIT_MERGE_FILE_STYLE_DIFF3;
+		// merge_opts.flags = 0;
+		// merge_opts.file_flags = GIT_MERGE_FILE_STYLE_DIFF3;
 
-		checkout_opts.checkout_strategy = GIT_CHECKOUT_FORCE|GIT_CHECKOUT_ALLOW_CONFLICTS;
+		// checkout_opts.checkout_strategy = GIT_CHECKOUT_FORCE|GIT_CHECKOUT_ALLOW_CONFLICTS;
 
-		if (preference & GIT_MERGE_PREFERENCE_FASTFORWARD_ONLY)
-		{
-			std::cout << "Fast-forward is preferred, but only a merge is possible\n" << std::endl;
-			// how to break ?
-		}
+		// if (preference & GIT_MERGE_PREFERENCE_FASTFORWARD_ONLY)
+		// {
+		// 	std::cout << "Fast-forward is preferred, but only a merge is possible\n" << std::endl;
+		// 	// how to break ?
+		// }
 
 		// git_merge(repo,
 	 //                (const git_annotated_commit **)opts.annotated, opts.annotated_count,
@@ -179,4 +179,4 @@ void merge_subcommand::run()
 	// 	create_merge_commit(repo, index, &opts);
 	// 	printf("Merge made\n");
 	// }
-}
+// }
