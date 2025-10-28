@@ -54,60 +54,6 @@ void perform_fastforward(repository_wrapper& repo, const git_oid* target_oid, in
     auto new_target_ref = target_ref.new_ref(target_oid);
 }
 
-// static void create_merge_commit(repository_wrapper repo, index_wrapper index, std::vector<std::string> m_branches_to_merge,
-//     std::vector<annotated_commit_wrapper> commits_to_merge)
-// {
-//     auto head_ref = repo.head();
-//     auto merge_ref = repo.find_reference_dwim(m_branches_to_merge.front());
-//     // if (ref)
-//     // {
-//     //     auto merge_ref = std::move(ref).value();
-//     // }
-//     auto merge_commit = repo.resolve_local_ref(m_branches_to_merge.front()).value();
-
-//     size_t annotated_count = commits_to_merge.size();
-//     std::vector<commit_wrapper> parents_list;
-//     parents_list.reserve(annotated_count + 1);
-//     parents_list.push_back(std::move(head_ref.peel<commit_wrapper>()));
-//     for (size_t i=0; i<annotated_count; ++i)
-//     {
-//         parents_list.push_back(repo.find_commit(commits_to_merge[i].oid()));
-//     }
-//     auto parents = commit_list_wrapper(std::move(parents_list));
-
-//     auto author_committer_sign = signature_wrapper::get_default_signature_from_env(repo);
-//     std::string author_name;
-//     author_name = author_committer_sign.first.name();
-//     std::string author_email;
-//     author_email = author_committer_sign.first.email();
-//     auto author_committer_sign_now = signature_wrapper::signature_now(author_name, author_email, author_name, author_email);
-
-//     std::string msg_target = NULL;
-//     if (merge_ref)
-//     {
-//         msg_target = merge_ref->short_name();
-//     }
-//     else
-//     {
-//         msg_target = git_oid_tostr_s(&(merge_commit.oid()));
-//     }
-
-// 	std::string msg;
-// 	msg = "Merge ";
-// 	if (merge_ref)
-// 	{
-// 	    msg.append("branch ");
-// 	}
-// 	else
-// 	{
-// 	    msg.append("commit ");
-// 	}
-// 	msg.append(msg_target);
-// 	std::cout << msg << std::endl;
-
-// 	repo.create_commit(author_committer_sign_now, msg, std::optional<commit_list_wrapper>(std::move(parents)));
-// }
-
 void merge_subcommand::run()
 {
     auto directory = get_current_git_path();
@@ -151,32 +97,4 @@ void merge_subcommand::run()
         assert(num_commits_to_merge == 1);
         perform_fastforward(repo, target_oid, (analysis & GIT_MERGE_ANALYSIS_UNBORN));
     }
-  //   else if (analysis & GIT_MERGE_ANALYSIS_NORMAL)
-  //   {
-  //       git_merge_options merge_opts = GIT_MERGE_OPTIONS_INIT;
-		// git_checkout_options checkout_opts = GIT_CHECKOUT_OPTIONS_INIT;
-
-		// merge_opts.flags = 0;
-		// merge_opts.file_flags = GIT_MERGE_FILE_STYLE_DIFF3;
-
-		// checkout_opts.checkout_strategy = GIT_CHECKOUT_FORCE|GIT_CHECKOUT_ALLOW_CONFLICTS;
-
-		// if (preference & GIT_MERGE_PREFERENCE_FASTFORWARD_ONLY)
-		// {
-		// 	std::cout << "Fast-forward is preferred, but only a merge is possible\n" << std::endl;
-		// 	// how to break ?
-		// }
-
-		// git_merge(repo,
-	 //                (const git_annotated_commit **)opts.annotated, opts.annotated_count,
-	 //                &merge_opts, &checkout_opts);
-    }
-
- //    if (git_index_has_conflicts(index)) {
-	// 	/* Handle conflicts */
-	// 	output_conflicts(index);
-	// } else if (!opts.no_commit) {
-	// 	create_merge_commit(repo, index, &opts);
-	// 	printf("Merge made\n");
-	// }
-// }
+}

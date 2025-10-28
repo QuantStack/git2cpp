@@ -33,8 +33,6 @@ def test_merge_fast_forward(xtl_clone, git_config, git2cpp_path, tmp_path, monke
     )
     assert p_checkout_2.returncode == 0
 
-    time.sleep(2)
-
     merge_cmd = [git2cpp_path, "merge", "foregone"]
     p_merge = subprocess.run(merge_cmd, capture_output=True, cwd=xtl_path, text=True)
     assert p_merge.returncode == 0
