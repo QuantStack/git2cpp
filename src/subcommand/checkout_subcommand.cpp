@@ -56,26 +56,6 @@ void checkout_subcommand::run()
     }
 }
 
-std::optional<annotated_commit_wrapper> checkout_subcommand::resolve_local_ref
-(
-    const repository_wrapper& repo,
-    const std::string& target_name
-)
-{
-    if (auto ref = repo.find_reference_dwim(target_name))
-    {
-        return repo.find_annotated_commit(*ref);
-    }
-    else if (auto obj = repo.revparse_single(target_name))
-    {
-        return repo.find_annotated_commit(obj->oid());
-    }
-    else
-    {
-        return std::nullopt;
-    }
-}
-
 annotated_commit_wrapper checkout_subcommand::create_local_branch
 (
     repository_wrapper& repo,

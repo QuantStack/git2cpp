@@ -2,7 +2,7 @@
 #include <git2/types.h>
 
 #include "merge_subcommand.hpp"
-#include "../wrapper/repository_wrapper.hpp"
+// #include "../wrapper/repository_wrapper.hpp"
 
 
 merge_subcommand::merge_subcommand(const libgit2_object&, CLI::App& app)
@@ -14,7 +14,7 @@ merge_subcommand::merge_subcommand(const libgit2_object&, CLI::App& app)
     sub->callback([this]() { this->run(); });
 }
 
-annotated_commit_list_wrapper resolve_heads(const repository_wrapper& repo, std::vector<std::string> m_branches_to_merge)
+annotated_commit_list_wrapper merge_subcommand::resolve_heads(const repository_wrapper& repo)
 {
     std::vector<annotated_commit_wrapper> commits_to_merge;
     commits_to_merge.reserve(m_branches_to_merge.size());
@@ -30,7 +30,7 @@ annotated_commit_list_wrapper resolve_heads(const repository_wrapper& repo, std:
     return annotated_commit_list_wrapper(std::move(commits_to_merge));
 }
 
-void perform_fastforward(repository_wrapper& repo, const git_oid* target_oid, int is_unborn)
+void perform_fastforward(repository_wrapper& repo, const git_oid target_oid, int is_unborn)
 {
     const git_checkout_options ff_checkout_options = GIT_CHECKOUT_OPTIONS_INIT;
 
@@ -45,13 +45,13 @@ void perform_fastforward(repository_wrapper& repo, const git_oid* target_oid, in
             return repo->find_reference("HEAD");
         }
     };
-    auto target_ref = lambda_get_target_ref(&repo, is_unborn);
+    reference_wrapper target_ref = lambda_get_target_ref(&repo, is_unborn);
 
-    auto target = repo.find_object(target_oid, GIT_OBJECT_COMMIT);
+    object_wrapper target = repo.find_object(target_oid, GIT_OBJECT_COMMIT);
 
-    repo.checkout_tree(target, &ff_checkout_options);
+    repo.checkout_tree(target, ff_checkout_options);
 
-    auto new_target_ref = target_ref.new_ref(target_oid);
+    target_ref.write_new_ref(target_oid);
 }
 
 void merge_subcommand::run()
@@ -68,7 +68,7 @@ void merge_subcommand::run()
 
     git_merge_analysis_t analysis;
 	git_merge_preference_t preference;
-	annotated_commit_list_wrapper commits_to_merge = resolve_heads(repo, m_branches_to_merge);
+	annotated_commit_list_wrapper commits_to_merge = resolve_heads(repo);
 	size_t num_commits_to_merge = commits_to_merge.size();
 	git_annotated_commit** c_commits_to_merge = commits_to_merge;
 	auto commits_to_merge_const = const_cast<const git_annotated_commit**>(c_commits_to_merge);
@@ -83,7 +83,6 @@ void merge_subcommand::run()
              (analysis & GIT_MERGE_ANALYSIS_FASTFORWARD &&
              !(preference & GIT_MERGE_PREFERENCE_NO_FASTFORWARD)))
     {
-        const git_oid* target_oid;
         if (analysis & GIT_MERGE_ANALYSIS_UNBORN)
         {
             std::cout << "Unborn" << std::endl;
@@ -93,7 +92,8 @@ void merge_subcommand::run()
             std::cout << "Fast-forward" << std::endl;
         }
         const annotated_commit_wrapper& commit = commits_to_merge.front();
-        target_oid = &commit.oid();
+        const git_oid target_oid = commit.oid();
+        // Since this is a fast-forward, there can be only one merge head.
         assert(num_commits_to_merge == 1);
         perform_fastforward(repo, target_oid, (analysis & GIT_MERGE_ANALYSIS_UNBORN));
     }

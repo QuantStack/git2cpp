@@ -30,9 +30,9 @@ const git_oid* reference_wrapper::target() const
     return git_reference_target(p_resource);
 }
 
-reference_wrapper reference_wrapper::new_ref(const git_oid* target_oid)
+reference_wrapper reference_wrapper::write_new_ref(const git_oid target_oid)
 {
     git_reference* new_ref;
-    throw_if_error(git_reference_set_target(&new_ref, p_resource, target_oid, NULL));
+    throw_if_error(git_reference_set_target(&new_ref, p_resource, &target_oid, NULL));
     return reference_wrapper(new_ref);
 }

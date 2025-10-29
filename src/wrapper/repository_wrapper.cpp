@@ -119,7 +119,7 @@ commit_wrapper repository_wrapper::find_commit(const git_oid& id) const
 }
 
 void repository_wrapper::create_commit(const signature_wrapper::author_committer_signatures& author_committer_signatures,
-    const std::string& message, const std::optional<commit_list_wrapper>& parents_list)
+    const std::string_view message, const std::optional<commit_list_wrapper>& parents_list)
 {
     const char* message_encoding = "UTF-8";
     git_oid commit_id;
@@ -158,14 +158,14 @@ void repository_wrapper::create_commit(const signature_wrapper::author_committer
     throw_if_error(git_tree_lookup(&tree, *this, &tree_id));
 
     throw_if_error(git_commit_create(&commit_id, *this, update_ref.c_str(), author_committer_signatures.first, author_committer_signatures.second,
-        message_encoding, message.c_str(), tree, parents_count, parents));
+        message_encoding, message.data(), tree, parents_count, parents));
 
     git_tree_free(tree);
 }
 
 std::optional<annotated_commit_wrapper> repository_wrapper::resolve_local_ref
 (
-    const std::string& target_name
+    const std::string_view target_name
 ) const
 {
     if (auto ref = this->find_reference_dwim(target_name))
@@ -200,10 +200,10 @@ std::optional<object_wrapper> repository_wrapper::revparse_single(std::string_vi
     return rc == 0 ? std::make_optional(object_wrapper(obj)) : std::nullopt;
 }
 
-object_wrapper repository_wrapper::find_object(const git_oid* id, git_object_t type)
+object_wrapper repository_wrapper::find_object(const git_oid id, git_object_t type)
 {
     git_object* object;
-    git_object_lookup(&object, *this, id, type);
+    git_object_lookup(&object, *this, &id, type);
     return object_wrapper(object);
 }
 
@@ -228,7 +228,7 @@ void repository_wrapper::reset(const object_wrapper& target, git_reset_t reset_t
 
 // Trees
 
-void repository_wrapper::checkout_tree(const object_wrapper& target, const git_checkout_options* opts)
+void repository_wrapper::checkout_tree(const object_wrapper& target, const git_checkout_options opts)
 {
-    throw_if_error(git_checkout_tree(*this, target, opts));
+    throw_if_error(git_checkout_tree(*this, target, &opts));
 }

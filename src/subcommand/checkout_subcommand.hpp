@@ -17,12 +17,6 @@ public:
 
 private:
 
-    std::optional<annotated_commit_wrapper> resolve_local_ref
-    (
-        const repository_wrapper& repo,
-        const std::string& target_name
-    );
-
     annotated_commit_wrapper create_local_branch
     (
         repository_wrapper& repo,

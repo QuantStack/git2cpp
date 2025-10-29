@@ -23,7 +23,7 @@ public:
     std::string short_name() const;
     bool is_remote() const;
     const git_oid* target() const;
-    reference_wrapper new_ref(const git_oid* target_oid);
+    reference_wrapper write_new_ref(const git_oid target_oid);
 
     template <class W>
     W peel() const;
