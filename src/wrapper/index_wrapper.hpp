@@ -26,9 +26,15 @@ public:
     void add_entries(std::vector<std::string> patterns);
     void add_all();
 
+    bool has_conflict() const;
+    void output_conflicts();
+    void conflict_cleanup();
+
 
 private:
 
     index_wrapper() = default;
     void add_impl(std::vector<std::string> patterns);
+
+    git_index_conflict_iterator* create_conflict_iterator();
 };

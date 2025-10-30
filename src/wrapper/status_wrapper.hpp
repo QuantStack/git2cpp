@@ -26,6 +26,7 @@ public:
     bool has_tobecommited_header() const;
     bool has_ignored_header() const;
     bool has_notstagged_header() const;
+    bool has_unmerged_header() const;
     bool has_nothingtocommit_message() const;
 
 private:
@@ -39,5 +40,6 @@ private:
     bool m_tobecommited_header_flag = false;
     bool m_ignored_header_flag = false;
     bool m_notstagged_header_flag = false;
+    bool m_unmerged_header_flag = false;
     bool m_nothingtocommit_message_flag = false;
 };

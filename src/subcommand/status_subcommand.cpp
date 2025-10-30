@@ -27,41 +27,13 @@ status_subcommand::status_subcommand(const libgit2_object&, CLI::App& app)
 };
 
 const std::string untracked_header = "Untracked files:\n  (use \"git add <file>...\" to include in what will be committed)\n";
-const std::string tobecommited_header = "Changes to be committed:\n";
-//   (use \"git restore --staged <file>...\" to unstage)\n
-//   (use \"git reset HEAD <file>...\" to unstage)\n";
-// const std::string ignored_header = "Ignored files:\n  (use \"git add -f <file>...\" to include in what will be committed)\n";
-const std::string notstagged_header = "Changes not staged for commit:\n  (use \"git add <file>...\" to update what will be committed)\n";
-//  (use \"git restore <file>...\" to discard changes in working directory)\n
-//  (use \"git checkout -- <file>...\" to discard changes in working directory)\n"
-const std::string nothingtocommit_msg = "No changes added to commit (use \"git add\" and/or \"git commit -a\")";
-const std::string uptodate_msg = "Nothing to commit, working tree clean.";
-const std::string nothingtocommit_untrackedfiles_msg = "Nothing added to commit but untracked files present (use \"git add\" to track)";
-//   no changes added to commit (use "git add" and/or "git commit -a")
-
-struct status_messages
-{
-    std::string short_mod;
-    std::string long_mod;
-};
-
-const std::map<git_status_t, status_messages> status_msg_map =   //TODO : check spaces in short_mod
-{
-    { GIT_STATUS_CURRENT, {"", ""} },
-    { GIT_STATUS_INDEX_NEW, {"A  ", "\tnew file:"} },
-    { GIT_STATUS_INDEX_MODIFIED, {"M  ", "\tmodified:"} },
-    { GIT_STATUS_INDEX_DELETED, {"D  ", "\tdeleted:"} },
-    { GIT_STATUS_INDEX_RENAMED, {"R  ", "\trenamed:"} },
-    { GIT_STATUS_INDEX_TYPECHANGE, {"T  ", "\ttypechange:"} },
-    { GIT_STATUS_WT_NEW, {"?? ", "      "} },
-    { GIT_STATUS_WT_MODIFIED, {" M " , "\tmodified:"} },
-    { GIT_STATUS_WT_DELETED, {" D ", "\tdeleted:"} },
-    { GIT_STATUS_WT_TYPECHANGE, {" T ", "\ttypechange:"} },
-    { GIT_STATUS_WT_RENAMED, {" R ", "\trenamed:"} },
-    { GIT_STATUS_WT_UNREADABLE, {"", ""} },
-    { GIT_STATUS_IGNORED, {"!! ", ""} },
-    { GIT_STATUS_CONFLICTED, {"", ""} },
-};
+const std::string tobecommited_header = "Changes to be committed:\n  (use \"git reset HEAD <file>...\" to unstage)\n";
+const std::string ignored_header = "Ignored files:\n  (use \"git add -f <file>...\" to include in what will be committed)\n";
+const std::string notstagged_header = "Changes not staged for commit:\n";
+// "Changes not staged for commit:\n  (use \"git add%s <file>...\" to update what will be committed)\n  (use \"git checkout -- <file>...\" to discard changes in working directory)\n"
+const std::string unmerged_header = "Unmerged paths:\n  (use \"git add <file>...\" to mark resolution)\n";
+// const std::string nothingtocommit_message = "No changes added to commit  (use \"git add\" and/or \"git commit -a\")";
+const std::string treeclean_message = "Nothing to commit, working tree clean";
 
 enum class output_format
 {
@@ -81,18 +53,11 @@ std::string get_print_status(git_status_t status, output_format of)
     std::string entry_status;
     if ((of == output_format::DEFAULT) || (of == output_format::LONG))
     {
-        if (status == GIT_STATUS_WT_NEW)
-        {
-            entry_status = status_msg_map.at(status).long_mod + "\t";
-        }
-        else
-        {
-            entry_status = status_msg_map.at(status).long_mod + "   ";
-        }
+        entry_status = get_status_msg(status).long_mod;
     }
     else if (of == output_format::SHORT)
     {
-        entry_status = status_msg_map.at(status).short_mod;
+        entry_status = get_status_msg(status).short_mod;
     }
     return entry_status;
 }
@@ -228,7 +193,12 @@ void status_subcommand::run()
     is_long = ((of == output_format::DEFAULT) || (of == output_format::LONG));
     if (is_long)
     {
-        std::cout  << "On branch " << branch_name << std::endl;
+        std::cout  << "On branch " << branch_name << "\n" << std::endl;
+
+        if (sl.has_unmerged_header())
+        {
+            std::cout << "You have unmerged paths.\n  (fix conflicts and run \"git commit\")\n  (use \"git merge --abort\" to abort the merge)\n" << std::endl;
+        }
     }
     else
     {
@@ -273,6 +243,21 @@ void status_subcommand::run()
         }
     }
 
+    // TODO: check if should be printed before "not stagged" files
+    if (sl.has_unmerged_header())
+    {
+        stream_colour_fn colour = termcolor::red;
+        if (is_long)
+        {
+            std::cout << unmerged_header;
+        }
+        print_not_tracked(get_entries_to_print(GIT_STATUS_CONFLICTED, sl, false, of), tracked_dir_set, untracked_dir_set, is_long, colour);
+        if (is_long)
+        {
+            std::cout << std::endl;
+        }
+    }
+
     if (sl.has_untracked_header())
     {
         stream_colour_fn colour = termcolor::red;
@@ -285,6 +270,12 @@ void status_subcommand::run()
         {
             std::cout << std::endl;
         }
+    }
+
+    // TODO: check if this message should be displayed even if there are untracked files
+    if (!(sl.has_tobecommited_header() | sl.has_notstagged_header() | sl.has_unmerged_header() | sl.has_untracked_header()))
+    {
+        std::cout << treeclean_message << std::endl;
     }
 
     // if (sl.has_ignored_header())

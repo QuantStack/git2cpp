@@ -35,6 +35,10 @@ status_list_wrapper status_list_wrapper::status_list(const repository_wrapper& r
     {
         res.m_ignored_header_flag = true;
     }
+    if (!res.get_entry_list(GIT_STATUS_CONFLICTED).empty())
+    {
+        res.m_unmerged_header_flag = true;
+    }
     // if (!res.tobecommited_header_flag)
     // {
     //     res.m_nothingtocommit_message_flag = true;
@@ -58,6 +62,10 @@ bool status_list_wrapper::has_ignored_header() const
 bool status_list_wrapper::has_notstagged_header() const
 {
     return m_notstagged_header_flag;
+}
+bool status_list_wrapper::has_unmerged_header() const
+{
+    return m_unmerged_header_flag;
 }
 bool status_list_wrapper::has_nothingtocommit_message() const
 {

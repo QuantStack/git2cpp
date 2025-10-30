@@ -25,4 +25,7 @@ private:
     // bool m_no_ff = false;
     // bool m_commit = false;
     bool m_no_commit = false;
+    bool m_abort = false;
+    bool m_quit = false;
+    bool m_continue = false;
 };
