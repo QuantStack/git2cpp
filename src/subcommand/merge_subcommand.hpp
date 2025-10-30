@@ -17,4 +17,7 @@ private:
     annotated_commit_list_wrapper resolve_heads(const repository_wrapper& repo);
 
     std::vector<std::string> m_branches_to_merge;
+    // bool m_no_ff = false;
+    // bool m_commit = false;
+    bool m_no_commit = false;
 };
