@@ -11,7 +11,7 @@ void throw_if_error(int exit_code)
 }
 
 
-git_exception::git_exception(const std::string& message, int error_code)
+git_exception::git_exception(const std::string_view message, int error_code)
     : m_message(message), m_error_code(error_code)
 {}
 
