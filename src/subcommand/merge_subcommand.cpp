@@ -84,15 +84,7 @@ void merge_subcommand::create_merge_commit(
     auto author_committer_sign_now = signature_wrapper::signature_now(author_name, author_email, author_name, author_email);
 
     // TODO: add a prompt to edit the merge message
-    std::string msg_target = "";
-    if (merge_ref)
-    {
-        msg_target = merge_ref->short_name();
-    }
-    else
-    {
-        msg_target = git_oid_tostr_s(&(merge_commit.oid()));
-    }
+    std::string msg_target = merge_ref ? merge_ref->short_name() : git_oid_tostr_s(&(merge_commit.oid()));
 	std::string msg = merge_ref ? "Merge branch " : "Merge commit ";
 	msg.append(msg_target);
 
