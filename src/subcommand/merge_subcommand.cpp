@@ -57,8 +57,11 @@ void perform_fastforward(repository_wrapper& repo, const git_oid target_oid, int
     target_ref.write_new_ref(target_oid);
 }
 
-void create_merge_commit(repository_wrapper& repo, const index_wrapper& index, std::vector<std::string> m_branches_to_merge,
-    const annotated_commit_list_wrapper& commits_to_merge, size_t num_commits_to_merge)
+void merge_subcommand::create_merge_commit(
+    repository_wrapper& repo,
+    const index_wrapper& index,
+    const annotated_commit_list_wrapper& commits_to_merge,
+    size_t num_commits_to_merge)
 {
     auto head_ref = repo.head();
     auto merge_ref = repo.find_reference_dwim(m_branches_to_merge.front());
@@ -90,16 +93,7 @@ void create_merge_commit(repository_wrapper& repo, const index_wrapper& index, s
     {
         msg_target = git_oid_tostr_s(&(merge_commit.oid()));
     }
-
-	std::string msg = "Merge ";
-	if (merge_ref)
-	{
-	    msg.append("branch ");
-	}
-	else
-	{
-	    msg.append("commit ");
-	}
+	std::string msg = merge_ref ? "Merge branch " : "Merge commit ";
 	msg.append(msg_target);
 
 	repo.create_commit(author_committer_sign_now, msg, std::optional<commit_list_wrapper>(std::move(parents)));
@@ -183,7 +177,7 @@ void merge_subcommand::run()
 	}
 	else if (!m_no_commit)
 	{
-		create_merge_commit(repo, index, m_branches_to_merge, commits_to_merge, num_commits_to_merge);
+		create_merge_commit(repo, index, commits_to_merge, num_commits_to_merge);
 		printf("Merge made\n");
 	}
 }
