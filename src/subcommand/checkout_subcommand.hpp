@@ -20,7 +20,7 @@ private:
     annotated_commit_wrapper create_local_branch
     (
         repository_wrapper& repo,
-        const std::string& target_name,
+        const std::string_view target_name,
         bool force
     );
 
@@ -28,7 +28,7 @@ private:
     (
         const repository_wrapper& repo,
         const annotated_commit_wrapper& target_annotated_commit,
-        const std::string& target_name,
+        const std::string_view target_name,
         const git_checkout_options& options
     );
 
@@ -36,7 +36,7 @@ private:
     (
         repository_wrapper& repo,
         const annotated_commit_wrapper& target_annotated_commit,
-        const std::string& target_name
+        const std::string_view target_name
     );
 
     std::string m_branch_name = {};
