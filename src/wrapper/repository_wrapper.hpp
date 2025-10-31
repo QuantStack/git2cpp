@@ -30,6 +30,7 @@ public:
     static repository_wrapper clone(std::string_view url, std::string_view path, const git_clone_options& opts);
 
     git_repository_state_t state() const;
+    void state_cleanup();
 
     // References
     reference_wrapper head() const;

@@ -2,6 +2,7 @@
 #include "../wrapper/index_wrapper.hpp"
 #include "../wrapper/object_wrapper.hpp"
 #include "../wrapper/commit_wrapper.hpp"
+#include <git2/repository.h>
 #include "../wrapper/repository_wrapper.hpp"
 
 repository_wrapper::~repository_wrapper()
@@ -34,6 +35,11 @@ repository_wrapper repository_wrapper::clone(std::string_view url, std::string_v
 git_repository_state_t repository_wrapper::state() const
 {
     return git_repository_state_t(git_repository_state(*this));
+}
+
+void repository_wrapper::state_cleanup()
+{
+    throw_if_error(git_repository_state_cleanup(*this));
 }
 
 // References

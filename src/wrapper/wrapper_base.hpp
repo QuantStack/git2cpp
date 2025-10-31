@@ -71,11 +71,14 @@ public:
         return m_list.size();
     }
 
-    T front()
+    const T& operator[](size_t pos) const
     {
-        // TODO: rework wrapper so they can have references
-        // on libgit2 object without taking ownership
-        return T(std::move(m_list.front()));
+        return m_list[pos];
+    }
+
+    const T& front() const
+    {
+        return m_list.front();
     }
 
 private:
