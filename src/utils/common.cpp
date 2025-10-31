@@ -1,6 +1,7 @@
 #include <filesystem>
 #include <iostream>
 #include <unistd.h>
+#include <map>
 
 #include <git2.h>
 
@@ -25,6 +26,33 @@ std::string get_current_git_path()
 // sub->add_option("directory", directory, "info about directory arg")
 //     ->check(CLI::ExistingDirectory | CLI::NonexistentPath)
 //     ->default_val(std::filesystem::current_path());
+
+const std::map<git_status_t, status_messages>& get_status_msg_map()
+{
+    static std::map<git_status_t, status_messages> status_msg_map =   //TODO : check spaces in short_mod
+    {
+        { GIT_STATUS_CURRENT, {"", ""} },
+        { GIT_STATUS_INDEX_NEW, {"A  ", "\tnew file:   "} },
+        { GIT_STATUS_INDEX_MODIFIED, {"M  ", "\tmodified:   "} },
+        { GIT_STATUS_INDEX_DELETED, {"D  ", "\tdeleted:   "} },
+        { GIT_STATUS_INDEX_RENAMED, {"R  ", "\trenamed:   "} },
+        { GIT_STATUS_INDEX_TYPECHANGE, {"T  ", "\ttypechange:   "} },
+        { GIT_STATUS_WT_NEW, {"?? ", "\t"} },
+        { GIT_STATUS_WT_MODIFIED, {" M " , "\tmodified:   "} },
+        { GIT_STATUS_WT_DELETED, {" D ", "\tdeleted:   "} },
+        { GIT_STATUS_WT_TYPECHANGE, {" T ", "\ttypechange:   "} },
+        { GIT_STATUS_WT_RENAMED, {" R ", "\trenamed:   "} },
+        { GIT_STATUS_WT_UNREADABLE, {"", ""} },
+        { GIT_STATUS_IGNORED, {"!! ", ""} },
+        { GIT_STATUS_CONFLICTED, {"AA ", "\tboth added:   "} },
+    };
+    return status_msg_map;
+}
+
+status_messages get_status_msg(git_status_t st)
+{
+    return get_status_msg_map().find(st)->second;
+}
 
 git_strarray_wrapper::git_strarray_wrapper(std::vector<std::string> patterns)
     : m_patterns(std::move(patterns))

@@ -28,6 +28,14 @@ public:
 
 std::string get_current_git_path();
 
+struct status_messages
+{
+    std::string short_mod;
+    std::string long_mod;
+};
+
+status_messages get_status_msg(git_status_t);
+
 using stream_colour_fn = std::ostream& (*)(std::ostream&);
 
 class git_strarray_wrapper
