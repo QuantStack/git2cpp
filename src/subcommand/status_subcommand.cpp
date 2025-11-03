@@ -26,16 +26,18 @@ status_subcommand::status_subcommand(const libgit2_object&, CLI::App& app)
     sub->callback([this]() { this->run(); });
 };
 
-const std::string untracked_header = "Untracked files:\n";
-// "Untracked files:\n  (use \"git add <file>...\" to include in what will be committed)";
+const std::string untracked_header = "Untracked files:\n  (use \"git add <file>...\" to include in what will be committed)\n";
 const std::string tobecommited_header = "Changes to be committed:\n";
-// "Changes to be committed:\n  (use \"git reset HEAD <file>...\" to unstage)";
-const std::string ignored_header = "Ignored files:\n";
-// "Ignored files:\n  (use \"git add -f <file>...\" to include in what will be committed)"
-const std::string notstagged_header = "Changes not staged for commit:\n";
-// "Changes not staged for commit:\n  (use \"git add%s <file>...\" to update what will be committed)\n  (use \"git checkout -- <file>...\" to discard changes in working directory)"
-const std::string nothingtocommit_message = "No changes added to commit";
-// "No changes added to commit (use \"git add\" and/or \"git commit -a\")"
+//   (use \"git restore --staged <file>...\" to unstage)\n
+//   (use \"git reset HEAD <file>...\" to unstage)\n";
+const std::string ignored_header = "Ignored files:\n   Ignored files:\n  (use \"git add -f <file>...\" to include in what will be committed)\n";
+const std::string notstagged_header = "Changes not staged for commit:\n  (use \"git add <file>...\" to update what will be committed)\n";
+//  (use \"git restore <file>...\" to discard changes in working directory)\n
+//  (use \"git checkout -- <file>...\" to discard changes in working directory)\n"
+const std::string nothingtocommit_msg = "No changes added to commit (use \"git add\" and/or \"git commit -a\")";
+const std::string uptodate_msg = "Nothing to commit, working tree clean.";
+const std::string nothingtocommit_untrackedfiles_msg = "Nothing added to commit but untracked files present (use \"git add\" to track)";
+//   no changes added to commit (use "git add" and/or "git commit -a")
 
 struct status_messages
 {
@@ -51,7 +53,7 @@ const std::map<git_status_t, status_messages> status_msg_map =   //TODO : check 
     { GIT_STATUS_INDEX_DELETED, {"D  ", "\tdeleted:"} },
     { GIT_STATUS_INDEX_RENAMED, {"R  ", "\trenamed:"} },
     { GIT_STATUS_INDEX_TYPECHANGE, {"T  ", "\ttypechange:"} },
-    { GIT_STATUS_WT_NEW, {"?? ", ""} },
+    { GIT_STATUS_WT_NEW, {"?? ", "      "} },
     { GIT_STATUS_WT_MODIFIED, {" M " , "\tmodified:"} },
     { GIT_STATUS_WT_DELETED, {" D ", "\tdeleted:"} },
     { GIT_STATUS_WT_TYPECHANGE, {" T ", "\ttypechange:"} },
@@ -79,7 +81,14 @@ std::string get_print_status(git_status_t status, output_format of)
     std::string entry_status;
     if ((of == output_format::DEFAULT) || (of == output_format::LONG))
     {
-        entry_status = status_msg_map.at(status).long_mod + "   ";
+        if (status == GIT_STATUS_WT_NEW)
+        {
+            entry_status = status_msg_map.at(status).long_mod + "\t";
+        }
+        else
+        {
+            entry_status = status_msg_map.at(status).long_mod + "   ";
+        }
     }
     else if (of == output_format::SHORT)
     {
@@ -88,14 +97,14 @@ std::string get_print_status(git_status_t status, output_format of)
     return entry_status;
 }
 
-void update_tracked_dir_set(const char* old_path, const char* new_path, std::set<std::string>* tracked_dir_set = nullptr)
+void update_tracked_dir_set(const char* path, std::set<std::string>* tracked_dir_set = nullptr)
 {
     if (tracked_dir_set)
     {
-        const size_t first_slash_idx = std::string_view(old_path).find('/');
+        const size_t first_slash_idx = std::string_view(path).find('/');
         if (std::string::npos != first_slash_idx)
         {
-            auto directory = std::string_view(old_path).substr(0, first_slash_idx);
+            auto directory = std::string_view(path).substr(0, first_slash_idx);
             tracked_dir_set->insert(std::string(directory));
         }
     }
@@ -131,7 +140,7 @@ std::vector<print_entry> get_entries_to_print(git_status_t status, status_list_w
         const char* old_path = diff_delta->old_file.path;
         const char* new_path = diff_delta->new_file.path;
 
-        update_tracked_dir_set(old_path, new_path, tracked_dir_set);
+        update_tracked_dir_set(old_path, tracked_dir_set);
 
         print_entry e = { get_print_status(status, of), get_print_item(old_path, new_path)};
 
@@ -164,7 +173,8 @@ void print_not_tracked(const std::vector<print_entry>& entries_to_print, const s
         const size_t first_slash_idx = e.item.find('/');
         if (std::string::npos != first_slash_idx)
         {
-            auto directory = "\t" + e.item.substr(0, first_slash_idx) + "/";
+            auto directory = e.item.substr(0, first_slash_idx);
+            auto directory_print = e.item.substr(0, first_slash_idx) + "/";
             if (tracked_dir_set.contains(directory))
             {
                 not_tracked_entries_to_print.push_back(e);
@@ -175,7 +185,7 @@ void print_not_tracked(const std::vector<print_entry>& entries_to_print, const s
                 {}
                 else
                 {
-                    not_tracked_entries_to_print.push_back({e.status, directory});
+                    not_tracked_entries_to_print.push_back({e.status, directory_print});
                     untracked_dir_set.insert(std::string(directory));
                 }
             }
@@ -290,4 +300,21 @@ void status_subcommand::run()
     //         std::cout << std::endl;
     //     }
     // }
+
+    if (!sl.has_tobecommited_header() & (sl.has_notstagged_header() | sl.has_untracked_header()))
+    {
+        if (sl.has_untracked_header())
+        {
+            std::cout << nothingtocommit_untrackedfiles_msg << std::endl;
+        }
+        else
+        {
+            std::cout << nothingtocommit_msg << std::endl;
+        }
+    }
+
+    if (!sl.has_notstagged_header() & !sl.has_untracked_header())
+    {
+        std::cout << uptodate_msg << std::endl;
+    }
 }
