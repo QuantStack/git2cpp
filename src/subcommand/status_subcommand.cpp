@@ -301,7 +301,7 @@ void status_subcommand::run()
     //     }
     // }
 
-    if (!sl.has_tobecommited_header() & (sl.has_notstagged_header() | sl.has_untracked_header()))
+    if (!sl.has_tobecommited_header() && (sl.has_notstagged_header() || sl.has_untracked_header()))
     {
         if (sl.has_untracked_header())
         {
@@ -313,7 +313,7 @@ void status_subcommand::run()
         }
     }
 
-    if (!sl.has_notstagged_header() & !sl.has_untracked_header())
+    if (!sl.has_notstagged_header() && !sl.has_untracked_header())
     {
         std::cout << uptodate_msg << std::endl;
     }
