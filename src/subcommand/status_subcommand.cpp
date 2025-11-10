@@ -30,7 +30,7 @@ const std::string untracked_header = "Untracked files:\n  (use \"git add <file>.
 const std::string tobecommited_header = "Changes to be committed:\n";
 //   (use \"git restore --staged <file>...\" to unstage)\n
 //   (use \"git reset HEAD <file>...\" to unstage)\n";
-const std::string ignored_header = "Ignored files:\n   Ignored files:\n  (use \"git add -f <file>...\" to include in what will be committed)\n";
+// const std::string ignored_header = "Ignored files:\n  (use \"git add -f <file>...\" to include in what will be committed)\n";
 const std::string notstagged_header = "Changes not staged for commit:\n  (use \"git add <file>...\" to update what will be committed)\n";
 //  (use \"git restore <file>...\" to discard changes in working directory)\n
 //  (use \"git checkout -- <file>...\" to discard changes in working directory)\n"
