@@ -50,12 +50,18 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/subcommand/clone_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/commit_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/commit_subcommand.hpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/fetch_subcommand.cpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/fetch_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/init_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/init_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/log_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/log_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/merge_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/merge_subcommand.hpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/push_subcommand.cpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/push_subcommand.hpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/remote_subcommand.cpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/remote_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/reset_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/reset_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/status_subcommand.cpp
@@ -82,6 +88,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/wrapper/object_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/refs_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/refs_wrapper.hpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/remote_wrapper.cpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/remote_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/repository_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/repository_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/signature_wrapper.cpp

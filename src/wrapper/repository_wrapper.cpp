@@ -1,8 +1,12 @@
+#include <iostream>
+
 #include "../utils/git_exception.hpp"
 #include "../wrapper/index_wrapper.hpp"
 #include "../wrapper/object_wrapper.hpp"
 #include "../wrapper/commit_wrapper.hpp"
+#include "../wrapper/remote_wrapper.hpp"
 #include <git2/repository.h>
+#include <git2/remote.h>
 #include "../wrapper/repository_wrapper.hpp"
 
 repository_wrapper::~repository_wrapper()
@@ -237,4 +241,68 @@ void repository_wrapper::reset(const object_wrapper& target, git_reset_t reset_t
 void repository_wrapper::checkout_tree(const object_wrapper& target, const git_checkout_options opts)
 {
     throw_if_error(git_checkout_tree(*this, target, &opts));
+}
+
+// Remotes
+
+remote_wrapper repository_wrapper::find_remote(std::string_view name) const
+{
+    git_remote* remote = nullptr;
+    throw_if_error(git_remote_lookup(&remote, *this, name.data()));
+    return remote_wrapper(remote);
+}
+
+remote_wrapper repository_wrapper::create_remote(std::string_view name, std::string_view url)
+{
+    git_remote* remote = nullptr;
+    throw_if_error(git_remote_create(&remote, *this, name.data(), url.data()));
+    return remote_wrapper(remote);
+}
+
+void repository_wrapper::delete_remote(std::string_view name)
+{
+    throw_if_error(git_remote_delete(*this, name.data()));
+}
+
+void repository_wrapper::rename_remote(std::string_view old_name, std::string_view new_name)
+{
+    git_strarray problems = {0};
+    int error = git_remote_rename(&problems, *this, old_name.data(), new_name.data());
+    if (error != 0)
+    {
+        for (size_t i = 0; i < problems.count; ++i)
+        {
+            std::cerr << problems.strings[i] << std::endl;
+        }
+        git_strarray_dispose(&problems);
+        throw_if_error(error);
+    }
+    git_strarray_dispose(&problems);
+}
+
+void repository_wrapper::set_remote_url(std::string_view name, std::string_view url, bool push)
+{
+    if (push)
+    {
+        throw_if_error(git_remote_set_pushurl(*this, name.data(), url.data()));
+    }
+    else
+    {
+        throw_if_error(git_remote_set_url(*this, name.data(), url.data()));
+    }
+}
+
+std::vector<std::string> repository_wrapper::list_remotes() const
+{
+    git_strarray remotes = {0};
+    throw_if_error(git_remote_list(&remotes, *this));
+    
+    std::vector<std::string> result;
+    for (size_t i = 0; i < remotes.count; ++i)
+    {
+        result.emplace_back(remotes.strings[i]);
+    }
+    
+    git_strarray_dispose(&remotes);
+    return result;
 }

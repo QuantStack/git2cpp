@@ -13,6 +13,7 @@
 #include "../wrapper/index_wrapper.hpp"
 #include "../wrapper/object_wrapper.hpp"
 #include "../wrapper/refs_wrapper.hpp"
+#include "../wrapper/remote_wrapper.hpp"
 #include "../wrapper/signature_wrapper.hpp"
 #include "../wrapper/wrapper_base.hpp"
 
@@ -72,6 +73,14 @@ public:
 
     // Trees
     void checkout_tree(const object_wrapper& target, const git_checkout_options opts);
+
+    // Remotes
+    remote_wrapper find_remote(std::string_view name) const;
+    remote_wrapper create_remote(std::string_view name, std::string_view url);
+    void delete_remote(std::string_view name);
+    void rename_remote(std::string_view old_name, std::string_view new_name);
+    void set_remote_url(std::string_view name, std::string_view url, bool push = false);
+    std::vector<std::string> list_remotes() const;
 
 private:
 

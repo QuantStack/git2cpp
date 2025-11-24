@@ -10,9 +10,12 @@
 #include "subcommand/checkout_subcommand.hpp"
 #include "subcommand/clone_subcommand.hpp"
 #include "subcommand/commit_subcommand.hpp"
+#include "subcommand/fetch_subcommand.hpp"
 #include "subcommand/init_subcommand.hpp"
 #include "subcommand/log_subcommand.hpp"
 #include "subcommand/merge_subcommand.hpp"
+#include "subcommand/push_subcommand.hpp"
+#include "subcommand/remote_subcommand.hpp"
 #include "subcommand/reset_subcommand.hpp"
 #include "subcommand/status_subcommand.hpp"
 
@@ -35,9 +38,12 @@ int main(int argc, char** argv)
         checkout_subcommand checkout(lg2_obj, app);
         clone_subcommand clone(lg2_obj, app);
         commit_subcommand commit(lg2_obj, app);
+        fetch_subcommand fetch(lg2_obj, app);
         reset_subcommand reset(lg2_obj, app);
         log_subcommand log(lg2_obj, app);
         merge_subcommand merge(lg2_obj, app);
+        push_subcommand push(lg2_obj, app);
+        remote_subcommand remote(lg2_obj, app);
 
         app.require_subcommand(/* min */ 0, /* max */ 1);
 
