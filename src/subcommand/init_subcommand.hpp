@@ -14,6 +14,6 @@ public:
     void run();
 
 private:
-    bool m_bare;
+    bool m_bare = false;
     std::string m_directory;
 };
