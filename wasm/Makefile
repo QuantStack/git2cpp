@@ -16,7 +16,7 @@ rebuild:
 
 # Serve both cockle and JupyterLite deployments.
 serve:
-	npx static-handler serve
+	npx static-handler --cors --coop --coep --corp serve
 
 test:
 	make -C test $@
