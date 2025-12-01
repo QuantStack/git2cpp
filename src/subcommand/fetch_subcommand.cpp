@@ -13,14 +13,14 @@ namespace
 {
     int sideband_progress(const char* str, int len, void*)
     {
-        printf("remote: %.*s", len, str);
-        fflush(stdout);
+        std::cout << "remote: " << std::string(str, static_cast<std::size_t>(len));
+        std::cout.flush();
         return 0;
     }
 
     int fetch_progress(const git_indexer_progress* stats, void* payload)
     {
-        static bool done = false;
+        bool done = false;
 
         auto* pr = reinterpret_cast<git_indexer_progress*>(payload);
         *pr = *stats;
@@ -60,13 +60,20 @@ namespace
 
         if (git_oid_is_zero(a))
         {
-            printf("[new]     %.20s %s\n", b_str, refname);
+            std::cout << "[new]     "
+                      << std::string(b_str, 20)
+                      << " " << refname << std::endl;
         }
         else
         {
             git_oid_fmt(a_str, a);
             a_str[GIT_OID_SHA1_HEXSIZE] = '\0';
-            printf("[updated] %.10s..%.10s %s\n", a_str, b_str, refname);
+
+            std::cout << "[updated] "
+                      << std::string(a_str, 10)
+                      << ".."
+                      << std::string(b_str, 10)
+                      << " " << refname << std::endl;
         }
 
         return 0;
