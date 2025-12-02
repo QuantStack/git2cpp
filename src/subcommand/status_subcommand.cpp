@@ -138,8 +138,7 @@ void print_not_tracked(const std::vector<print_entry>& entries_to_print, const s
         const size_t first_slash_idx = e.item.find('/');
         if (std::string::npos != first_slash_idx)
         {
-            auto directory = e.item.substr(0, first_slash_idx);
-            auto directory_print = e.item.substr(0, first_slash_idx) + "/";
+            auto directory = e.item.substr(0, first_slash_idx) + "/";
             if (tracked_dir_set.contains(directory))
             {
                 not_tracked_entries_to_print.push_back(e);
@@ -150,7 +149,7 @@ void print_not_tracked(const std::vector<print_entry>& entries_to_print, const s
                 {}
                 else
                 {
-                    not_tracked_entries_to_print.push_back({e.status, directory_print});
+                    not_tracked_entries_to_print.push_back({e.status, directory});
                     untracked_dir_set.insert(std::string(directory));
                 }
             }
@@ -291,21 +290,4 @@ void status_subcommand::run()
     //         std::cout << std::endl;
     //     }
     // }
-
-    if (!sl.has_tobecommited_header() && (sl.has_notstagged_header() || sl.has_untracked_header()))
-    {
-        if (sl.has_untracked_header())
-        {
-            std::cout << nothingtocommit_untrackedfiles_msg << std::endl;
-        }
-        else
-        {
-            std::cout << nothingtocommit_msg << std::endl;
-        }
-    }
-
-    if (!sl.has_notstagged_header() && !sl.has_untracked_header())
-    {
-        std::cout << uptodate_msg << std::endl;
-    }
 }
