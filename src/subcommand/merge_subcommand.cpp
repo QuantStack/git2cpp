@@ -39,7 +39,7 @@ annotated_commit_list_wrapper merge_subcommand::resolve_heads(const repository_w
     return annotated_commit_list_wrapper(std::move(commits_to_merge));
 }
 
-annotated_commit_list_wrapper resolve_mergeheads(const repository_wrapper& repo, const std::vector<git_oid> oid_list)
+annotated_commit_list_wrapper resolve_mergeheads(const repository_wrapper& repo, const std::vector<git_oid>& oid_list)
 {
     std::vector<annotated_commit_wrapper> commits_to_merge;
     commits_to_merge.reserve(oid_list.size());
@@ -82,7 +82,7 @@ void perform_fastforward(repository_wrapper& repo, const git_oid& target_oid, in
 void merge_subcommand::create_merge_commit(
     repository_wrapper& repo,
     const index_wrapper& index,
-    const std::vector<std::string> branches_to_merge,
+    const std::vector<std::string>& branches_to_merge,
     const annotated_commit_list_wrapper& commits_to_merge,
     size_t num_commits_to_merge)
 {
