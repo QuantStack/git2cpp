@@ -39,12 +39,12 @@ annotated_commit_list_wrapper merge_subcommand::resolve_heads(const repository_w
     return annotated_commit_list_wrapper(std::move(commits_to_merge));
 }
 
-annotated_commit_list_wrapper resolve_mergeheads(const repository_wrapper& repo, std::vector<git_oid> oid_list)
+annotated_commit_list_wrapper resolve_mergeheads(const repository_wrapper& repo, const std::vector<git_oid> oid_list)
 {
     std::vector<annotated_commit_wrapper> commits_to_merge;
     commits_to_merge.reserve(oid_list.size());
 
-    for (const auto id:oid_list)
+    for (const auto& id:oid_list)
     {
         std::optional<annotated_commit_wrapper> commit = repo.find_annotated_commit(id);
         if (commit.has_value())
@@ -55,7 +55,7 @@ annotated_commit_list_wrapper resolve_mergeheads(const repository_wrapper& repo,
     return annotated_commit_list_wrapper(std::move(commits_to_merge));
 }
 
-void perform_fastforward(repository_wrapper& repo, const git_oid target_oid, int is_unborn)
+void perform_fastforward(repository_wrapper& repo, const git_oid& target_oid, int is_unborn)
 {
     const git_checkout_options ff_checkout_options = GIT_CHECKOUT_OPTIONS_INIT;
 
@@ -82,13 +82,13 @@ void perform_fastforward(repository_wrapper& repo, const git_oid target_oid, int
 void merge_subcommand::create_merge_commit(
     repository_wrapper& repo,
     const index_wrapper& index,
-    std::vector<std::string> m_branches_to_merge,
+    const std::vector<std::string> branches_to_merge,
     const annotated_commit_list_wrapper& commits_to_merge,
     size_t num_commits_to_merge)
 {
     auto head_ref = repo.head();
-    auto merge_ref = repo.find_reference_dwim(m_branches_to_merge.front());
-    auto merge_commit = repo.resolve_local_ref(m_branches_to_merge.front()).value();
+    auto merge_ref = repo.find_reference_dwim(branches_to_merge.front());
+    auto merge_commit = repo.resolve_local_ref(branches_to_merge.front()).value();
 
     std::vector<commit_wrapper> parents_list;
     parents_list.reserve(num_commits_to_merge + 1);
@@ -110,13 +110,14 @@ void merge_subcommand::create_merge_commit(
     std::string msg_target = merge_ref ? merge_ref->short_name() : git_oid_tostr_s(&(merge_commit.oid()));
     msg_target = "\'" + msg_target + "\'";
 	std::string msg = merge_ref ? "Merge branch " : "Merge commit ";
-	msg.append( msg_target);
+	msg.append(msg_target);
 
 	repo.create_commit(author_committer_sign_now, msg, std::optional<commit_list_wrapper>(std::move(parents)));
 
 	repo.state_cleanup();
 }
 
+// This function is used as a callback in git_repository_mergehead_foreach and therefore its type must be git_repository_mergehead_foreach_cb.
 int populate_list(const git_oid* oid, void* payload)
 {
     auto* l = reinterpret_cast<std::vector<git_oid>*>(payload);
@@ -210,7 +211,7 @@ void merge_subcommand::run()
                 size_t num_commits_to_merge = commits_to_merge.size();
 
                 std::vector<std::string> branches_to_merge_names;
-                for (auto id:oid_list)
+                for (const auto& id:oid_list)
 				{
 				    git_reference_iterator* iter;
 					git_reference_iterator_new(&iter, repo);

@@ -18,7 +18,7 @@ private:
     void create_merge_commit(
         repository_wrapper& repo,
         const index_wrapper& index,
-        std::vector<std::string> m_branches_to_merge,
+        const std::vector<std::string> branches_to_merge,
         const annotated_commit_list_wrapper& commits_to_merge,
         size_t num_commits_to_merge);
 
