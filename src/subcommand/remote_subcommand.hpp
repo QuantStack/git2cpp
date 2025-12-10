@@ -32,4 +32,3 @@ private:
     bool m_verbose_flag = false;
     bool m_push_flag = false;
 };
-

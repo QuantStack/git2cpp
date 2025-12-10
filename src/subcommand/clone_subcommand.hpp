@@ -15,4 +15,5 @@ private:
 
     std::string m_repository = {};
     std::string m_directory = {};
+    bool m_bare = false;
 };

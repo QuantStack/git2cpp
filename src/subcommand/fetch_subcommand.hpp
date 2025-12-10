@@ -5,7 +5,6 @@
 #include <CLI/CLI.hpp>
 
 #include "../utils/common.hpp"
-#include "../wrapper/repository_wrapper.hpp"
 
 class fetch_subcommand
 {
@@ -18,6 +17,3 @@ private:
 
     std::string m_remote_name;
 };
-
-
-

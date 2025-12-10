@@ -1,5 +1,6 @@
 #pragma once
 
+#include <git2/remote.h>
 #include <string_view>
 #include <vector>
 
@@ -21,15 +22,15 @@ public:
     std::string_view name() const;
     std::string_view url() const;
     std::string_view pushurl() const;
-    
+
     std::vector<std::string> refspecs() const;
 
+    void fetch(const git_strarray* refspecs, const git_fetch_options* opts, const char* reflog_message);
+    void push(const git_strarray* refspecs, const git_push_options* opts);
+
 private:
-    
+
     explicit remote_wrapper(git_remote* remote);
 
     friend class repository_wrapper;
 };
-
-
-

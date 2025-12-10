@@ -1,84 +1,11 @@
 #include <iostream>
-#include <iomanip>
 
 #include <git2/remote.h>
 
 #include "../subcommand/fetch_subcommand.hpp"
-#include "../wrapper/repository_wrapper.hpp"
-#include "../wrapper/remote_wrapper.hpp"
 #include "../utils/output.hpp"
-#include "../utils/git_exception.hpp"
-
-namespace
-{
-    int sideband_progress(const char* str, int len, void*)
-    {
-        std::cout << "remote: " << std::string(str, static_cast<std::size_t>(len));
-        std::cout.flush();
-        return 0;
-    }
-
-    int fetch_progress(const git_indexer_progress* stats, void* payload)
-    {
-        bool done = false;
-
-        auto* pr = reinterpret_cast<git_indexer_progress*>(payload);
-        *pr = *stats;
-
-        if (done)
-        {
-            return 0;
-        }
-        
-        int network_percent = pr->total_objects > 0 ?
-            (100 * pr->received_objects / pr->total_objects)
-            : 0;
-        size_t mbytes = pr->received_bytes / (1024*1024);
-
-        std::cout << "Receiving objects: " << std::setw(4) << network_percent
-            << "% (" << pr->received_objects << "/" << pr->total_objects << "), "
-            << mbytes << " MiB";
-
-        if (pr->received_objects == pr->total_objects)
-        {
-            std::cout << ", done." << std::endl;
-            done = true;
-        }
-        else
-        {
-            std::cout << '\r';
-        }
-        return 0;
-    }
-
-    int update_refs(const char* refname, const git_oid* a, const git_oid* b, git_refspec*, void*)
-    {
-        char a_str[GIT_OID_SHA1_HEXSIZE+1], b_str[GIT_OID_SHA1_HEXSIZE+1];
-        
-        git_oid_fmt(b_str, b);
-        b_str[GIT_OID_SHA1_HEXSIZE] = '\0';
-
-        if (git_oid_is_zero(a))
-        {
-            std::cout << "[new]     "
-                      << std::string(b_str, 20)
-                      << " " << refname << std::endl;
-        }
-        else
-        {
-            git_oid_fmt(a_str, a);
-            a_str[GIT_OID_SHA1_HEXSIZE] = '\0';
-
-            std::cout << "[updated] "
-                      << std::string(a_str, 10)
-                      << ".."
-                      << std::string(b_str, 10)
-                      << " " << refname << std::endl;
-        }
-
-        return 0;
-    }
-}
+#include "../utils/progress.hpp"
+#include "../wrapper/repository_wrapper.hpp"
 
 fetch_subcommand::fetch_subcommand(const libgit2_object&, CLI::App& app)
 {
@@ -107,16 +34,16 @@ void fetch_subcommand::run()
     fetch_opts.callbacks.update_refs = update_refs;
 
     cursor_hider ch;
-    
+
     // Perform the fetch
-    throw_if_error(git_remote_fetch(remote, nullptr, &fetch_opts, "fetch"));
+    remote.fetch(nullptr, &fetch_opts, "fetch");
 
     // Show statistics
     const git_indexer_progress* stats = git_remote_stats(remote);
     if (stats->local_objects > 0)
     {
         std::cout << "\rReceived " << stats->indexed_objects << "/" << stats->total_objects
-            << " objects in " << stats->received_bytes << " bytes (used " 
+            << " objects in " << stats->received_bytes << " bytes (used "
             << stats->local_objects << " local objects)" << std::endl;
     }
     else
@@ -125,4 +52,3 @@ void fetch_subcommand::run()
             << " objects in " << stats->received_bytes << " bytes" << std::endl;
     }
 }
-

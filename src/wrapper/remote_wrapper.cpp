@@ -8,7 +8,7 @@
 
 remote_wrapper::remote_wrapper(git_remote* remote)
     : base_type(remote)
-{    
+{
 }
 
 remote_wrapper::~remote_wrapper()
@@ -39,7 +39,7 @@ std::vector<std::string> remote_wrapper::refspecs() const
 {
     git_strarray refspecs = {0};
     std::vector<std::string> result;
-    
+
     if (git_remote_get_fetch_refspecs(&refspecs, *this) == 0)
     {
         for (size_t i = 0; i < refspecs.count; ++i)
@@ -48,7 +48,16 @@ std::vector<std::string> remote_wrapper::refspecs() const
         }
         git_strarray_dispose(&refspecs);
     }
-    
+
     return result;
 }
 
+void remote_wrapper::fetch(const git_strarray* refspecs, const git_fetch_options* opts, const char* reflog_message)
+{
+    throw_if_error(git_remote_fetch(*this, refspecs, opts, reflog_message));
+}
+
+void remote_wrapper::push(const git_strarray* refspecs, const git_push_options* opts)
+{
+    throw_if_error(git_remote_push(*this, refspecs, opts));
+}

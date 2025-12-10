@@ -3,37 +3,8 @@
 #include <git2/remote.h>
 
 #include "../subcommand/push_subcommand.hpp"
+#include "../utils/progress.hpp"
 #include "../wrapper/repository_wrapper.hpp"
-#include "../wrapper/remote_wrapper.hpp"
-#include "../utils/git_exception.hpp"
-#include "../utils/common.hpp"
-
-namespace
-{
-    int push_transfer_progress(unsigned int current, unsigned int total, size_t bytes, void*)
-    {
-        if (total > 0)
-        {
-            int percent = (100 * current) / total;
-            std::cout << "Writing objects: " << percent << "% (" << current 
-                << "/" << total << "), " << bytes << " bytes\r";
-        }
-        return 0;
-    }
-
-    int push_update_reference(const char* refname, const char* status, void*)
-    {
-        if (status)
-        {
-            std::cout << "  " << refname << " " << status << std::endl;
-        }
-        else
-        {
-            std::cout << "  " << refname << std::endl;
-        }
-        return 0;
-    }
-}
 
 push_subcommand::push_subcommand(const libgit2_object&, CLI::App& app)
 {
@@ -41,7 +12,7 @@ push_subcommand::push_subcommand(const libgit2_object&, CLI::App& app)
 
     sub->add_option("<remote>", m_remote_name, "The remote to push to")
         ->default_val("origin");
-    
+
     sub->add_option("<refspec>", m_refspecs, "The refspec(s) to push");
 
     sub->callback([this]() { this->run(); });
@@ -59,14 +30,25 @@ void push_subcommand::run()
     push_opts.callbacks.push_transfer_progress = push_transfer_progress;
     push_opts.callbacks.push_update_reference = push_update_reference;
 
+    if (m_refspecs.empty())
+    {
+        try
+        {
+            auto head_ref = repo.head();
+            std::string short_name = head_ref.short_name();
+            std::string refspec = "refs/heads/" + short_name;
+            m_refspecs.push_back(refspec);
+        }
+        catch (...)
+        {
+            std::cerr << "Could not determine current branch to push." << std::endl;
+            return;
+        }
+    }
     git_strarray_wrapper refspecs_wrapper(m_refspecs);
     git_strarray* refspecs_ptr = nullptr;
-    if (!m_refspecs.empty())
-    {
-        refspecs_ptr = refspecs_wrapper;
-    }
+    refspecs_ptr = refspecs_wrapper;
 
-    throw_if_error(git_remote_push(remote, refspecs_ptr, &push_opts));
+    remote.push(refspecs_ptr, &push_opts);
     std::cout << "Pushed to " << remote_name << std::endl;
 }
-
