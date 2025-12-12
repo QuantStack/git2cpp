@@ -39,7 +39,7 @@ def test_branch_nogit(git2cpp_path, tmp_path):
     p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p.returncode != 0
 
-def tets_branch_new_repo(git2cpp_path, tmp_path, run_in_tmp_path):
+def test_branch_new_repo(git2cpp_path, tmp_path, run_in_tmp_path):
    # tmp_path exists and is empty.
     assert list(tmp_path.iterdir()) == []
 
