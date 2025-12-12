@@ -39,7 +39,7 @@ void branch_subcommand::run()
 
 void branch_subcommand::run_list(const repository_wrapper& repo)
 {
-    auto head_name = repo.head().short_name();
+    auto head_name = repo.head_short_name();
     git_branch_t type = m_all_flag ? GIT_BRANCH_ALL : (m_remote_flag ? GIT_BRANCH_REMOTE : GIT_BRANCH_LOCAL);
     auto iter = repo.iterate_branches(type);
     auto br = iter.next();

@@ -35,8 +35,12 @@ public:
 
     bool is_bare() const;
 
-    // References
+    // Head
+    bool is_head_unborn() const;
     reference_wrapper head() const;
+    std::string head_short_name() const;
+
+    // References
     reference_wrapper find_reference(std::string_view ref_name) const;
     std::optional<reference_wrapper> find_reference_dwim(std::string_view ref_name) const;
 

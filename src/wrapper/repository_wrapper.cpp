@@ -51,7 +51,12 @@ bool repository_wrapper::is_bare() const
     return git_repository_is_bare(*this);
 }
 
-// References
+// Head
+
+bool repository_wrapper::is_head_unborn() const
+{
+    return git_repository_head_unborn(*this) == 1;
+}
 
 reference_wrapper repository_wrapper::head() const
 {
@@ -59,6 +64,26 @@ reference_wrapper repository_wrapper::head() const
     throw_if_error(git_repository_head(&ref, *this));
     return reference_wrapper(ref);
 }
+
+std::string repository_wrapper::head_short_name() const
+{
+    git_reference* ref;
+    std::string name;
+    throw_if_error(git_reference_lookup(&ref, *this, "HEAD"));
+    if (git_reference_type(ref) == GIT_REFERENCE_DIRECT)
+    {
+         name = git_reference_shorthand(ref);
+    }
+    else
+    {
+        name = git_reference_symbolic_target(ref);
+        name = name.substr(name.find_last_of('/') + 1);
+    }
+    git_reference_free(ref);
+    return name;
+}
+
+// References
 
 reference_wrapper repository_wrapper::find_reference(std::string_view ref_name) const
 {

@@ -167,7 +167,7 @@ void status_subcommand::run()
     auto directory = get_current_git_path();
     auto repo = repository_wrapper::open(directory);
     auto sl = status_list_wrapper::status_list(repo);
-    auto branch_name = repo.head().short_name();
+    auto branch_name = repo.head_short_name();
 
     std::set<std::string> tracked_dir_set{};
     std::set<std::string> untracked_dir_set{};
@@ -276,18 +276,4 @@ void status_subcommand::run()
     {
         std::cout << treeclean_message << std::endl;
     }
-
-    // if (sl.has_ignored_header())
-    // {
-    //     stream_colour_fn colour = termcolor::red;
-    //     if (is_long)
-    //     {
-    //         std::cout << ignored_header;
-    //     }
-    //     print_not_tracked(get_entries_to_print(GIT_STATUS_IGNORED, sl, false, of), tracked_dir_set, untracked_dir_set, is_long, colour);
-    //     if (is_long)
-    //     {
-    //         std::cout << std::endl;
-    //     }
-    // }
 }

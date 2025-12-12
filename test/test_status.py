@@ -76,3 +76,15 @@ def test_status_add_file(xtl_clone, git2cpp_path, tmp_path, short_flag, long_fla
     elif short_flag in ["-s", "--short"]:
         assert "A  " in p_status.stdout
         assert "D  " in p_status.stdout
+
+def test_status_new_repo(git2cpp_path, tmp_path, run_in_tmp_path):
+    # tmp_path exists and is empty.
+    assert list(tmp_path.iterdir()) == []
+
+    cmd = [git2cpp_path, 'init']
+    p = subprocess.run(cmd, cwd = tmp_path)
+
+    status_cmd = [git2cpp_path, 'status']
+    p_status = subprocess.run(status_cmd, cwd = tmp_path)
+
+    assert p_status.returncode == 0
