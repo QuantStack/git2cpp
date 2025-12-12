@@ -46,6 +46,11 @@ void repository_wrapper::state_cleanup()
     throw_if_error(git_repository_state_cleanup(*this));
 }
 
+bool repository_wrapper::is_bare() const
+{
+    return git_repository_is_bare(*this);
+}
+
 // References
 
 reference_wrapper repository_wrapper::head() const

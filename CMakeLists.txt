@@ -64,6 +64,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/subcommand/remote_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/reset_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/reset_subcommand.hpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/revparse_subcommand.cpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/revparse_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/status_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/status_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/utils/ansi_code.cpp

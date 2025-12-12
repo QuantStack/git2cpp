@@ -18,6 +18,7 @@
 #include "subcommand/remote_subcommand.hpp"
 #include "subcommand/reset_subcommand.hpp"
 #include "subcommand/status_subcommand.hpp"
+#include "subcommand/revparse_subcommand.hpp"
 
 int main(int argc, char** argv)
 {
@@ -44,6 +45,7 @@ int main(int argc, char** argv)
         merge_subcommand merge(lg2_obj, app);
         push_subcommand push(lg2_obj, app);
         remote_subcommand remote(lg2_obj, app);
+        revparse_subcommand rev(lg2_obj, app);
 
         app.require_subcommand(/* min */ 0, /* max */ 1);
 

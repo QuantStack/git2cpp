@@ -33,6 +33,8 @@ public:
     git_repository_state_t state() const;
     void state_cleanup();
 
+    bool is_bare() const;
+
     // References
     reference_wrapper head() const;
     reference_wrapper find_reference(std::string_view ref_name) const;
