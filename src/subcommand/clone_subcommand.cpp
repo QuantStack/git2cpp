@@ -11,6 +11,9 @@ clone_subcommand::clone_subcommand(const libgit2_object&, CLI::App& app)
 
     sub->add_option("<repository>", m_repository, "The (possibly remote) repository to clone from.")->required();
     sub->add_option("<directory>", m_directory, "The name of a new directory to clone into.");
+    sub->add_option("--depth", m_depth, "Create a shallow clone of that depth.");
+    // sub->add_option("--shallow-since", m_shallow_since, "<time>\ndeepen history of shallow repository based on time.");
+    // sub->add_option("--shallow-exclude", m_shallow_exclude, "<ref>\ndeepen history of shallow clone, excluding ref");
     sub->add_flag("--bare", m_bare, "Create a bare Git repository.");
 
     sub->callback([this]() { this->run(); });
@@ -28,7 +31,10 @@ void clone_subcommand::run()
     clone_opts.fetch_opts.callbacks.sideband_progress = sideband_progress;
     clone_opts.fetch_opts.callbacks.transfer_progress = fetch_progress;
     clone_opts.fetch_opts.callbacks.payload = &pd;
+    clone_opts.fetch_opts.depth = m_depth;
     clone_opts.bare = m_bare ? 1 : 0;
+
+
 
     std::string short_name = m_directory;
     if (m_directory.empty())

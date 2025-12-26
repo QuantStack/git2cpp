@@ -51,6 +51,11 @@ bool repository_wrapper::is_bare() const
     return git_repository_is_bare(*this);
 }
 
+bool repository_wrapper::is_shallow() const
+{
+    return git_repository_is_shallow(*this);
+}
+
 // Head
 
 bool repository_wrapper::is_head_unborn() const
@@ -326,13 +331,13 @@ std::vector<std::string> repository_wrapper::list_remotes() const
 {
     git_strarray remotes = {0};
     throw_if_error(git_remote_list(&remotes, *this));
-    
+
     std::vector<std::string> result;
     for (size_t i = 0; i < remotes.count; ++i)
     {
         result.emplace_back(remotes.strings[i]);
     }
-    
+
     git_strarray_dispose(&remotes);
     return result;
 }

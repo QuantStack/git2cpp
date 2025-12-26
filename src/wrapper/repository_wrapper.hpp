@@ -34,6 +34,7 @@ public:
     void state_cleanup();
 
     bool is_bare() const;
+    bool is_shallow() const;
 
     // Head
     bool is_head_unborn() const;

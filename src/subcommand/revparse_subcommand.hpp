@@ -14,5 +14,5 @@ public:
 private:
 
     bool m_is_bare_repository_flag = false;
+    bool m_is_shallow_repository_flag = false;
 };
-
