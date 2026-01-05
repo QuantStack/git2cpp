@@ -1,5 +1,12 @@
+#include <algorithm>
+#include <fstream>
 #include <iostream>
 
+#include "../utils/git_exception.hpp"
+#include "../wrapper/index_wrapper.hpp"
+#include "../wrapper/object_wrapper.hpp"
+#include "../wrapper/commit_wrapper.hpp"
+#include "../wrapper/remote_wrapper.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 
 repository_wrapper::~repository_wrapper()
@@ -27,6 +34,11 @@ repository_wrapper repository_wrapper::clone(std::string_view url, std::string_v
     repository_wrapper rw;
     throw_if_error(git_clone(&(rw.p_resource), url.data(), path.data(), &opts));
     return rw;
+}
+
+std::string repository_wrapper::git_path() const
+{
+    return git_repository_path(*this);
 }
 
 git_repository_state_t repository_wrapper::state() const
@@ -269,6 +281,86 @@ void repository_wrapper::reset(const object_wrapper& target, git_reset_t reset_t
     // TODO: gerer l'index
 
     throw_if_error(git_reset(*this, target, reset_type, &checkout_options));
+}
+
+size_t repository_wrapper::shallow_depth_from_head() const
+{
+    size_t depth = 0;
+    if (!this->is_shallow())
+    {
+        return depth;
+    }
+
+    std::string git_path = this->git_path();
+    std::string shallow_path = git_path + "shallow";
+
+    std::vector<git_oid> boundaries_list;
+    std::ifstream f(shallow_path);
+    std::string line;
+    while (std::getline(f, line))
+    {
+        if (!line.empty())
+        {
+            git_oid commit_oid;
+            git_oid_fromstrp(&commit_oid, line.c_str());
+            boundaries_list.push_back(commit_oid);
+        }
+    }
+
+    if (boundaries_list.size()==0)
+    {
+        return depth;
+    }
+
+    commit_wrapper head_commit = this->find_commit("HEAD");
+    commit_list_wrapper commits_list = head_commit.get_parents_list();
+    std::vector<size_t> depth_list(commits_list.size(), 0);
+    std::vector<size_t> final_depths(boundaries_list.size(), 0);
+    size_t has_parent = commits_list.size() > 0;
+    while (has_parent)
+    {
+        has_parent = 0;
+        std::vector<commit_wrapper> temp_commits_list;
+        std::vector<size_t> temp_depth_list;
+        commit_list_wrapper parent_list({});
+        std::vector<size_t> has_parent_list;
+
+        for (size_t i = 0; commits_list.size(); i++)
+        {
+            const commit_wrapper& commit = commits_list[i];
+            size_t depth = depth_list[i];
+            const git_oid& oid = commit.oid();
+            bool is_boundary = std::find_if(boundaries_list.cbegin(), boundaries_list.cend(), [oid](const git_oid& val) {return git_oid_equal(&oid, &val);}) != boundaries_list.cend();
+            if (is_boundary)
+            {
+                final_depths.push_back(depth + 1);
+            }
+            else
+            {
+                parent_list = commit.get_parents_list();
+                if (parent_list.size() > 0)
+                {
+                    has_parent_list.push_back(1);
+                    for (size_t j = 0; parent_list.size(); j++)
+                    {
+                        const commit_wrapper& c = parent_list[j];
+                        temp_commits_list.push_back(std::move(const_cast<commit_wrapper&>(c)));
+                        temp_depth_list.push_back(depth + 1);
+                    }
+                }
+                else
+                {
+                    has_parent_list.push_back(0);
+                }
+            }
+        }
+        depth_list = temp_depth_list;
+        commits_list = commit_list_wrapper(std::move(temp_commits_list));
+        has_parent = *std::max_element(has_parent_list.begin(), has_parent_list.end());
+    }
+
+    depth = *std::max_element(final_depths.begin(), final_depths.end());
+    return depth;
 }
 
 // Trees

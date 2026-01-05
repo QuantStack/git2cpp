@@ -26,3 +26,18 @@ std::string commit_wrapper::commit_oid_tostr() const
     char buf[GIT_OID_SHA1_HEXSIZE + 1];
     return git_oid_tostr(buf, sizeof(buf), &this->oid());
 }
+
+commit_list_wrapper commit_wrapper::get_parents_list() const
+{
+    size_t parent_count = git_commit_parentcount(*this);
+    std::vector<commit_wrapper> parents_list;
+    parents_list.reserve(parent_count);
+
+    for (size_t i=0; parent_count; ++i)
+    {
+        git_commit* parent;
+        git_commit_parent(&parent, *this, i);
+        parents_list.push_back(std::move(commit_wrapper(parent)));
+    }
+    return commit_list_wrapper(std::move(parents_list));
+}

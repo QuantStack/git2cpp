@@ -365,6 +365,29 @@ def test_unshallow(git2cpp_path, tmp_path, run_in_tmp_path):
     assert p_log_2.stdout.count("Author") > 1
 
 
+def test_fetch_deepen(git2cpp_path, tmp_path, run_in_tmp_path):
+    url = "https://github.com/xtensor-stack/xtl.git"
+    clone_cmd = [git2cpp_path, "clone", "--depth", "1", url]
+    p_clone = subprocess.run(clone_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_clone.returncode == 0
+    assert (tmp_path / "xtl").exists()
+
+    xtl_path = tmp_path / "xtl"
+
+    cmd_log = [git2cpp_path, "log"]
+    p_log = subprocess.run(cmd_log, capture_output=True, cwd=xtl_path, text=True)
+    assert p_log.returncode == 0
+    assert p_log.stdout.count("Author") == 1
+
+    deepen_cmd = [git2cpp_path, "fetch", "--deepen", "2"]
+    p_deepen = subprocess.run(deepen_cmd, capture_output=True, cwd=xtl_path, text=True)
+    assert p_deepen.returncode == 0
+
+    p_log_2 = subprocess.run(cmd_log, capture_output=True, cwd=xtl_path, text=True)
+    assert p_log_2.returncode == 0
+    assert p_log_2.stdout.count("Author") > 1
+
+
 def test_remote_in_cloned_repo(xtl_clone, git2cpp_path, tmp_path):
     """Test that cloned repos have remotes configured."""
     assert (tmp_path / "xtl").exists()
