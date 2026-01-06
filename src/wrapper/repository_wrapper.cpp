@@ -1,12 +1,5 @@
 #include <iostream>
 
-#include "../utils/git_exception.hpp"
-#include "../wrapper/index_wrapper.hpp"
-#include "../wrapper/object_wrapper.hpp"
-#include "../wrapper/commit_wrapper.hpp"
-#include "../wrapper/remote_wrapper.hpp"
-#include <git2/repository.h>
-#include <git2/remote.h>
 #include "../wrapper/repository_wrapper.hpp"
 
 repository_wrapper::~repository_wrapper()
@@ -54,6 +47,13 @@ bool repository_wrapper::is_bare() const
 bool repository_wrapper::is_shallow() const
 {
     return git_repository_is_shallow(*this);
+}
+
+revwalk_wrapper repository_wrapper::new_walker()
+{
+    git_revwalk* walker;
+    throw_if_error(git_revwalk_new(&walker, *this));
+    return revwalk_wrapper(walker);
 }
 
 // Head

@@ -14,6 +14,7 @@
 #include "../wrapper/object_wrapper.hpp"
 #include "../wrapper/refs_wrapper.hpp"
 #include "../wrapper/remote_wrapper.hpp"
+#include "../wrapper/revwalk_wrapper.hpp"
 #include "../wrapper/signature_wrapper.hpp"
 #include "../wrapper/wrapper_base.hpp"
 
@@ -35,6 +36,8 @@ public:
 
     bool is_bare() const;
     bool is_shallow() const;
+
+    revwalk_wrapper new_walker();
 
     // Head
     bool is_head_unborn() const;

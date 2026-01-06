@@ -1,7 +1,6 @@
 #include "revlist_subcommand.hpp"
 #include "../wrapper/repository_wrapper.hpp"
-// #include <ios>
-// #include <stdexcept>
+#include "../wrapper/revwalk_wrapper.hpp"
 
 revlist_subcommand::revlist_subcommand(const libgit2_object&, CLI::App& app)
 {
@@ -30,20 +29,17 @@ void revlist_subcommand::run()
         start_commit_oid = start_commit.oid();
     }
 
-    git_revwalk* walker;
-    git_revwalk_new(&walker, repo);
-    git_revwalk_push_head(walker);
+    revwalk_wrapper walker = repo.new_walker();
+    walker.push(start_commit_oid);
 
     std::size_t i=0;
     git_oid commit_oid;
     char buf[GIT_OID_SHA1_HEXSIZE + 1];
-    while (!git_revwalk_next(&commit_oid, walker) && i<m_max_count_flag)
+    while (!walker.next(commit_oid) && i<m_max_count_flag)
     {
         git_oid_fmt(buf, &commit_oid);
 		buf[GIT_OID_SHA1_HEXSIZE] = '\0';
 		std::cout << buf << std::endl;
 		++i;
     }
-
-    git_revwalk_free(walker);
 }

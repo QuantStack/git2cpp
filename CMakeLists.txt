@@ -98,6 +98,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/wrapper/remote_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/repository_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/repository_wrapper.hpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/revwalk_wrapper.cpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/revwalk_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/signature_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/signature_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/status_wrapper.cpp

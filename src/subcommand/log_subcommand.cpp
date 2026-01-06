@@ -87,22 +87,19 @@ void log_subcommand::run()
     auto repo = repository_wrapper::open(directory);
     // auto branch_name = repo.head().short_name();
 
-    git_revwalk* walker;
-    git_revwalk_new(&walker, repo);
-    git_revwalk_push_head(walker);
+    revwalk_wrapper walker = repo.new_walker();
+    walker.push_head();
 
     terminal_pager pager;
 
     std::size_t i=0;
     git_oid commit_oid;
-    while (!git_revwalk_next(&commit_oid, walker) && i<m_max_count_flag)
+    while (!walker.next(commit_oid) && i<m_max_count_flag)
     {
         commit_wrapper commit = repo.find_commit(commit_oid);
         print_commit(commit, m_format_flag);
         ++i;
     }
-
-    git_revwalk_free(walker);
 
     pager.show();
 }
