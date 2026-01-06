@@ -11,15 +11,15 @@ def test_status_new_file(xtl_clone, git2cpp_path, tmp_path, short_flag, long_fla
     assert (tmp_path / "xtl").exists()
     xtl_path = tmp_path / "xtl"
 
-    p = xtl_path / "mook_file.txt"   # Untracked files
-    p.write_text('')
+    p = xtl_path / "mook_file.txt"  # Untracked files
+    p.write_text("")
 
-    pw = xtl_path / "CMakeLists.txt"   # Changes not staged for commit / modified
+    pw = xtl_path / "CMakeLists.txt"  # Changes not staged for commit / modified
     pw.write_text("blablabla")
 
-    os.remove(xtl_path / "README.md")   # Changes not staged for commit / deleted
+    os.remove(xtl_path / "README.md")  # Changes not staged for commit / deleted
 
-    cmd = [git2cpp_path, 'status']
+    cmd = [git2cpp_path, "status"]
     if short_flag != "":
         cmd.append(short_flag)
     if long_flag != "":
@@ -38,10 +38,12 @@ def test_status_new_file(xtl_clone, git2cpp_path, tmp_path, short_flag, long_fla
         assert " D " in p.stdout
         assert "?? " in p.stdout
 
+
 def test_status_nogit(git2cpp_path, tmp_path):
-    cmd = [git2cpp_path, 'status']
+    cmd = [git2cpp_path, "status"]
     p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p.returncode != 0
+
 
 @pytest.mark.parametrize("short_flag", ["", "-s", "--short"])
 @pytest.mark.parametrize("long_flag", ["", "--long"])
@@ -49,16 +51,16 @@ def test_status_add_file(xtl_clone, git2cpp_path, tmp_path, short_flag, long_fla
     assert (tmp_path / "xtl").exists()
     xtl_path = tmp_path / "xtl"
 
-    p = xtl_path / "mook_file.txt"   # Changes to be committed / new file
-    p.write_text('')
+    p = xtl_path / "mook_file.txt"  # Changes to be committed / new file
+    p.write_text("")
 
-    os.remove(xtl_path / "README.md")   # Changes to be committed / deleted
+    os.remove(xtl_path / "README.md")  # Changes to be committed / deleted
 
-    cmd_add = [git2cpp_path, 'add', "--all"]
+    cmd_add = [git2cpp_path, "add", "--all"]
     p_add = subprocess.run(cmd_add, cwd=xtl_path, text=True)
     assert p_add.returncode == 0
 
-    cmd_status = [git2cpp_path, 'status']
+    cmd_status = [git2cpp_path, "status"]
     if short_flag != "":
         cmd_status.append(short_flag)
     if long_flag != "":
@@ -77,14 +79,15 @@ def test_status_add_file(xtl_clone, git2cpp_path, tmp_path, short_flag, long_fla
         assert "A  " in p_status.stdout
         assert "D  " in p_status.stdout
 
+
 def test_status_new_repo(git2cpp_path, tmp_path, run_in_tmp_path):
     # tmp_path exists and is empty.
     assert list(tmp_path.iterdir()) == []
 
-    cmd = [git2cpp_path, 'init']
-    p = subprocess.run(cmd, cwd = tmp_path)
+    cmd = [git2cpp_path, "init"]
+    p = subprocess.run(cmd, cwd=tmp_path)
+    assert p.returncode == 0
 
-    status_cmd = [git2cpp_path, 'status']
-    p_status = subprocess.run(status_cmd, cwd = tmp_path)
-
+    status_cmd = [git2cpp_path, "status"]
+    p_status = subprocess.run(status_cmd, cwd=tmp_path)
     assert p_status.returncode == 0

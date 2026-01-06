@@ -87,6 +87,12 @@ void log_subcommand::run()
     auto repo = repository_wrapper::open(directory);
     // auto branch_name = repo.head().short_name();
 
+    if (repo.is_head_unborn())
+    {
+        std::cout << "fatal: your current branch 'main' does not have any commits yet" << std::endl;
+        return;
+    }
+
     revwalk_wrapper walker = repo.new_walker();
     walker.push_head();
 

@@ -194,6 +194,11 @@ void status_subcommand::run()
     {
         std::cout  << "On branch " << branch_name << "\n" << std::endl;
 
+        if (repo.is_head_unborn())
+        {
+            std::cout << "No commits yet\n" << std::endl;
+        }
+
         if (sl.has_unmerged_header())
         {
             std::cout << "You have unmerged paths.\n  (fix conflicts and run \"git commit\")\n  (use \"git merge --abort\" to abort the merge)\n" << std::endl;
@@ -274,6 +279,9 @@ void status_subcommand::run()
     // TODO: check if this message should be displayed even if there are untracked files
     if (!(sl.has_tobecommited_header() | sl.has_notstagged_header() | sl.has_unmerged_header() | sl.has_untracked_header()))
     {
-        std::cout << treeclean_message << std::endl;
+        if (is_long)
+        {
+            std::cout << treeclean_message << std::endl;
+        }
     }
 }
