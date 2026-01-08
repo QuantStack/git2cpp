@@ -1,2 +1,14 @@
-serve/cockle/
-serve/lite/
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+cockle-config.json
+cockle_wasm_env/
+node_modules/
+package-lock.json
+.jupyterlite.doit.db
+
+recipe/em-forge-recipes/
+serve/*/
+test/assets/*/
+test/lib/

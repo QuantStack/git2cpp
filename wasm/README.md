@@ -10,7 +10,7 @@ It works on Linux and macOS but not Windows.
 
 There are 5 sub-directories:
 
-- `build`: build local `git2cpp` source code into an Emscripten-forge package.
+- `recipe`: build local `git2cpp` source code into an Emscripten-forge package.
 - `cockle-deploy`: create a `cockle` deployment in the `serve` directory.
 - `lite-deploy`: create a JupyterLite `terminal` deployment in the `serve` directory.
 - `serve`: where the two deployments are served from.
@@ -29,8 +29,12 @@ micromamba activate git2cpp-wasm
 Then to build the WebAssembly package, both deployments and the testing resources use:
 
 ```bash
+cmake .
 make
 ```
+
+The built emscripten-forge package will be file named something like `git2cpp-0.0.5-h7223423_1.tar.bz2`
+in the directory `recipe/em-force-recipes/output/emscripten-wasm32`.
 
 The local deployments in the `serve` directory can be manually checked using:
 
@@ -58,7 +62,13 @@ make test
 ```
 
 This runs (some of) the tests in the top-level `test` directory with various monkey patching so that
-`git2cpp` commands are executed in the browser.
+`git2cpp` commands are executed in the browser. If there are problems running the tests then ensure
+you have the latest `playwright` browser installed:
+
+
+```bash
+playwright install chromium
+```
 
 ## Rebuild
 

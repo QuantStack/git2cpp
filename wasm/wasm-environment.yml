@@ -7,6 +7,7 @@ dependencies:
   - python
   - pyyaml
   # To build emscripten-forge recipe
+  - cmake
   - micromamba
   - rattler-build
   # For JupyterLite deployment
