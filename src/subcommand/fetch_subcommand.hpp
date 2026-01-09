@@ -16,7 +16,7 @@ public:
 
     std::string m_remote_name;
     size_t m_depth = 0;
-    // size_t m_deepen = 0;
+    size_t m_deepen = 0;
     // std::string m_shallow_since;
     // std::string m_shallow_exclude;
     bool m_unshallow = false;

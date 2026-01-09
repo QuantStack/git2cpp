@@ -1,10 +1,12 @@
 #pragma once
 
 #include <git2.h>
-#include <vector>
 #include <string>
 
 #include "../wrapper/wrapper_base.hpp"
+
+class commit_wrapper;
+using commit_list_wrapper = list_wrapper<commit_wrapper>;
 
 class commit_wrapper : public wrapper_base<git_commit>
 {
@@ -22,6 +24,8 @@ public:
     const git_oid& oid() const;
     std::string commit_oid_tostr() const;
 
+    commit_list_wrapper get_parents_list() const;
+
 private:
 
     commit_wrapper(git_commit* commit);
@@ -29,5 +33,3 @@ private:
     friend class repository_wrapper;
     friend class reference_wrapper;
 };
-
-using commit_list_wrapper = list_wrapper<commit_wrapper>;

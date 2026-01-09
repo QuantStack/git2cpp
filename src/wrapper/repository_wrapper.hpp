@@ -31,6 +31,7 @@ public:
     static repository_wrapper open(std::string_view directory);
     static repository_wrapper clone(std::string_view url, std::string_view path, const git_clone_options& opts);
 
+    std::string git_path() const;
     git_repository_state_t state() const;
     void state_cleanup();
 
@@ -80,6 +81,9 @@ public:
     void set_head(std::string_view ref_name);
     void set_head_detached(const annotated_commit_wrapper& commit);
     void reset(const object_wrapper& target, git_reset_t reset_type, const git_checkout_options& checkout_options);
+
+    // TODO: check if it's the right place to put the following
+    size_t shallow_depth_from_head() const;
 
     // Trees
     void checkout_tree(const object_wrapper& target, const git_checkout_options opts);

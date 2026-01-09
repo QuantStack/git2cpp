@@ -14,7 +14,7 @@ fetch_subcommand::fetch_subcommand(const libgit2_object&, CLI::App& app)
     sub->add_option("<remote>", m_remote_name, "The remote to fetch from")
         ->default_val("origin");
     sub->add_option("--depth", m_depth, "deepen or shorten history of shallow clone");
-    // sub->add_option("--deepen", m_deepen, "deepen history of shallow clone");
+    sub->add_option("--deepen", m_deepen, "deepen history of shallow clone");
     // sub->add_option("--shallow-since", m_shallow_since, "<time>\ndeepen history of shallow repository based on time.");
     // sub->add_option("--shallow-exclude", m_shallow_exclude, "<ref>\ndeepen history of shallow clone, excluding ref");
     sub->add_flag("--unshallow", m_unshallow, "convert to a complete repository");
@@ -45,6 +45,11 @@ void fetch_subcommand::run()
         {
             fetch_opts.depth = GIT_FETCH_DEPTH_UNSHALLOW;
         }
+        else if (m_deepen > 0)
+            {
+                size_t shallow_size = repo.shallow_depth_from_head();
+                fetch_opts.depth = shallow_size + m_deepen;
+            }
         else
         {
             fetch_opts.depth = m_depth;
