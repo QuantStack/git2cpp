@@ -33,7 +33,7 @@ commit_list_wrapper commit_wrapper::get_parents_list() const
     std::vector<commit_wrapper> parents_list;
     parents_list.reserve(parent_count);
 
-    for (size_t i=0; parent_count; ++i)
+    for (size_t i=0; i < parent_count; ++i)
     {
         git_commit* parent;
         git_commit_parent(&parent, *this, i);
