@@ -8,6 +8,7 @@
 #include "../wrapper/commit_wrapper.hpp"
 #include "../wrapper/remote_wrapper.hpp"
 #include "../wrapper/repository_wrapper.hpp"
+#include "config_wrapper.hpp"
 
 repository_wrapper::~repository_wrapper()
 {
@@ -425,4 +426,13 @@ std::vector<std::string> repository_wrapper::list_remotes() const
 
     git_strarray_dispose(&remotes);
     return result;
+}
+
+
+// Config
+config_wrapper repository_wrapper::get_config()
+{
+    git_config* cfg;
+    throw_if_error(git_repository_config(&cfg, *this));
+    return config_wrapper(cfg);
 }

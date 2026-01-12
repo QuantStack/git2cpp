@@ -418,7 +418,7 @@ def test_remote_show_in_cloned_repo(xtl_clone, git2cpp_path, tmp_path):
     assert "http" in p.stdout or "git" in p.stdout or "https" in p.stdout
 
 
-def test_push_local(xtl_clone, git_config, git2cpp_path, tmp_path, monkeypatch):
+def test_push_local(xtl_clone, commit_env_config, git2cpp_path, tmp_path, monkeypatch):
     """Test setting push on a local remote."""
     assert (tmp_path / "xtl").exists()
     xtl_path = tmp_path / "xtl"

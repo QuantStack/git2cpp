@@ -1,7 +1,8 @@
 import os
-from pathlib import Path
-import pytest
 import subprocess
+from pathlib import Path
+
+import pytest
 
 GIT2CPP_TEST_WASM = os.getenv('GIT2CPP_TEST_WASM') == "1"
 
@@ -28,11 +29,12 @@ def git2cpp_path():
 def xtl_clone(git2cpp_path, tmp_path, run_in_tmp_path):
     url = "https://github.com/xtensor-stack/xtl.git"
     clone_cmd = [git2cpp_path, "clone", url]
-    subprocess.run(clone_cmd, capture_output=True, cwd=tmp_path, text=True)
+    p = subprocess.run(clone_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p.returncode == 0
 
 
 @pytest.fixture
-def git_config(monkeypatch):
+def commit_env_config(monkeypatch):
     monkeypatch.setenv("GIT_AUTHOR_NAME", "Jane Doe")
     monkeypatch.setenv("GIT_AUTHOR_EMAIL", "jane.doe@blabla.com")
     monkeypatch.setenv("GIT_COMMITTER_NAME", "Jane Doe")

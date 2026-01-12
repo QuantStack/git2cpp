@@ -10,6 +10,7 @@
 #include "../wrapper/annotated_commit_wrapper.hpp"
 #include "../wrapper/branch_wrapper.hpp"
 #include "../wrapper/commit_wrapper.hpp"
+#include "../wrapper/config_wrapper.hpp"
 #include "../wrapper/index_wrapper.hpp"
 #include "../wrapper/object_wrapper.hpp"
 #include "../wrapper/refs_wrapper.hpp"
@@ -95,6 +96,9 @@ public:
     void rename_remote(std::string_view old_name, std::string_view new_name);
     void set_remote_url(std::string_view name, std::string_view url, bool push = false);
     std::vector<std::string> list_remotes() const;
+
+    // Config
+    config_wrapper get_config();
 
 private:
 
