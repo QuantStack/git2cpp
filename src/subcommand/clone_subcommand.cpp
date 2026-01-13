@@ -21,6 +21,20 @@ clone_subcommand::clone_subcommand(const libgit2_object&, CLI::App& app)
 
 void clone_subcommand::run()
 {
+    // m_depth = 0 means no shallow clone in libgit2, while
+    // it is forbidden with git. Therefore we use another
+    // sentinel value to detect full clone.
+    if (m_depth == 0)
+    {
+        std::cout << "fatal: depth 0 is not a positive number" << std::endl;
+        return;
+    }
+
+    if (m_depth == std::numeric_limits<size_t>::max())
+    {
+        m_depth = 0;
+    }
+
     git_indexer_progress pd;
     git_clone_options clone_opts = GIT_CLONE_OPTIONS_INIT;
     git_checkout_options checkout_opts = GIT_CHECKOUT_OPTIONS_INIT;
@@ -33,8 +47,6 @@ void clone_subcommand::run()
     clone_opts.fetch_opts.callbacks.payload = &pd;
     clone_opts.fetch_opts.depth = m_depth;
     clone_opts.bare = m_bare ? 1 : 0;
-
-
 
     std::string short_name = m_directory;
     if (m_directory.empty())

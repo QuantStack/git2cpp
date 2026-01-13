@@ -300,7 +300,7 @@ def test_fetch_from_remote(git2cpp_path, repo_with_remote):
     local_path, remote_path = repo_with_remote
 
     # Note: This is a bare repo with no refs, so fetch will fail gracefully
-    # For now, just test that fetch command runs (it will fail gracefully if no refs)
+    # For now, just test that  /stdofetch command runs (it will fail gracefully if no refs)
     cmd = [git2cpp_path, "fetch", "origin"]
     p = subprocess.run(cmd, capture_output=True, text=True, cwd=local_path)
     # Fetch might succeed (empty) or fail (no refs), but shouldn't crash
@@ -322,7 +322,8 @@ def test_fetch_depth(git2cpp_path, tmp_path, run_in_tmp_path):
 
     invalid_clone_cmd = [git2cpp_path, "clone", "--depth", "0", url]
     p_invalid_clone = subprocess.run(invalid_clone_cmd, capture_output=True, cwd=tmp_path, text=True)
-    assert p_invalid_clone.returncode != 0
+    assert p_invalid_clone.returncode == 0
+    assert p_invalid_clone.stdout.startswith("fatal: depth 0 is not a positive number")
 
     clone_cmd = [git2cpp_path, "clone", "--depth", "1", url]
     p_clone = subprocess.run(clone_cmd, capture_output=True, cwd=tmp_path, text=True)
