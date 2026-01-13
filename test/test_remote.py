@@ -319,6 +319,11 @@ def test_fetch_default_origin(git2cpp_path, repo_with_remote):
 
 def test_fetch_depth(git2cpp_path, tmp_path, run_in_tmp_path):
     url = "https://github.com/xtensor-stack/xtl.git"
+
+    invalid_clone_cmd = [git2cpp_path, "clone", "--depth", "0", url]
+    p_invalid_clone = subprocess.run(invalid_clone_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_invalid_clone.returncode != 0
+
     clone_cmd = [git2cpp_path, "clone", "--depth", "1", url]
     p_clone = subprocess.run(clone_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_clone.returncode == 0

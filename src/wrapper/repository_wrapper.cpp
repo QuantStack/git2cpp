@@ -285,10 +285,9 @@ void repository_wrapper::reset(const object_wrapper& target, git_reset_t reset_t
 
 size_t repository_wrapper::shallow_depth_from_head() const
 {
-    size_t depth = 0;
     if (!this->is_shallow())
     {
-        return depth;
+        return 0u;
     }
 
     std::string git_path = this->git_path();
@@ -307,16 +306,16 @@ size_t repository_wrapper::shallow_depth_from_head() const
         }
     }
 
-    if (boundaries_list.size()==0)
+    if (boundaries_list.size() == 0u)
     {
-        return depth;
+        return 0u;
     }
 
     commit_wrapper head_commit = this->find_commit("HEAD");
     commit_list_wrapper commits_list = head_commit.get_parents_list();
-    std::vector<size_t> depth_list(commits_list.size(), 0);
-    std::vector<size_t> final_depths(boundaries_list.size(), 0);
-    bool has_parent = commits_list.size() > 0;
+    std::vector<size_t> depth_list(commits_list.size(), 1u);
+    std::vector<size_t> final_depths(boundaries_list.size(), 1u);
+    bool has_parent = commits_list.size() > 0u;
     while (has_parent)
     {
         has_parent = false;
@@ -324,7 +323,7 @@ size_t repository_wrapper::shallow_depth_from_head() const
         std::vector<size_t> temp_depth_list;
         commit_list_wrapper parent_list({});
 
-        for (size_t i = 0; i < commits_list.size(); i++)
+        for (size_t i = 0u; i < commits_list.size(); i++)
         {
             const commit_wrapper& commit = commits_list[i];
             size_t depth = depth_list[i];
@@ -332,19 +331,19 @@ size_t repository_wrapper::shallow_depth_from_head() const
             bool is_boundary = std::find_if(boundaries_list.cbegin(), boundaries_list.cend(), [oid](const git_oid& val) {return git_oid_equal(&oid, &val);}) != boundaries_list.cend();
             if (is_boundary)
             {
-                final_depths.push_back(depth + 1);
+                final_depths.push_back(depth + 1u);
             }
             else
             {
                 parent_list = commit.get_parents_list();
-                if (parent_list.size() > 0)
+                if (parent_list.size() > 0u)
                 {
                     has_parent = true;
-                    for (size_t j = 0; parent_list.size(); j++)
+                    for (size_t j = 0u; parent_list.size(); j++)
                     {
                         const commit_wrapper& c = parent_list[j];
                         temp_commits_list.push_back(std::move(const_cast<commit_wrapper&>(c)));
-                        temp_depth_list.push_back(depth + 1);
+                        temp_depth_list.push_back(depth + 1u);
                     }
                 }
             }
@@ -353,7 +352,7 @@ size_t repository_wrapper::shallow_depth_from_head() const
         commits_list = commit_list_wrapper(std::move(temp_commits_list));
     }
 
-    depth = *std::max_element(final_depths.begin(), final_depths.end());
+    std::size_t depth = *std::max_element(final_depths.begin(), final_depths.end());
     return depth;
 }
 
