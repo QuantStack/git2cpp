@@ -37,7 +37,7 @@ commit_list_wrapper commit_wrapper::get_parents_list() const
     {
         git_commit* parent;
         git_commit_parent(&parent, *this, i);
-        parents_list.push_back(std::move(commit_wrapper(parent)));
+        parents_list.push_back(commit_wrapper(parent));
     }
     return commit_list_wrapper(std::move(parents_list));
 }

@@ -316,14 +316,13 @@ size_t repository_wrapper::shallow_depth_from_head() const
     commit_list_wrapper commits_list = head_commit.get_parents_list();
     std::vector<size_t> depth_list(commits_list.size(), 0);
     std::vector<size_t> final_depths(boundaries_list.size(), 0);
-    size_t has_parent = commits_list.size() > 0;
+    bool has_parent = commits_list.size() > 0;
     while (has_parent)
     {
-        has_parent = 0;
+        has_parent = false;
         std::vector<commit_wrapper> temp_commits_list;
         std::vector<size_t> temp_depth_list;
         commit_list_wrapper parent_list({});
-        std::vector<size_t> has_parent_list;
 
         for (size_t i = 0; i < commits_list.size(); i++)
         {
@@ -340,7 +339,7 @@ size_t repository_wrapper::shallow_depth_from_head() const
                 parent_list = commit.get_parents_list();
                 if (parent_list.size() > 0)
                 {
-                    has_parent_list.push_back(1);
+                    has_parent = true;
                     for (size_t j = 0; parent_list.size(); j++)
                     {
                         const commit_wrapper& c = parent_list[j];
@@ -348,16 +347,10 @@ size_t repository_wrapper::shallow_depth_from_head() const
                         temp_depth_list.push_back(depth + 1);
                     }
                 }
-                else
-                {
-                    has_parent_list.push_back(0);
-                }
             }
         }
         depth_list = temp_depth_list;
         commits_list = commit_list_wrapper(std::move(temp_commits_list));
-        auto has_parent_iter = std::max_element(has_parent_list.begin(), has_parent_list.end());
-        has_parent = has_parent_iter != has_parent_list.end() ? *has_parent_iter : 0u;
     }
 
     depth = *std::max_element(final_depths.begin(), final_depths.end());

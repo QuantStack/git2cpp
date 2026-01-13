@@ -46,10 +46,10 @@ void fetch_subcommand::run()
             fetch_opts.depth = GIT_FETCH_DEPTH_UNSHALLOW;
         }
         else if (m_deepen > 0)
-            {
-                size_t shallow_size = repo.shallow_depth_from_head();
-                fetch_opts.depth = shallow_size + m_deepen;
-            }
+        {
+            size_t shallow_size = repo.shallow_depth_from_head();
+            fetch_opts.depth = shallow_size + m_deepen;
+        }
         else
         {
             fetch_opts.depth = m_depth;
