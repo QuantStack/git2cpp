@@ -3,7 +3,7 @@ import subprocess
 import pytest
 
 
-def test_reset(xtl_clone, commit_env_config, git2cpp_path, tmp_path, monkeypatch):
+def test_reset(xtl_clone, commit_env_config, git2cpp_path, tmp_path):
     assert (tmp_path / "xtl").exists()
     xtl_path = tmp_path / "xtl"
 

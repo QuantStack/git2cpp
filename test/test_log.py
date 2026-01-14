@@ -4,9 +4,7 @@ import pytest
 
 
 @pytest.mark.parametrize("format_flag", ["", "--format=full", "--format=fuller"])
-def test_log(
-    xtl_clone, commit_env_config, git2cpp_path, tmp_path, monkeypatch, format_flag
-):
+def test_log(xtl_clone, commit_env_config, git2cpp_path, tmp_path, format_flag):
     assert (tmp_path / "xtl").exists()
     xtl_path = tmp_path / "xtl"
 
@@ -47,7 +45,7 @@ def test_log_nogit(commit_env_config, git2cpp_path, tmp_path):
 
 @pytest.mark.parametrize("max_count_flag", ["", "-n", "--max-count"])
 def test_max_count(
-    xtl_clone, commit_env_config, git2cpp_path, tmp_path, monkeypatch, max_count_flag
+    xtl_clone, commit_env_config, git2cpp_path, tmp_path, max_count_flag
 ):
     assert (tmp_path / "xtl").exists()
     xtl_path = tmp_path / "xtl"

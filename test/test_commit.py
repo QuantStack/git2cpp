@@ -4,9 +4,7 @@ import pytest
 
 
 @pytest.mark.parametrize("all_flag", ["", "-A", "--all", "--no-ignore-removal"])
-def test_commit(
-    xtl_clone, commit_env_config, git2cpp_path, tmp_path, monkeypatch, all_flag
-):
+def test_commit(xtl_clone, commit_env_config, git2cpp_path, tmp_path, all_flag):
     assert (tmp_path / "xtl").exists()
     xtl_path = tmp_path / "xtl"
 

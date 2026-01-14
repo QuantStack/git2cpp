@@ -321,7 +321,9 @@ def test_fetch_depth(git2cpp_path, tmp_path, run_in_tmp_path):
     url = "https://github.com/xtensor-stack/xtl.git"
 
     invalid_clone_cmd = [git2cpp_path, "clone", "--depth", "0", url]
-    p_invalid_clone = subprocess.run(invalid_clone_cmd, capture_output=True, cwd=tmp_path, text=True)
+    p_invalid_clone = subprocess.run(
+        invalid_clone_cmd, capture_output=True, cwd=tmp_path, text=True
+    )
     assert p_invalid_clone.returncode == 0
     assert p_invalid_clone.stdout.startswith("fatal: depth 0 is not a positive number")
 
@@ -418,7 +420,7 @@ def test_remote_show_in_cloned_repo(xtl_clone, git2cpp_path, tmp_path):
     assert "http" in p.stdout or "git" in p.stdout or "https" in p.stdout
 
 
-def test_push_local(xtl_clone, commit_env_config, git2cpp_path, tmp_path, monkeypatch):
+def test_push_local(xtl_clone, commit_env_config, git2cpp_path, tmp_path):
     """Test setting push on a local remote."""
     assert (tmp_path / "xtl").exists()
     xtl_path = tmp_path / "xtl"
