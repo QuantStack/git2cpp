@@ -35,3 +35,6 @@ WebAssembly [Emscripten-forge](https://emscripten-forge.org/) package, create lo
 and test the WebAssembly build.
 
 See the `README.md` in the `wasm` directory for further details.
+
+The latest `cockle` and JupyterLite `terminal` deployments using `git2cpp` are available at
+[https://quantstack.net/git2cpp](https://quantstack.net/git2cpp)
