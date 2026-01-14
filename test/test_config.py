@@ -3,7 +3,7 @@ import subprocess
 import pytest
 
 
-def test_config_list(commit_env_config, git2cpp_path, tmp_path, monkeypatch):
+def test_config_list(commit_env_config, git2cpp_path, tmp_path):
     cmd_init = [git2cpp_path, "init", "--bare", str(tmp_path)]
     p_init = subprocess.run(cmd_init, capture_output=True)
     assert p_init.returncode == 0
@@ -23,11 +23,10 @@ def test_config_get(git2cpp_path, tmp_path):
     cmd_get = [git2cpp_path, "config", "get", "core.bare"]
     p_get = subprocess.run(cmd_get, capture_output=True, cwd=tmp_path, text=True)
     assert p_get.returncode == 0
-    print(p_get.stdout)
     assert p_get.stdout == "true\n"
 
 
-def test_config_set(commit_env_config, git2cpp_path, tmp_path, monkeypatch):
+def test_config_set(commit_env_config, git2cpp_path, tmp_path):
     cmd_init = [git2cpp_path, "init", "--bare", str(tmp_path)]
     p_init = subprocess.run(cmd_init, capture_output=True)
     assert p_init.returncode == 0
