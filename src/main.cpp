@@ -18,6 +18,7 @@
 #include "subcommand/push_subcommand.hpp"
 #include "subcommand/remote_subcommand.hpp"
 #include "subcommand/reset_subcommand.hpp"
+#include "subcommand/stash_subcommand.hpp"
 #include "subcommand/status_subcommand.hpp"
 #include "subcommand/revparse_subcommand.hpp"
 #include "subcommand/revlist_subcommand.hpp"
@@ -50,6 +51,7 @@ int main(int argc, char** argv)
         remote_subcommand remote(lg2_obj, app);
         revparse_subcommand revparse(lg2_obj, app);
         revlist_subcommand revlist(lg2_obj, app);
+        stash_subcommand stash(lg2_obj, app);
 
         app.require_subcommand(/* min */ 0, /* max */ 1);
 

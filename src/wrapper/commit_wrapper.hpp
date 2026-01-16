@@ -24,6 +24,8 @@ public:
     const git_oid& oid() const;
     std::string commit_oid_tostr() const;
 
+    std::string summary() const;
+
     commit_list_wrapper get_parents_list() const;
 
 private:

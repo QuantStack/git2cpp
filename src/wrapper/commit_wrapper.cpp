@@ -1,4 +1,5 @@
 #include "../wrapper/commit_wrapper.hpp"
+#include <git2/commit.h>
 
 commit_wrapper::commit_wrapper(git_commit* commit)
     : base_type(commit)
@@ -25,6 +26,11 @@ std::string commit_wrapper::commit_oid_tostr() const
 {
     char buf[GIT_OID_SHA1_HEXSIZE + 1];
     return git_oid_tostr(buf, sizeof(buf), &this->oid());
+}
+
+std::string commit_wrapper::summary() const
+{
+    return git_commit_summary(*this);
 }
 
 commit_list_wrapper commit_wrapper::get_parents_list() const

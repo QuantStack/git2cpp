@@ -4,6 +4,13 @@
 
 #include "../utils/common.hpp"
 
+struct status_subcommand_flags
+{
+    bool m_branch_flag = false;
+    bool m_long_flag = false;
+    bool m_short_flag = false;
+};
+
 class status_subcommand
 {
 public:
@@ -12,7 +19,7 @@ public:
     void run();
 
 private:
-    bool m_branch_flag = false;
-    bool m_long_flag = false;
-    bool m_short_flag = false;
+    status_subcommand_flags m_fl;
 };
+
+void status_run(status_subcommand_flags fl = {});
