@@ -128,7 +128,6 @@ int populate_list(const git_oid* oid, void* payload)
 void merge_subcommand::run()
 {
     auto directory = get_current_git_path();
-    auto bare = false;
     auto repo = repository_wrapper::open(directory);
     auto state = repo.state();
     index_wrapper index = repo.make_index();
