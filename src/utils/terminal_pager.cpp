@@ -200,7 +200,7 @@ void terminal_pager::split_input_at_newlines(std::string_view str)
 {
     auto split = str | std::ranges::views::split('\n')
                      | std::ranges::views::transform([](auto&& range) {
-                           return std::string(range.begin(), std::ranges::distance(range));
+                           return std::string(range.begin(), range.end());
                        });
     m_lines = std::vector<std::string>{split.begin(), split.end()};
 }
