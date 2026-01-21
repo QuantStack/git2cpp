@@ -4,7 +4,7 @@
 
 #include "../utils/common.hpp"
 
-struct status_subcommand_flags
+struct status_subcommand_options
 {
     bool m_branch_flag = false;
     bool m_long_flag = false;
@@ -19,7 +19,7 @@ public:
     void run();
 
 private:
-    status_subcommand_flags m_fl;
+    status_subcommand_options m_options;
 };
 
-void status_run(status_subcommand_flags fl = {});
+void status_run(status_subcommand_options fl = {});

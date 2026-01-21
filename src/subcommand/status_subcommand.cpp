@@ -14,13 +14,13 @@ status_subcommand::status_subcommand(const libgit2_object&, CLI::App& app)
 {
     auto *sub = app.add_subcommand("status", "Show modified files in working directory, staged for your next commit");
 
-    sub->add_flag("-s,--short", m_fl.m_short_flag, "Give the output in the short-format.");
-    sub->add_flag("--long", m_fl.m_long_flag, "Give the output in the long-format. This is the default.");
+    sub->add_flag("-s,--short", m_options.m_short_flag, "Give the output in the short-format.");
+    sub->add_flag("--long", m_options.m_long_flag, "Give the output in the long-format. This is the default.");
     // sub->add_flag("--porcelain[=<version>]", porcelain, "Give the output in an easy-to-parse format for scripts.
     //     This is similar to the short output, but will remain stable across Git versions and regardless of user configuration.
     //     See below for details. The version parameter is used to specify the format version. This is optional and defaults
     //     to the original version v1 format.");
-    sub->add_flag("-b,--branch", m_fl.m_branch_flag, "Show the branch and tracking info even in short-format.");
+    sub->add_flag("-b,--branch", m_options.m_branch_flag, "Show the branch and tracking info even in short-format.");
 
     sub->callback([this]() { this->run(); });
 };
@@ -163,10 +163,10 @@ void print_not_tracked(const std::vector<print_entry>& entries_to_print, const s
 
 void status_subcommand::run()
 {
-    status_run(m_fl);
+    status_run(m_options);
 }
 
-void status_run(status_subcommand_flags fl)
+void status_run(status_subcommand_options options)
 {
     auto directory = get_current_git_path();
     auto repo = repository_wrapper::open(directory);
@@ -179,11 +179,11 @@ void status_run(status_subcommand_flags fl)
     std::vector<std::string> ignored_to_print{};
 
     output_format of = output_format::DEFAULT;
-    if (fl.m_short_flag)
+    if (options.m_short_flag)
     {
         of = output_format::SHORT;
     }
-    if (fl.m_long_flag)
+    if (options.m_long_flag)
     {
         of = output_format::LONG;
     }
@@ -210,7 +210,7 @@ void status_run(status_subcommand_flags fl)
     }
     else
     {
-        if (fl.m_branch_flag)
+        if (options.m_branch_flag)
         {
             std::cout  << "## " << branch_name << std::endl;
         }
