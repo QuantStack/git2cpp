@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include <git2/types.h>
 #include <optional>
 #include <string_view>
 
@@ -11,12 +12,14 @@
 #include "../wrapper/branch_wrapper.hpp"
 #include "../wrapper/commit_wrapper.hpp"
 #include "../wrapper/config_wrapper.hpp"
+#include "../wrapper/diff_wrapper.hpp"
 #include "../wrapper/index_wrapper.hpp"
 #include "../wrapper/object_wrapper.hpp"
 #include "../wrapper/refs_wrapper.hpp"
 #include "../wrapper/remote_wrapper.hpp"
 #include "../wrapper/revwalk_wrapper.hpp"
 #include "../wrapper/signature_wrapper.hpp"
+#include "../wrapper/tree_wrapper.hpp"
 #include "../wrapper/wrapper_base.hpp"
 
 class repository_wrapper : public wrapper_base<git_repository>
@@ -88,6 +91,8 @@ public:
 
     // Trees
     void checkout_tree(const object_wrapper& target, const git_checkout_options opts);
+    tree_wrapper tree_lookup(const git_oid* tree_id);
+    tree_wrapper treeish_to_tree(const std::string& treeish);
 
     // Remotes
     remote_wrapper find_remote(std::string_view name) const;
@@ -99,6 +104,13 @@ public:
 
     // Config
     config_wrapper get_config();
+
+    // Diff
+    diff_wrapper diff_tree_to_index(tree_wrapper old_tree, std::optional<index_wrapper> index, git_diff_options* diffopts);
+    diff_wrapper diff_tree_to_tree(tree_wrapper old_tree, tree_wrapper new_tree, git_diff_options* diffopts);
+    diff_wrapper diff_tree_to_workdir(tree_wrapper old_tree, git_diff_options* diffopts);
+    diff_wrapper diff_tree_to_workdir_with_index(tree_wrapper old_tree, git_diff_options* diffopts);
+    diff_wrapper diff_index_to_workdir(std::optional<index_wrapper> index, git_diff_options* diffopts);
 
 private:
 

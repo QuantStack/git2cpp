@@ -48,6 +48,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/subcommand/checkout_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/clone_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/clone_subcommand.hpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/diff_subcommand.cpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/diff_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/commit_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/commit_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/config_subcommand.cpp
@@ -96,10 +98,16 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/wrapper/commit_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/config_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/config_wrapper.hpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/diff_wrapper.cpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/diff_wrapper.hpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/diffstats_wrapper.cpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/diffstats_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/index_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/index_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/object_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/object_wrapper.hpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/patch_wrapper.cpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/patch_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/rebase_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/rebase_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/refs_wrapper.cpp
@@ -114,6 +122,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/wrapper/signature_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/status_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/status_wrapper.hpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/tree_wrapper.cpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/tree_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/wrapper_base.hpp
     ${GIT2CPP_SOURCE_DIR}/main.cpp
     ${GIT2CPP_SOURCE_DIR}/version.hpp

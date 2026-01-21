@@ -24,7 +24,7 @@ void checkout_subcommand::run()
 
     if (repo.state() != GIT_REPOSITORY_STATE_NONE)
     {
-        throw std::runtime_error("Cannot checkout, repository is in unexpected state");
+          std::runtime_error("Cannot checkout, repository is in unexpected state");
     }
 
     git_checkout_options options;

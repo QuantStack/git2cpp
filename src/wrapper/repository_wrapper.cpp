@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <fstream>
+#include <git2/diff.h>
 #include <iostream>
 
 #include "../utils/git_exception.hpp"
@@ -9,6 +10,7 @@
 #include "../wrapper/remote_wrapper.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 #include "config_wrapper.hpp"
+#include "diff_wrapper.hpp"
 
 repository_wrapper::~repository_wrapper()
 {
@@ -208,17 +210,14 @@ void repository_wrapper::create_commit(const signature_wrapper::author_committer
         }
     }();
 
-    git_tree* tree;
     index_wrapper index = this->make_index();
     git_oid tree_id = index.write_tree();
     index.write();
 
-    throw_if_error(git_tree_lookup(&tree, *this, &tree_id));
+    auto tree = this->tree_lookup(&tree_id);
 
     throw_if_error(git_commit_create(&commit_id, *this, update_ref.c_str(), author_committer_signatures.first, author_committer_signatures.second,
         message_encoding, message.data(), tree, parents_count, parents));
-
-    git_tree_free(tree);
 }
 
 std::optional<annotated_commit_wrapper> repository_wrapper::resolve_local_ref
@@ -364,6 +363,21 @@ void repository_wrapper::checkout_tree(const object_wrapper& target, const git_c
     throw_if_error(git_checkout_tree(*this, target, &opts));
 }
 
+tree_wrapper repository_wrapper::tree_lookup(const git_oid* tree_id)
+{
+    git_tree* tree;
+    throw_if_error(git_tree_lookup(&tree, *this, tree_id));
+    return tree_wrapper(tree);
+}
+
+tree_wrapper repository_wrapper::treeish_to_tree(const std::string& treeish)
+{
+    auto obj = this->revparse_single(treeish.c_str());
+    git_tree* tree = nullptr;
+    throw_if_error(git_object_peel(reinterpret_cast<git_object**>(&tree), obj.value(), GIT_OBJECT_TREE));
+    return tree_wrapper(tree);
+}
+
 // Remotes
 
 remote_wrapper repository_wrapper::find_remote(std::string_view name) const
@@ -430,9 +444,58 @@ std::vector<std::string> repository_wrapper::list_remotes() const
 
 
 // Config
+
 config_wrapper repository_wrapper::get_config()
 {
     git_config* cfg;
     throw_if_error(git_repository_config(&cfg, *this));
     return config_wrapper(cfg);
+}
+
+
+// Diff
+
+diff_wrapper repository_wrapper::diff_tree_to_index(tree_wrapper old_tree, std::optional<index_wrapper> index, git_diff_options* diffopts)
+{
+    git_diff* diff;
+    git_index* idx = nullptr;
+    if (index)
+    {
+        idx = *index;
+    }
+    throw_if_error(git_diff_tree_to_index(&diff, *this, old_tree, idx, diffopts));
+    return diff_wrapper(diff);
+}
+
+diff_wrapper repository_wrapper::diff_tree_to_tree(tree_wrapper old_tree, tree_wrapper new_tree, git_diff_options* diffopts)
+{
+    git_diff* diff;
+    throw_if_error(git_diff_tree_to_tree(&diff, *this, old_tree, new_tree, diffopts));
+    return diff_wrapper(diff);
+}
+
+diff_wrapper repository_wrapper::diff_tree_to_workdir(tree_wrapper old_tree, git_diff_options* diffopts)
+{
+    git_diff* diff;
+    throw_if_error(git_diff_tree_to_workdir(&diff, *this, old_tree, diffopts));
+    return diff_wrapper(diff);
+}
+
+diff_wrapper repository_wrapper::diff_tree_to_workdir_with_index(tree_wrapper old_tree, git_diff_options* diffopts)
+{
+    git_diff* diff;
+    throw_if_error(git_diff_tree_to_workdir_with_index(&diff, *this, old_tree, diffopts));
+    return diff_wrapper(diff);
+}
+
+diff_wrapper repository_wrapper::diff_index_to_workdir(std::optional<index_wrapper> index, git_diff_options* diffopts)
+{
+    git_diff* diff;
+    git_index* idx = nullptr;
+    if (index)
+    {
+        idx = *index;
+    }
+    throw_if_error(git_diff_index_to_workdir(&diff, *this, idx, diffopts));
+    return diff_wrapper(diff);
 }

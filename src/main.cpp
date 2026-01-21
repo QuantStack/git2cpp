@@ -11,6 +11,7 @@
 #include "subcommand/clone_subcommand.hpp"
 #include "subcommand/commit_subcommand.hpp"
 #include "subcommand/config_subcommand.hpp"
+#include "subcommand/diff_subcommand.hpp"
 #include "subcommand/fetch_subcommand.hpp"
 #include "subcommand/init_subcommand.hpp"
 #include "subcommand/log_subcommand.hpp"
@@ -44,6 +45,7 @@ int main(int argc, char** argv)
         clone_subcommand clone(lg2_obj, app);
         commit_subcommand commit(lg2_obj, app);
         config_subcommand config(lg2_obj, app);
+        diff_subcommand diff(lg2_obj, app);
         fetch_subcommand fetch(lg2_obj, app);
         reset_subcommand reset(lg2_obj, app);
         log_subcommand log(lg2_obj, app);

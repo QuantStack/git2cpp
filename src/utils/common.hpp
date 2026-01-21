@@ -64,3 +64,5 @@ private:
     void reset_str_array();
     void init_str_array();
 };
+
+std::string read_file(const std::string& path);
