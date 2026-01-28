@@ -16,6 +16,7 @@
 #include "subcommand/log_subcommand.hpp"
 #include "subcommand/merge_subcommand.hpp"
 #include "subcommand/push_subcommand.hpp"
+#include "subcommand/rebase_subcommand.hpp"
 #include "subcommand/remote_subcommand.hpp"
 #include "subcommand/reset_subcommand.hpp"
 #include "subcommand/stash_subcommand.hpp"
@@ -48,6 +49,7 @@ int main(int argc, char** argv)
         log_subcommand log(lg2_obj, app);
         merge_subcommand merge(lg2_obj, app);
         push_subcommand push(lg2_obj, app);
+        rebase_subcommand rebase(lg2_obj, app);
         remote_subcommand remote(lg2_obj, app);
         revparse_subcommand revparse(lg2_obj, app);
         revlist_subcommand revlist(lg2_obj, app);
