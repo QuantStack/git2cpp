@@ -62,6 +62,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/subcommand/merge_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/push_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/push_subcommand.hpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/rebase_subcommand.cpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/rebase_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/remote_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/remote_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/reset_subcommand.cpp
@@ -98,6 +100,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/wrapper/index_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/object_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/object_wrapper.hpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/rebase_wrapper.cpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/rebase_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/refs_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/refs_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/remote_wrapper.cpp
