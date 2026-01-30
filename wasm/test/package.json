@@ -10,12 +10,16 @@
     "scripts": {
         "build": "rspack build",
         "postbuild": "node node_modules/@jupyterlite/cockle/lib/tools/prepare_wasm.js --copy assets",
-        "serve": "rspack serve"
+        "serve": "concurrently 'npm run serve:cockle' 'npm run serve:cors'",
+        "serve:cockle": "rspack serve",
+        "serve:cors": "HOST=localhost PORT=8881 node node_modules/cors-anywhere/server.js "
     },
     "devDependencies": {
-        "@jupyterlite/cockle": "^1.3.0",
+        "@jupyterlite/cockle": "file:../cockle",
         "@rspack/cli": "^0.7.5",
         "@rspack/core": "^0.7.5",
+        "concurrently": "^9.2.1",
+        "cors-anywhere": "^0.4.4",
         "ts-loader": "^9.5.1",
         "ts-node": "^10.9.2",
         "typescript": "^5.5.4"

@@ -6,7 +6,7 @@ include("../common.cmake")
 set(SERVE_DIR "../serve/cockle")
 
 add_custom_target(build-cockle
-    DEPENDS build-recipe
+    DEPENDS build-recipe cockle
     COMMAND npm install
     COMMAND COCKLE_WASM_EXTRA_CHANNEL=${BUILT_PACKAGE_DIR} npm run build
     BYPRODUCTS cockle_wasm_env node_modules ${SERVE_DIR}

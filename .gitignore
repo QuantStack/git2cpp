@@ -3,3 +3,4 @@ __pycache__/
 .cache/
 compile_commands.json
 serve.log
+test/test-results/

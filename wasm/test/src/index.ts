@@ -21,7 +21,7 @@ async function setup() {
 
   const cockle = {
     shell,
-    shellRun: (cmd: string[]) => shellRun(shell, output, cmd)
+    shellRun: (cmd: string) => shellRun(shell, output, cmd)
   };
 
   (window as any).cockle = cockle;
@@ -29,33 +29,47 @@ async function setup() {
   // Add div to indicate setup complete which can be awaited at start of tests.
   const div = document.createElement("div");
   div.id = 'loaded';
-  div.innerHTML = 'loaded';
+  div.innerHTML = 'Loaded';
   document.body.appendChild(div);
 }
 
 async function shellRun(
   shell: Shell,
   output: MockTerminalOutput,
-  cmd: string[]
+  cmd: string,
 ): Promise<IReturn> {
-  // Keep stdout and stderr separate by outputting stdout to temporary file and stderr to terminal,
-  // then read the temporary file to get stdout to return.
+  // Keep stdout and stderr separate by outputting stdout to terminal and stderr to temporary file,
+  // then read the temporary file to get stderr to return.
+  // There are issues here with use of \n and \r\n at ends of lines.
   output.clear();
-  let cmdLine = cmd.join(' ') + '> .outtmp' + '\r';
+  let cmdLine = cmd + ' 2> /drive/.errtmp' + '\r';
   await shell.input(cmdLine);
 
-  const stderr = stripOutput(output.textAndClear(), cmdLine);
+  const stdout = stripOutput(output.textAndClear(), cmdLine);
   const returncode = await shell.exitCode();
 
-  // Read stdout from .outtmp file.
-  cmdLine = 'cat .outtmp\r';
+  // Read stderr from .errtmp file.
+  cmdLine = 'cat /drive/.errtmp\r';
   await shell.input(cmdLine);
-  const stdout = stripOutput(output.textAndClear(), cmdLine);
+  const stderr = stripOutput(output.textAndClear(), cmdLine);
 
   // Delete temporary file.
-  cmdLine = 'rm .outtmp\r';
+  cmdLine = 'rm /drive/.errtmp\r';
   await shell.input(cmdLine);
   output.clear();
+
+  // Display in browser in new div.
+  const div = document.createElement("div");
+  let content = `> ${cmd}<br><span>returncode:</span> ${returncode}`
+  if (stdout.length > 0) {
+    content += `<br><span>stdout:</span> ${stdout.trim().replace(/\n/g, "<br>")}`;
+  }
+  if (stderr.length > 0) {
+    content += `<br><span>stderr:</span> ${stderr.trim().replace(/\n/g, "<br>")}`;
+  }
+  div.innerHTML = content;
+  document.body.appendChild(div);
+  div.scrollIntoView();
 
   return { returncode, stdout, stderr };
 }

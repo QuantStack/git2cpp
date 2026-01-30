@@ -21,6 +21,6 @@ This covers making a new github release in the `git2cpp` repository, and propaga
 
 The Emscripten-forge recipe at https://github.com/emscripten-forge/recipes needs to be updated with the new version number and SHA checksum. An Emscripten-forge bot runs once a day and will identify the new github release and create a PR to update the recipe. Wait for this to happen, and if the tests pass and no further changes are required, the PR can be approved and merged.
 
-After the PR is merged to `main`, the recipe will be rebuilt and uploaded to https://prefix.dev/channels/emscripten-forge-dev/packages/git2cpp, which should only take a few minutes.
+After the PR is merged to `main`, the recipe will be rebuilt and uploaded to https://prefix.dev/channels/emscripten-forge-4x/packages/git2cpp, which should only take a few minutes.
 
 Any subsequent `cockle` or JupyterLite `terminal` deployments that are rebuilt will download and use the latest `git2cpp` WebAssembly package.
