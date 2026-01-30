@@ -8,6 +8,8 @@ node_modules/
 package-lock.json
 .jupyterlite.doit.db
 
+cockle/
+lite-deploy/package.json
 recipe/em-forge-recipes/
 serve/*/
 test/assets/*/

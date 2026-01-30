@@ -4,7 +4,7 @@ project(git2cpp-wasm-test)
 include("../common.cmake")
 
 add_custom_target(build-test
-    DEPENDS build-recipe
+    DEPENDS build-recipe cockle
     COMMAND npm install
     COMMAND COCKLE_WASM_EXTRA_CHANNEL=${BUILT_PACKAGE_DIR} npm run build
     BYPRODUCTS cockle_wasm_env lib node_modules
@@ -15,8 +15,8 @@ add_custom_target(rebuild-test
 )
 
 add_custom_target(test
-	# A pytest fixture ensures that `npm run serve` runs for the duration of the tests.
-    COMMAND GIT2CPP_TEST_WASM=1 pytest -v -rP test_git.py
+    # A pytest fixture ensures that `npm run serve` runs for the duration of the tests.
+    COMMAND GIT2CPP_TEST_WASM=1 pytest -v -rP
     WORKING_DIRECTORY ../../test
 )
 

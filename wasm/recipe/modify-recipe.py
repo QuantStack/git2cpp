@@ -1,20 +1,18 @@
 # Modify the git2cpp emscripten-forge recipe to build from the local repo.
 # This can be called repeatedly and will produce the same output.
 
+import argparse
 from pathlib import Path
 import shutil
-import sys
 import yaml
 
 
-def quit(msg):
-    print(msg)
-    exit(1)
+parser = argparse.ArgumentParser()
+parser.add_argument('input_directory', type=Path)
+parser.add_argument('--no-patches', action='store_true')
+args = parser.parse_args()
 
-if len(sys.argv) < 2:
-    quit(f'Usage: {sys.argv[0]} <recipe directory containing yaml file to modify>')
-
-input_dir = Path(sys.argv[1])
+input_dir = args.input_directory
 if not input_dir.is_dir():
     quit(f'{input_dir} should exist and be a directory')
 
@@ -43,6 +41,10 @@ del source['sha256']
 del source['url']
 print('  Changing source to point to local git2cpp repo')
 source['path'] = '../../../../../../'
+
+if args.no_patches:
+    print('  Deleting patches')
+    del source['patches']
 
 # Overwrite recipe file.
 with open(input_filename, 'w') as f:

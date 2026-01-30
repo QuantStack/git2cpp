@@ -33,6 +33,18 @@ cmake .
 make
 ```
 
+The available `cmake` options are:
+
+- `USE_RECIPE_PATCHES`: Use patches from emscripten-forge recipe or not, default is `ON`
+- `USE_COCKLE_RELEASE`: Use latest cockle release rather than repo main branch, default is `OFF`
+
+For example, to run `cmake` but without using emscripten-forge recipe patches use:
+
+```bash
+cmake . -DUSE_RECIPE_PATCHES=OFF
+make
+```
+
 The built emscripten-forge package will be file named something like `git2cpp-0.0.5-h7223423_1.tar.bz2`
 in the directory `recipe/em-force-recipes/output/emscripten-wasm32`.
 
@@ -53,28 +65,51 @@ Note that the `source` for the `git2cpp` package is the local filesystem rather 
 version number of the current Emscripten-forge recipe rather than the version of the local `git2cpp`
 source code which can be checked using `git2cpp -v` at the `cockle`/`terminal` command line.
 
+## Rebuild
+
+After making changes to the local `git2cpp` source code you can rebuild the WebAssembly package,
+both deployments and test code using from the `wasm` directory:
+
+```bash
+make rebuild
+```
+
 ## Test
 
-To test the WebAssembly build use:
+To test the WebAssembly build use from the `wasm` directory:
 
 ```bash
 make test
 ```
 
 This runs (some of) the tests in the top-level `test` directory with various monkey patching so that
-`git2cpp` commands are executed in the browser. If there are problems running the tests then ensure
-you have the latest `playwright` browser installed:
-
+`git2cpp` commands are executed in the browser.
+The tests that are run are defined in the function `pytest_ignore_collect` in `conftest_wasm.py`.
+If there are problems running the tests then ensure you have the latest `playwright` browser installed:
 
 ```bash
 playwright install chromium
 ```
 
-## Rebuild
-
-After making changes to the local `git2cpp` source code you can rebuild the WebAssembly package,
-both deployments and test code using:
+You can run a specific test from the top-level `test` directory (not the `wasm/test` directory)
+using:
 
 ```bash
-make rebuild
+GIT2CPP_TEST_WASM=1 pytest -v test_git.py::test_version
 ```
+
+### Manually running the test servers
+
+If wasm tests are failing it can be helpful to run the test servers and manually run `cockle`
+commands to help understand the problem. To do this use:
+
+```bash
+cd wasm/test
+npm run serve
+```
+
+This will start both the test server on port 8000 and the CORS server on port 8881. Open a browser
+at http://localhost:8000/ and to run a command such as `ls -l` open the dev console and enter the
+following at the prompt: `await window.cockle.shellRun('ls -al')`. The generated output will appear
+in a new `<div>` in the web page in a format similar to that returned by Python's
+`subprocess.run()`.

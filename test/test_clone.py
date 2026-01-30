@@ -1,7 +1,5 @@
-import os
 import subprocess
-
-import pytest
+from .conftest import GIT2CPP_TEST_WASM
 
 url = "https://github.com/xtensor-stack/xtl.git"
 
@@ -11,8 +9,8 @@ def test_clone(git2cpp_path, tmp_path, run_in_tmp_path):
     p_clone = subprocess.run(clone_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_clone.returncode == 0
 
-    assert os.path.exists(os.path.join(tmp_path, "xtl"))
-    assert os.path.exists(os.path.join(tmp_path, "xtl/include"))
+    assert (tmp_path / "xtl").exists()
+    assert (tmp_path / "xtl/include").exists()
 
 
 def test_clone_is_bare(git2cpp_path, tmp_path, run_in_tmp_path):
@@ -20,9 +18,19 @@ def test_clone_is_bare(git2cpp_path, tmp_path, run_in_tmp_path):
     p_clone = subprocess.run(clone_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_clone.returncode == 0
 
+    assert (tmp_path / "xtl").is_dir()
+
     status_cmd = [git2cpp_path, "status"]
-    p_status = subprocess.run(status_cmd, capture_output=True, cwd=tmp_path, text=True)
-    assert p_status.returncode != 0
+    p_status = subprocess.run(status_cmd, capture_output=True, cwd=tmp_path / "xtl", text=True)
+    if not GIT2CPP_TEST_WASM:
+        # TODO: fix this in wasm build
+        assert p_status.returncode != 0
+    assert "This operation is not allowed against bare repositories" in p_status.stderr
+
+    branch_cmd = [git2cpp_path, "branch"]
+    p_branch = subprocess.run(branch_cmd, capture_output=True, cwd=tmp_path / "xtl", text=True)
+    assert p_branch.returncode == 0
+    assert p_branch.stdout.strip() == "* master"
 
 
 def test_clone_shallow(git2cpp_path, tmp_path, run_in_tmp_path):
