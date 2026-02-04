@@ -35,7 +35,14 @@ def xtl_clone(git2cpp_path, tmp_path, run_in_tmp_path):
 
 @pytest.fixture
 def commit_env_config(monkeypatch):
-    monkeypatch.setenv("GIT_AUTHOR_NAME", "Jane Doe")
-    monkeypatch.setenv("GIT_AUTHOR_EMAIL", "jane.doe@blabla.com")
-    monkeypatch.setenv("GIT_COMMITTER_NAME", "Jane Doe")
-    monkeypatch.setenv("GIT_COMMITTER_EMAIL", "jane.doe@blabla.com")
+    config = {
+        "GIT_AUTHOR_NAME": "Jane Doe",
+        "GIT_AUTHOR_EMAIL": "jane.doe@blabla.com",
+        "GIT_COMMITTER_NAME": "Jane Doe",
+        "GIT_COMMITTER_EMAIL": "jane.doe@blabla.com"
+    }
+    for key, value in config.items():
+        if GIT2CPP_TEST_WASM:
+            subprocess.run(["export", f"{key}='{value}'"], check=True)
+        else:
+            monkeypatch.setenv(key, value)

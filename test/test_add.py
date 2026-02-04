@@ -1,6 +1,7 @@
 import subprocess
 
 import pytest
+from .conftest import GIT2CPP_TEST_WASM
 
 
 @pytest.mark.parametrize("all_flag", ["", "-A", "--all", "--no-ignore-removal"])
@@ -38,5 +39,8 @@ def test_add_nogit(git2cpp_path, tmp_path):
     p.write_text('')
 
     cmd_add = [git2cpp_path, 'add', 'mook_file.txt']
-    p_add = subprocess.run(cmd_add, cwd=tmp_path, text=True)
-    assert p_add.returncode != 0
+    p_add = subprocess.run(cmd_add, cwd=tmp_path, text=True, capture_output=True)
+    if not GIT2CPP_TEST_WASM:
+        # TODO: fix this in wasm build
+        assert p_add.returncode != 0
+    assert "error: could not find repository at" in p_add.stderr

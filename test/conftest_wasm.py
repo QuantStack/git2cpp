@@ -13,10 +13,24 @@ import time
 # This can be removed when all tests support wasm.
 def pytest_ignore_collect(collection_path: pathlib.Path) -> bool:
     return collection_path.name not in [
+        "test_add.py",
+        "test_branch.py",
+        "test_checkout.py"
         "test_clone.py",
+        "test_commit.py",
+        "test_config.py",
         "test_fixtures.py",
         "test_git.py",
         "test_init.py",
+        "test_log.py",
+        "test_merge.py",
+        "test_rebase.py",
+        "test_remote.py",
+        "test_reset.py",
+        "test_revlist.py",
+        "test_revparse.py",
+        "test_stash.py",
+        "test_status.py",
     ]
 
 
@@ -48,6 +62,10 @@ def os_getcwd():
     return subprocess.run(["pwd"], capture_output=True, check=True, text=True).stdout.strip()
 
 
+def os_remove(file: str):
+    return subprocess.run(["rm", str(file)], capture_output=True, check=True, text=True)
+
+
 class MockPath(pathlib.Path):
     def __init__(self, path: str = ""):
         super().__init__(path)
@@ -69,6 +87,23 @@ class MockPath(pathlib.Path):
         for f in filter(lambda f: f not in ['', '.', '..'], re.split(r"\r?\n", p.stdout)):
             yield MockPath(self / f)
 
+    def mkdir(self):
+        subprocess.run(["mkdir", str(self)], capture_output=True, text=True, check=True)
+
+    def read_text(self) -> str:
+        p = subprocess.run(["cat", str(self)], capture_output=True, text=True, check=True)
+        text = p.stdout
+        if text.endswith("\n"):
+            text = text[:-1]
+        return text
+
+    def write_text(self, data: str):
+        # Note that in general it is not valid to direct output of a subprocess.run call to a file,
+        # but we get away with it here as the command arguments are passed straight through to
+        # cockle without being checked.
+        p = subprocess.run(["echo", data, ">", str(self)], capture_output=True, text=True)
+        assert p.returncode == 0
+
     def __truediv__(self, other):
         if isinstance(other, str):
             return MockPath(f"{self}/{other}")
@@ -82,13 +117,14 @@ def subprocess_run(
     capture_output: bool = False,
     check: bool = False,
     cwd: str | MockPath | None = None,
+    input: str | None = None,
     text: bool | None = None
 ) -> subprocess.CompletedProcess:
-    shell_run = "async cmd => await window.cockle.shellRun(cmd)"
+    shell_run = "async obj => await window.cockle.shellRun(obj.cmd, obj.input)"
 
     # Set cwd.
     if cwd is not None:
-        proc = page.evaluate(shell_run, "pwd")
+        proc = page.evaluate(shell_run, { "cmd": "pwd" } )
         if proc['returncode'] != 0:
             raise RuntimeError("Error getting pwd")
         old_cwd = proc['stdout'].strip()
@@ -96,11 +132,24 @@ def subprocess_run(
             # cwd is already correct.
             cwd = None
         else:
-            proc = page.evaluate(shell_run, f"cd {cwd}")
+            proc = page.evaluate(shell_run, { "cmd": f"cd {cwd}" } )
             if proc['returncode'] != 0:
                 raise RuntimeError(f"Error setting cwd to {cwd}")
 
-    proc = page.evaluate(shell_run, " ".join(cmd))
+    def maybe_wrap_arg(s: str | MockPath) -> str:
+        # An argument containing spaces needs to be wrapped in quotes if it is not already, due
+        # to how the command is passed to cockle as a single string.
+        # Could do better here.
+        s = str(s)
+        if ' ' in s and not s.endswith("'"):
+            return "'" + s + "'"
+        return s
+
+    shell_run_args = {
+        "cmd": " ".join([maybe_wrap_arg(s) for s in cmd]),
+        "input": input
+    }
+    proc = page.evaluate(shell_run, shell_run_args)
 
     # TypeScript object is auto converted to Python dict.
     # Want to return subprocess.CompletedProcess, consider namedtuple if this fails in future.
@@ -112,7 +161,7 @@ def subprocess_run(
 
     # Reset cwd.
     if cwd is not None:
-        proc = page.evaluate(shell_run, "cd " + old_cwd)
+        proc = page.evaluate(shell_run, { "cmd": "cd " + old_cwd } )
         if proc['returncode'] != 0:
             raise RuntimeError(f"Error setting cwd to {old_cwd}")
 
@@ -142,3 +191,4 @@ def mock_subprocess_run(page: Page, monkeypatch):
     monkeypatch.setattr(subprocess, "run", partial(subprocess_run, page))
     monkeypatch.setattr(os, "chdir", os_chdir)
     monkeypatch.setattr(os, "getcwd", os_getcwd)
+    monkeypatch.setattr(os, "remove", os_remove)

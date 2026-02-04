@@ -1,4 +1,4 @@
-import { Shell } from '@jupyterlite/cockle';
+import { delay, Shell } from '@jupyterlite/cockle';
 import { MockTerminalOutput } from './utils';
 
 interface IReturn {
@@ -21,7 +21,7 @@ async function setup() {
 
   const cockle = {
     shell,
-    shellRun: (cmd: string) => shellRun(shell, output, cmd)
+    shellRun: (cmd: string, input: string | undefined | null) => shellRun(shell, output, cmd, input)
   };
 
   (window as any).cockle = cockle;
@@ -37,13 +37,27 @@ async function shellRun(
   shell: Shell,
   output: MockTerminalOutput,
   cmd: string,
+  input: string | undefined | null
 ): Promise<IReturn> {
   // Keep stdout and stderr separate by outputting stdout to terminal and stderr to temporary file,
   // then read the temporary file to get stderr to return.
   // There are issues here with use of \n and \r\n at ends of lines.
   output.clear();
   let cmdLine = cmd + ' 2> /drive/.errtmp' + '\r';
-  await shell.input(cmdLine);
+
+  if (input !== undefined && input !== null) {
+    async function delayThenStdin(): Promise<void> {
+      const chars = input! + '\x04';  // EOT
+      await delay(100);
+      for (const char of chars) {
+        await shell.input(char);
+        await delay(10);
+      }
+    }
+    await Promise.all([shell.input(cmdLine), delayThenStdin()]);
+  } else {
+    await shell.input(cmdLine);
+  }
 
   const stdout = stripOutput(output.textAndClear(), cmdLine);
   const returncode = await shell.exitCode();

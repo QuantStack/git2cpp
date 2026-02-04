@@ -169,12 +169,12 @@ def test_merge_conflict(xtl_clone, commit_env_config, git2cpp_path, tmp_path, fl
             )
             assert p_abort.returncode == 0
             assert (xtl_path / "mook_file.txt").exists()
-            with open(xtl_path / "mook_file.txt") as f:
-                if answer == "y":
-                    assert "BLA" in f.read()
-                    assert "bla" not in f.read()
-                else:
-                    assert "Abort." in p_abort.stdout
+            text = (xtl_path / "mook_file.txt").read_text()
+            if answer == "y":
+                assert "BLA" in text
+                assert "bla" not in text
+            else:
+                assert "Abort." in p_abort.stdout
 
     elif flag == "--quit":
         pass
