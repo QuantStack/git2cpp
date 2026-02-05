@@ -1,0 +1,46 @@
+# Test WebAssembly build in cockle deployment
+name: Test WebAssembly
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+
+      - name: Install mamba
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: wasm/wasm-environment.yml
+          cache-environment: true
+
+      - name: Build
+        shell: bash -l {0}
+        working-directory: wasm
+        run: |
+          cmake .
+          make build-recipe
+          make built-test
+
+      - name: Upload artifact containing emscripten-forge package
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./wasm/recipe/em-forge-recipes/output/
+
+      - name: Run WebAssembly tests
+        shell: bash -l {0}
+        working-directory: wasm
+        run: |
+          make test
