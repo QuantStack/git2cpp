@@ -109,7 +109,7 @@ std::string read_file(const std::string& path)
     std::ifstream file(path, std::ios::binary);
     if (!file)
     {
-        throw git_exception("Cannot read file: " + path, -1);
+        throw git_exception("error: Could not access " + path, git2cpp_error_code::GENERIC_ERROR);
     }
     std::stringstream buffer;
     buffer << file.rdbuf();

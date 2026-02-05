@@ -10,9 +10,12 @@ void throw_if_error(int exit_code)
     }
 }
 
-
 git_exception::git_exception(const std::string_view message, int error_code)
     : m_message(message), m_error_code(error_code)
+{}
+
+git_exception::git_exception(const std::string_view message, git2cpp_error_code error_code)
+    : git_exception(message, static_cast<int>(error_code))
 {}
 
 int git_exception::error_code() const

@@ -5,6 +5,7 @@
 #include <termcolor/termcolor.hpp>
 
 #include "../utils/common.hpp"
+#include "../utils/git_exception.hpp"
 #include "../subcommand/diff_subcommand.hpp"
 #include "../wrapper/patch_wrapper.hpp"
 #include "../wrapper/repository_wrapper.hpp"
@@ -212,7 +213,7 @@ diff_wrapper compute_diff_no_index(std::vector<std::string> files, git_diff_opti
 {
 	if (files.size() != 2)
     {
-        throw git_exception("two files should be provided as arguments", -1);   //TODO: check error + code
+        throw git_exception("usage: git diff --no-index [<options>] <path> <path> [<pathspec>...]", git2cpp_error_code::BAD_ARGUMENT);
     }
 
     git_diff_options_init(&diffopts, GIT_DIFF_OPTIONS_VERSION);
@@ -222,11 +223,11 @@ diff_wrapper compute_diff_no_index(std::vector<std::string> files, git_diff_opti
 
     if (file1_str.empty())
     {
-        throw git_exception("file " + files[0] + " cannot be read", -1);   //TODO: check error + code
+        throw git_exception("Cannot read file: " + files[0], git2cpp_error_code::GENERIC_ERROR);   //TODO: check error code with git
     }
     if (file2_str.empty())
     {
-        throw git_exception("file " + files[1] + "  cannot be read", -1);   //TODO: check error + code
+        throw git_exception("Cannot read file: " + files[1], git2cpp_error_code::GENERIC_ERROR);   //TODO: check error code with git
     }
 
     auto patch = patch_wrapper::patch_from_files(files[0], file1_str, files[1], file2_str, &diffopts);
