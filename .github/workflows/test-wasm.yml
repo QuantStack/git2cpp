@@ -32,7 +32,7 @@ jobs:
         run: |
           cmake .
           make build-recipe
-          make built-test
+          make build-test
 
       - name: Upload artifact containing emscripten-forge package
         uses: actions/upload-pages-artifact@v4
