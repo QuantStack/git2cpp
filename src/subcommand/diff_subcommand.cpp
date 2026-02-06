@@ -139,7 +139,7 @@ void diff_subcommand::print_stats(const diff_wrapper& diff, bool use_colour)
 
 static int colour_printer([[maybe_unused]] const git_diff_delta* delta, [[maybe_unused]] const git_diff_hunk* hunk, const git_diff_line* line, void* payload)
 {
-	bool use_colour = reinterpret_cast<bool*>(payload);
+	bool use_colour = *reinterpret_cast<bool*>(payload);
 
 	// Only print origin for context/addition/deletion lines
     // For other line types, content already includes everything
