@@ -34,6 +34,12 @@ jobs:
           make build-recipe
           make build-test
 
+      - name: Install playwright chromium
+        shell: bash -l {0}
+        working-directory: wasm/test
+        run: |
+          npx playwright install chromium
+
       - name: Upload artifact containing emscripten-forge package
         uses: actions/upload-pages-artifact@v4
         with:
