@@ -6,6 +6,7 @@
 
 #include <git2.h>
 
+#include "../utils/common.hpp"
 #include "../utils/git_exception.hpp"
 #include "../wrapper/annotated_commit_wrapper.hpp"
 #include "../wrapper/branch_wrapper.hpp"
@@ -112,6 +113,10 @@ public:
     diff_wrapper diff_tree_to_workdir(tree_wrapper old_tree, git_diff_options* diffopts);
     diff_wrapper diff_tree_to_workdir_with_index(tree_wrapper old_tree, git_diff_options* diffopts);
     diff_wrapper diff_index_to_workdir(std::optional<index_wrapper> index, git_diff_options* diffopts);
+
+    //Tags
+    // git_strarray_wrapper tag_list_match(std::string pattern);
+    std::vector<std::string> tag_list_match(std::string pattern);
 
 private:
 

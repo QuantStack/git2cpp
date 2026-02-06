@@ -18,6 +18,7 @@ public:
     const git_oid& oid() const;
 
     operator git_commit*() const noexcept;
+    operator git_tag*() const noexcept;
 
 private:
 

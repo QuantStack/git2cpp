@@ -57,6 +57,8 @@ public:
 
     operator git_strarray*();
 
+    size_t size();
+
 private:
     std::vector<std::string> m_patterns;
     git_strarray m_array;

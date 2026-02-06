@@ -78,7 +78,7 @@ void print_commit(const commit_wrapper& commit, std::string m_format_flag)
             print_time(author.when(), "Date:\t");
         }
     }
-    std::cout << "\n    " << git_commit_message(commit) << "\n" << std::endl;
+    std::cout << "\n    " << commit.message() << "\n" << std::endl;
 }
 
 void log_subcommand::run()

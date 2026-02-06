@@ -28,6 +28,11 @@ std::string commit_wrapper::commit_oid_tostr() const
     return git_oid_tostr(buf, sizeof(buf), &this->oid());
 }
 
+std::string commit_wrapper::message() const
+{
+    return git_commit_message(*this);
+}
+
 std::string commit_wrapper::summary() const
 {
     return git_commit_summary(*this);

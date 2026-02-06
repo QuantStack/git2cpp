@@ -82,6 +82,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/subcommand/stash_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/status_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/status_subcommand.hpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/tag_subcommand.cpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/tag_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/utils/ansi_code.cpp
     ${GIT2CPP_SOURCE_DIR}/utils/ansi_code.hpp
     ${GIT2CPP_SOURCE_DIR}/utils/common.cpp
@@ -126,6 +128,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/wrapper/signature_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/status_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/status_wrapper.hpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/tag_wrapper.cpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/tag_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/tree_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/tree_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/wrapper_base.hpp
