@@ -84,16 +84,3 @@ auto status_list_wrapper::get_entry_list(git_status_t status) const -> const sta
     }
 }
 
-
-
-// std::ostream& operator<<(std::ostream& out, const status_list_wrapper& slw)
-// {
-//     std::size_t status_list_size = git_status_list_entrycount(slw);
-//     for (std::size_t i = 0; i < status_list_size; ++i)
-//     {
-//         std::cout << i << " ";
-//         auto entry = git_status_byindex(slw, i);
-
-//     }
-//     return out;
-// };

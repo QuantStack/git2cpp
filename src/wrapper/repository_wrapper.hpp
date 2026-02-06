@@ -43,6 +43,8 @@ public:
 
     revwalk_wrapper new_walker();
 
+    bool does_track(std::string_view path) const;
+
     // Head
     bool is_head_unborn() const;
     reference_wrapper head() const;

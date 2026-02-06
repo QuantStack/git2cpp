@@ -30,6 +30,7 @@ def pytest_ignore_collect(collection_path: pathlib.Path) -> bool:
         "test_reset.py",
         "test_revlist.py",
         "test_revparse.py",
+        "test_rm.py",
         "test_stash.py",
         "test_status.py",
     ]

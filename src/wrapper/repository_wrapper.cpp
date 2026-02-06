@@ -70,6 +70,13 @@ revwalk_wrapper repository_wrapper::new_walker()
     return revwalk_wrapper(walker);
 }
 
+bool repository_wrapper::does_track(std::string_view path) const
+{
+    unsigned int flags;
+    throw_if_error(git_status_file(&flags, *this, path.data()));
+    return !(flags & GIT_STATUS_WT_NEW) && !(flags & GIT_STATUS_IGNORED);
+}
+
 // Head
 
 bool repository_wrapper::is_head_unborn() const

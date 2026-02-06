@@ -76,6 +76,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/subcommand/revlist_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/revparse_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/revparse_subcommand.hpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/rm_subcommand.cpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/rm_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/stash_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/stash_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/status_subcommand.cpp

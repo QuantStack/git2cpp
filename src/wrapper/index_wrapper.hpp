@@ -28,6 +28,8 @@ public:
     void add_all();
 
     void remove_entry(const std::string& path);
+    void remove_entries(std::vector<std::string> paths);
+    void remove_directories(std::vector<std::string> paths);
 
     bool has_conflict() const;
     void output_conflicts();
