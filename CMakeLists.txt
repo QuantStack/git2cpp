@@ -60,6 +60,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/subcommand/log_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/merge_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/merge_subcommand.hpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/mv_subcommand.cpp
+    ${GIT2CPP_SOURCE_DIR}/subcommand/mv_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/push_subcommand.cpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/push_subcommand.hpp
     ${GIT2CPP_SOURCE_DIR}/subcommand/rebase_subcommand.cpp

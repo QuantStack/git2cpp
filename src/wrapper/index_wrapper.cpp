@@ -21,6 +21,11 @@ index_wrapper index_wrapper::init(repository_wrapper& rw)
     return index;
 }
 
+void index_wrapper::add_entry(const std::string& path)
+{
+    throw_if_error(git_index_add_bypath(*this, path.c_str()));
+}
+
 void index_wrapper::add_entries(std::vector<std::string> patterns)
 {
     add_impl(std::move(patterns));
@@ -35,6 +40,11 @@ void index_wrapper::add_impl(std::vector<std::string> patterns)
 {
     git_strarray_wrapper array{patterns};
     throw_if_error(git_index_add_all(*this, array, 0, NULL, NULL));
+}
+
+void index_wrapper::remove_entry(const std::string& path)
+{
+    throw_if_error(git_index_remove_bypath(*this, path.c_str()));
 }
 
 void index_wrapper::write()

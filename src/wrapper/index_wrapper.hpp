@@ -23,8 +23,11 @@ public:
     void write();
     git_oid write_tree();
 
+    void add_entry(const std::string& path);
     void add_entries(std::vector<std::string> patterns);
     void add_all();
+
+    void remove_entry(const std::string& path);
 
     bool has_conflict() const;
     void output_conflicts();
