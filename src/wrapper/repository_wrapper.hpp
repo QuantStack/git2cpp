@@ -1,7 +1,6 @@
 #pragma once
 
 #include <concepts>
-#include <git2/types.h>
 #include <optional>
 #include <string_view>
 

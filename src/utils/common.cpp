@@ -1,10 +1,9 @@
 #include <filesystem>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <unistd.h>
 #include <map>
-
-#include <git2.h>
 
 #include "common.hpp"
 #include "git_exception.hpp"

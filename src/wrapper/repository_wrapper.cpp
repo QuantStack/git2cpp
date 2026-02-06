@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <fstream>
-#include <git2/diff.h>
 #include <iostream>
 
 #include "../utils/git_exception.hpp"

@@ -1,6 +1,4 @@
 #include <git2.h>
-#include <git2/buffer.h>
-#include <git2/diff.h>
 #include <optional>
 #include <termcolor/termcolor.hpp>
 
@@ -61,17 +59,38 @@ void diff_subcommand::print_stats(const diff_wrapper& diff, bool use_colour)
     git_diff_stats_format_t format;
     if (m_stat_flag)
     {
-        format = GIT_DIFF_STATS_FULL;
+        if (m_shortstat_flag || m_numstat_flag || m_summary_flag)
+        {
+            throw git_exception("Only one of --stat, --shortstat, --numstat and --summary should be provided.", git2cpp_error_code::BAD_ARGUMENT);
+        }
+        else
+        {
+            format = GIT_DIFF_STATS_FULL;
+        }
     }
-    if (m_shortstat_flag)
+    else if (m_shortstat_flag)
     {
-        format = GIT_DIFF_STATS_SHORT;
+        if (m_numstat_flag || m_summary_flag)
+        {
+            throw git_exception("Only one of --stat, --shortstat, --numstat and --summary should be provided.", git2cpp_error_code::BAD_ARGUMENT);
+        }
+        else
+        {
+            format = GIT_DIFF_STATS_SHORT;
+        }
     }
-    if (m_numstat_flag)
+    else if (m_numstat_flag)
     {
-        format = GIT_DIFF_STATS_NUMBER;
+        if (m_summary_flag)
+        {
+            throw git_exception("Only one of --stat, --shortstat, --numstat and --summary should be provided.", git2cpp_error_code::BAD_ARGUMENT);
+        }
+        else
+        {
+            format = GIT_DIFF_STATS_NUMBER;
+        }
     }
-    if (m_summary_flag)
+    else if (m_summary_flag)
     {
         format = GIT_DIFF_STATS_INCLUDE_SUMMARY;
     }
@@ -120,7 +139,7 @@ void diff_subcommand::print_stats(const diff_wrapper& diff, bool use_colour)
 
 static int colour_printer([[maybe_unused]] const git_diff_delta* delta, [[maybe_unused]] const git_diff_hunk* hunk, const git_diff_line* line, void* payload)
 {
-	bool* use_colour = reinterpret_cast<bool*>(payload);
+	bool use_colour = reinterpret_cast<bool*>(payload);
 
 	// Only print origin for context/addition/deletion lines
     // For other line types, content already includes everything
@@ -128,7 +147,7 @@ static int colour_printer([[maybe_unused]] const git_diff_delta* delta, [[maybe_
                         line->origin == GIT_DIFF_LINE_ADDITION ||
                         line->origin == GIT_DIFF_LINE_DELETION);
 
-	if (*use_colour)
+	if (use_colour)
 	{
 		switch (line->origin) {
 		case GIT_DIFF_LINE_ADDITION:  std::cout << termcolor::green; break;
@@ -245,13 +264,20 @@ void diff_subcommand::run()
     git_diff_options_init(&diffopts, GIT_DIFF_OPTIONS_VERSION);
 
     bool use_colour = false;
-    if (m_colour_flag)
-    {
-        use_colour = true;
-    }
     if (m_no_colour_flag)
     {
-        use_colour = false;
+        if (m_colour_flag)
+        {
+            throw git_exception("Only one of --color and --no-color should be provided.", git2cpp_error_code::BAD_ARGUMENT);
+        }
+        else
+        {
+            use_colour = false;
+        }
+    }
+    else if (m_colour_flag)
+    {
+        use_colour = true;
     }
 
     if (m_no_index_flag)
