@@ -24,6 +24,7 @@ def pytest_ignore_collect(collection_path: pathlib.Path) -> bool:
         "test_init.py",
         "test_log.py",
         "test_merge.py",
+        "test_mv.py",
         "test_rebase.py",
         "test_remote.py",
         "test_reset.py",
