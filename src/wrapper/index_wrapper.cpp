@@ -1,4 +1,5 @@
 #include <git2/index.h>
+#include <algorithm>
 #include <iostream>
 #include <vector>
 
@@ -45,6 +46,20 @@ void index_wrapper::add_impl(std::vector<std::string> patterns)
 void index_wrapper::remove_entry(const std::string& path)
 {
     throw_if_error(git_index_remove_bypath(*this, path.c_str()));
+}
+
+void index_wrapper::remove_entries(std::vector<std::string> paths)
+{
+    git_strarray_wrapper array{paths};
+    throw_if_error(git_index_remove_all(*this, array, NULL, NULL));
+}
+
+void index_wrapper::remove_directories(std::vector<std::string> entries)
+{
+    std::for_each(entries.cbegin(), entries.cend(), [this](const std::string& path)
+    {
+        throw_if_error(git_index_remove_directory(*this, path.c_str(), 0));
+    });
 }
 
 void index_wrapper::write()
