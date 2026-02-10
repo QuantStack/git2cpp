@@ -32,7 +32,7 @@ void rm_subcommand::run()
         if (!fs::exists(path))
         {
             std::string msg = "fatal: pathspec '" + path + "' did not math any file";
-            throw git_exception(msg, 128);
+            throw git_exception(msg, git2cpp_error_code::FILESYSTEM_ERROR);
         }
         if (fs::is_directory(path))
         {
@@ -43,7 +43,7 @@ void rm_subcommand::run()
             if (!repo.does_track(path))
             {
                 std::string msg = "fatal: pathsspec '" + path + "'is not tracked";
-                throw git_exception(msg, 128);
+                throw git_exception(msg, git2cpp_error_code::FILESYSTEM_ERROR);
             }
             files.push_back(path);
         }
@@ -52,7 +52,7 @@ void rm_subcommand::run()
     if (!directories.empty() && !m_recursive)
     {
         std::string msg = "fatal: not removing '" + directories.front() + "' recursively without -r";
-        throw git_exception(msg, 128);
+        throw git_exception(msg, git2cpp_error_code::FILESYSTEM_ERROR);
     }
 
     index.remove_entries(files);

@@ -27,7 +27,7 @@ void mv_subcommand::run()
     if (exists && !m_force)
     {
         // TODO: replace magic number with enum when diff command is merged
-        throw git_exception("destination already exists", 128);
+        throw git_exception("destination already exists", git2cpp_error_code::FILESYSTEM_ERROR);
     }
 
     std::error_code ec;

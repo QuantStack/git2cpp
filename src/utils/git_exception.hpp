@@ -6,6 +6,7 @@
 enum class git2cpp_error_code
 {
     GENERIC_ERROR = -1,
+    FILESYSTEM_ERROR = 128,
     BAD_ARGUMENT = 129,
 };
 

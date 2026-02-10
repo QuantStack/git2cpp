@@ -237,6 +237,8 @@ def test_rm_staged_file(xtl_clone, git2cpp_path, tmp_path):
     status_cmd = [git2cpp_path, "status", "--long"]
     p_status = subprocess.run(status_cmd, capture_output=True, cwd=xtl_path, text=True)
     assert p_status.returncode == 0
+    assert "Changes to be committed" not in p_status.stdout
+    assert "staged.txt" not in p_status.stdout
 
 
 def test_rm_file_in_subdirectory(xtl_clone, commit_env_config, git2cpp_path, tmp_path):
