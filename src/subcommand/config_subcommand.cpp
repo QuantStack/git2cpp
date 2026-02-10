@@ -56,7 +56,7 @@ void config_subcommand::run_get()
 {
     if (m_name.empty())
     {
-        throw git_exception("error: wrong number of arguments, should be 1", 129);
+        throw git_exception("error: wrong number of arguments, should be 1", git2cpp_error_code::BAD_ARGUMENT);
     }
 
     auto directory = get_current_git_path();
@@ -73,7 +73,7 @@ void config_subcommand::run_set()
 {
     if (m_name.empty() | m_value.empty())
     {
-        throw git_exception("error: wrong number of arguments, should be 2", 129);
+        throw git_exception("error: wrong number of arguments, should be 2", git2cpp_error_code::BAD_ARGUMENT);
     }
 
     auto directory = get_current_git_path();
@@ -87,7 +87,7 @@ void config_subcommand::run_unset()
 {
     if (m_name.empty())
     {
-        throw git_exception("error: wrong number of arguments, should be 1", 129);
+        throw git_exception("error: wrong number of arguments, should be 1", git2cpp_error_code::BAD_ARGUMENT);
     }
 
     auto directory = get_current_git_path();
