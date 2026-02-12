@@ -12,6 +12,7 @@
 #include "ansi_code.hpp"
 #include "output.hpp"
 #include "terminal_pager.hpp"
+#include "common.hpp"
 
 terminal_pager::terminal_pager()
     : m_rows(0), m_columns(0), m_start_row_index(0)
@@ -167,7 +168,7 @@ void terminal_pager::show()
 {
     release_cout();
 
-    split_input_at_newlines(m_stringbuf.view());
+    m_lines = split_input_at_newlines(m_stringbuf.view());
 
     update_terminal_size();
     if (m_rows == 0 || m_lines.size() <= m_rows - 1)
@@ -194,15 +195,6 @@ void terminal_pager::show()
 
     m_lines.clear();
     m_start_row_index = 0;
-}
-
-void terminal_pager::split_input_at_newlines(std::string_view str)
-{
-    auto split = str | std::ranges::views::split('\n')
-                     | std::ranges::views::transform([](auto&& range) {
-                           return std::string(range.begin(), range.end());
-                       });
-    m_lines = std::vector<std::string>{split.begin(), split.end()};
 }
 
 void terminal_pager::update_terminal_size()

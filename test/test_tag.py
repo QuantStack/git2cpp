@@ -175,7 +175,7 @@ def test_tag_list_with_message_lines(xtl_clone, commit_env_config, git2cpp_path,
     xtl_path = tmp_path / "xtl"
 
     # Create an annotated tag with a message
-    create_cmd = [git2cpp_path, 'tag', '-m', 'First line\nSecond line\nThird line', 'v1.0.0']
+    create_cmd = [git2cpp_path, 'tag', '-m', 'First line\nSecond line\nThird line\nForth line', 'v1.0.0']
     p_create = subprocess.run(create_cmd, capture_output=True, cwd=xtl_path, text=True)
     assert p_create.returncode == 0
 
@@ -184,7 +184,10 @@ def test_tag_list_with_message_lines(xtl_clone, commit_env_config, git2cpp_path,
     p_list = subprocess.run(list_cmd, capture_output=True, cwd=xtl_path, text=True)
     assert p_list.returncode == 0
     assert 'v1.0.0' in p_list.stdout
-    # TODO: another assert after checking what should be printed with git
+    assert 'First line' in p_list.stdout
+    assert 'Second line' in p_list.stdout
+    assert 'Third line' in p_list.stdout
+    assert 'Forth line' not in p_list.stdout
 
 
 @pytest.mark.parametrize("force_flag", ["-f", "--force"])

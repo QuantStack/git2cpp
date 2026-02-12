@@ -4,6 +4,7 @@
 #include <sstream>
 #include <unistd.h>
 #include <map>
+#include <ranges>
 
 #include <git2.h>
 
@@ -120,4 +121,13 @@ std::string read_file(const std::string& path)
     std::stringstream buffer;
     buffer << file.rdbuf();
     return buffer.str();
+}
+
+std::vector<std::string> split_input_at_newlines(std::string_view str)
+{
+    auto split = str | std::ranges::views::split('\n')
+                     | std::ranges::views::transform([](auto&& range) {
+                         return std::string(range.begin(), range.end());
+                     });
+    return std::vector<std::string>{split.begin(), split.end()};
 }

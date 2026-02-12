@@ -27,73 +27,26 @@ void print_list_lines(const std::string& message, int num_lines)
         return;
     }
 
-    size_t pos = 0;
-	int num = num_lines - 1;   // TODO: check with git re. "- 1"
+    auto lines = split_input_at_newlines(message);
 
-	/** first line - headline */
-	size_t newline_pos = message.find('\n', pos);
-    if (newline_pos != std::string::npos)
+    // header
+    std::cout << lines[0];
+
+    // other lines
+    if (num_lines <= 1 || lines.size() <= 2)
     {
-        std::cout << message.substr(pos, newline_pos - pos);
-        pos = newline_pos;
+        std::cout << std::endl;
     }
     else
     {
-        std::cout << message << std::endl;
-        return;
+        for (size_t i = 1; i < lines.size() ; i++)
+        {
+            if (i < num_lines)
+            {
+                std::cout << "\n\t\t" << lines[i];
+            }
+        }
     }
-
-	/** skip over new lines */
-    while (pos < message.length() && message[pos] == '\n')
-    {
-        pos++;
-    }
-
-    std::cout << std::endl;
-
-	/** print just headline? */
-	if (num == 0)
-	{
-	    return;
-	}
-    if (pos < message.length() && pos + 1 < message.length())
-    {
-        std::cout << std::endl;
-    }
-
-	/** print individual commit/tag lines */
-	while (pos < message.length() && num >= 2)
-    {
-        std::cout << "    ";
-
-        newline_pos = message.find('\n', pos);
-        if (newline_pos != std::string::npos)
-        {
-            std::cout << message.substr(pos, newline_pos - pos);
-            pos = newline_pos;
-        }
-        else
-        {
-            std::cout << message.substr(pos);
-            break;
-        }
-
-        // Handle consecutive newlines
-        if (pos + 1 < message.length() &&
-            message[pos] == '\n' && message[pos + 1] == '\n')
-        {
-            num--;
-            std::cout << std::endl;
-        }
-
-        while (pos < message.length() && message[pos] == '\n')
-        {
-            pos++;
-        }
-
-        std::cout << std::endl;
-        num--;
-	}
 }
 
 // Tag listing: Print an actual tag object
@@ -172,9 +125,9 @@ void tag_subcommand::list_tags(repository_wrapper& repo)
     std::string pattern = m_tag_name.empty() ? "*" : m_tag_name;
     auto tag_names = repo.tag_list_match(pattern);
 
-    for (size_t i = 0; i < tag_names.size(); i++)
+    for (const auto& tag_name: tag_names)
     {
-        each_tag(repo, tag_names[i], m_num_lines);
+        each_tag(repo, tag_name, m_num_lines);
     }
 }
 
@@ -201,7 +154,7 @@ void tag_subcommand::delete_tag(repository_wrapper& repo)
     std::cout << "Deleted tag '" << m_delete << "' (was " << oid_str << ")" << std::endl;
 }
 
-void tag_subcommand::create_lightweight_tag(repository_wrapper& repo)
+std::optional<object_wrapper> tag_subcommand::get_target_obj(repository_wrapper& repo)
 {
     if (m_tag_name.empty())
     {
@@ -216,46 +169,11 @@ void tag_subcommand::create_lightweight_tag(repository_wrapper& repo)
         throw git_exception("Unable to resolve target: " + target, git2cpp_error_code::GENERIC_ERROR);
     }
 
-    git_oid oid;
-    size_t force = m_force_flag ? 1 : 0;
-    int error = git_tag_create_lightweight(&oid, repo, m_tag_name.c_str(), target_obj.value(), force);
-
-    if (error < 0)
-    {
-        if (error == GIT_EEXISTS)
-        {
-            throw git_exception("tag '" + m_tag_name + "' already exists", git2cpp_error_code::FILESYSTEM_ERROR);
-        }
-        throw git_exception("Unable to create lightweight tag", error);
-    }
+    return target_obj;
 }
 
-void tag_subcommand::create_tag(repository_wrapper& repo)
+void tag_subcommand::handle_error(int error)
 {
-    if (m_tag_name.empty())
-    {
-        throw git_exception("Tag name required", git2cpp_error_code::GENERIC_ERROR);
-    }
-
-    if (m_message.empty())
-    {
-        throw git_exception("Message required for annotated tag (use -m)", git2cpp_error_code::GENERIC_ERROR);
-    }
-
-    std::string target = m_target.empty() ? "HEAD" : m_target;
-
-    auto target_obj = repo.revparse_single(target);
-    if (!target_obj.has_value())
-    {
-        throw git_exception("Unable to resolve target: " + target, git2cpp_error_code::GENERIC_ERROR);
-    }
-
-    auto tagger = signature_wrapper::get_default_signature_from_env(repo);
-
-    git_oid oid;
-    size_t force = m_force_flag ? 1 : 0;
-    int error = git_tag_create(&oid, repo, m_tag_name.c_str(), target_obj.value(), tagger.first, m_message.c_str(), force);
-
     if (error < 0)
     {
         if (error == GIT_EEXISTS)
@@ -264,6 +182,30 @@ void tag_subcommand::create_tag(repository_wrapper& repo)
         }
         throw git_exception("Unable to create annotated tag", error);
     }
+}
+
+void tag_subcommand::create_lightweight_tag(repository_wrapper& repo)
+{
+    auto target_obj = tag_subcommand::get_target_obj(repo);
+
+    git_oid oid;
+    size_t force = m_force_flag ? 1 : 0;
+    int error = git_tag_create_lightweight(&oid, repo, m_tag_name.c_str(), target_obj.value(), force);
+
+    handle_error(error);
+}
+
+void tag_subcommand::create_tag(repository_wrapper& repo)
+{
+    auto target_obj = tag_subcommand::get_target_obj(repo);
+
+    auto tagger = signature_wrapper::get_default_signature_from_env(repo);
+
+    git_oid oid;
+    size_t force = m_force_flag ? 1 : 0;
+    int error = git_tag_create(&oid, repo, m_tag_name.c_str(), target_obj.value(), tagger.first, m_message.c_str(), force);
+
+    handle_error(error);
 }
 
 void tag_subcommand::run()

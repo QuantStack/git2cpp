@@ -68,3 +68,5 @@ private:
 };
 
 std::string read_file(const std::string& path);
+
+std::vector<std::string> split_input_at_newlines(std::string_view str);

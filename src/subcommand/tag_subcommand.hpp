@@ -19,6 +19,8 @@ private:
     void delete_tag(repository_wrapper& repo);
     void create_lightweight_tag(repository_wrapper& repo);
     void create_tag(repository_wrapper& repo);
+    std::optional<object_wrapper> get_target_obj(repository_wrapper& repo);
+    void handle_error(int error);
 
     std::string m_delete;
     std::string m_message;

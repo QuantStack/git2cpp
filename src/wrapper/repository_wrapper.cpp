@@ -513,11 +513,7 @@ std::vector<std::string> repository_wrapper::tag_list_match(std::string pattern)
     git_strarray tag_names;
     throw_if_error(git_tag_list_match(&tag_names, pattern.c_str(), *this));
 
-    std::vector<std::string> result;
-    for (size_t i = 0; i < tag_names.count; ++i)
-    {
-        result.emplace_back(tag_names.strings[i]);
-    }
+    std::vector<std::string> result(tag_names.strings, tag_names.strings + tag_names.count);
 
     git_strarray_dispose(&tag_names);
     return result;

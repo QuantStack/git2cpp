@@ -49,8 +49,6 @@ private:
 
     void scroll(bool up, bool page);
 
-    void split_input_at_newlines(std::string_view str);
-
     void update_terminal_size();
 
 
