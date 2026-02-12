@@ -9,8 +9,16 @@ status_list_wrapper::~status_list_wrapper()
 
 status_list_wrapper status_list_wrapper::status_list(const repository_wrapper& rw)
 {
+    git_status_options opts = GIT_STATUS_OPTIONS_INIT;
+    opts.show = GIT_STATUS_SHOW_INDEX_AND_WORKDIR;
+    opts.flags = GIT_STATUS_OPT_INCLUDE_UNTRACKED |
+                 GIT_STATUS_OPT_RENAMES_HEAD_TO_INDEX |
+                 GIT_STATUS_OPT_RENAMES_INDEX_TO_WORKDIR |
+                 GIT_STATUS_OPT_SORT_CASE_SENSITIVELY;
+    opts.rename_threshold = 50;
+
     status_list_wrapper res;
-    throw_if_error(git_status_list_new(&(res.p_resource), rw, nullptr));
+    throw_if_error(git_status_list_new(&(res.p_resource), rw, &opts));
 
     std::size_t status_list_size = git_status_list_entrycount(res.p_resource);
     for (std::size_t i = 0; i < status_list_size; ++i)
@@ -83,4 +91,3 @@ auto status_list_wrapper::get_entry_list(git_status_t status) const -> const sta
         return m_empty;
     }
 }
-

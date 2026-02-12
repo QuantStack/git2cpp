@@ -22,6 +22,14 @@
 #include "../wrapper/tree_wrapper.hpp"
 #include "../wrapper/wrapper_base.hpp"
 
+struct branch_tracking_info
+{
+    bool has_upstream;
+    std::string upstream_name;
+    size_t ahead;
+    size_t behind;
+};
+
 class repository_wrapper : public wrapper_base<git_repository>
 {
 public:
@@ -62,10 +70,10 @@ public:
     branch_wrapper create_branch(std::string_view name, bool force);
     branch_wrapper create_branch(std::string_view name, const commit_wrapper& commit, bool force);
     branch_wrapper create_branch(std::string_view name, const annotated_commit_wrapper& commit, bool force);
-
     branch_wrapper find_branch(std::string_view name) const;
-
     branch_iterator iterate_branches(git_branch_t type) const;
+    std::optional<reference_wrapper> upstream() const;
+    branch_tracking_info get_tracking_info() const;
 
     // Commits
     commit_wrapper find_commit(std::string_view ref_name = "HEAD") const;

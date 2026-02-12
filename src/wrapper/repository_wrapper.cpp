@@ -168,6 +168,53 @@ branch_iterator repository_wrapper::iterate_branches(git_branch_t type) const
     return branch_iterator(iter);
 }
 
+std::optional<reference_wrapper> repository_wrapper::upstream() const
+{
+    git_reference* ref;
+    reference_wrapper head = this->head();
+    int error = git_branch_upstream(&ref, head);
+    if (error == 0)
+    {
+        return reference_wrapper(ref);
+    }
+    else
+    {
+        return std::nullopt;
+    }
+}
+
+branch_tracking_info repository_wrapper::get_tracking_info() const
+{
+    branch_tracking_info info;
+    info.has_upstream = false;
+    info.ahead = 0;
+    info.behind = 0;
+    info.upstream_name = "";
+
+    if (this->is_head_unborn())
+    {
+        return info;
+    }
+
+    reference_wrapper head = this->head();
+    std::optional<reference_wrapper> upstream = this->upstream();
+
+    if (upstream)
+    {
+        info.has_upstream = true;
+        info.upstream_name = upstream.value().short_name();
+
+        auto local_oid = head.target();
+        auto upstream_oid = upstream.value().target();
+
+        if (local_oid && upstream_oid)
+        {
+            git_graph_ahead_behind(&info.ahead, &info.behind, *this, local_oid, upstream_oid);
+        }
+    }
+    return info;
+}
+
 // Commits
 
 commit_wrapper repository_wrapper::find_commit(std::string_view ref_name) const
@@ -457,7 +504,6 @@ config_wrapper repository_wrapper::get_config()
     throw_if_error(git_repository_config(&cfg, *this));
     return config_wrapper(cfg);
 }
-
 
 // Diff
 
