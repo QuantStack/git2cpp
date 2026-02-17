@@ -1,5 +1,4 @@
 import subprocess
-from .conftest import GIT2CPP_TEST_WASM
 
 url = "https://github.com/xtensor-stack/xtl.git"
 
@@ -22,9 +21,7 @@ def test_clone_is_bare(git2cpp_path, tmp_path, run_in_tmp_path):
 
     status_cmd = [git2cpp_path, "status"]
     p_status = subprocess.run(status_cmd, capture_output=True, cwd=tmp_path / "xtl", text=True)
-    if not GIT2CPP_TEST_WASM:
-        # TODO: fix this in wasm build
-        assert p_status.returncode != 0
+    assert p_status.returncode != 0
     assert "This operation is not allowed against bare repositories" in p_status.stderr
 
     branch_cmd = [git2cpp_path, "branch"]

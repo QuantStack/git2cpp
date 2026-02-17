@@ -1,7 +1,6 @@
 import subprocess
 
 import pytest
-from .conftest import GIT2CPP_TEST_WASM
 
 
 def test_reset(xtl_clone, commit_env_config, git2cpp_path, tmp_path):
@@ -37,7 +36,5 @@ def test_reset(xtl_clone, commit_env_config, git2cpp_path, tmp_path):
 def test_reset_nogit(git2cpp_path, tmp_path):
     cmd_reset = [git2cpp_path, "reset", "--hard", "HEAD~1"]
     p_reset = subprocess.run(cmd_reset, capture_output=True, cwd=tmp_path, text=True)
-    if not GIT2CPP_TEST_WASM:
-        # TODO: fix this in wasm build
-        assert p_reset.returncode != 0
+    assert p_reset.returncode != 0
     assert "error: could not find repository at" in p_reset.stderr

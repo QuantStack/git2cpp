@@ -1,7 +1,6 @@
 import subprocess
 
 import pytest
-from .conftest import GIT2CPP_TEST_WASM
 
 
 def test_rebase_basic(xtl_clone, commit_env_config, git2cpp_path, tmp_path):
@@ -346,9 +345,7 @@ def test_rebase_no_upstream_error(xtl_clone, commit_env_config, git2cpp_path, tm
 
     rebase_cmd = [git2cpp_path, "rebase"]
     p_rebase = subprocess.run(rebase_cmd, capture_output=True, cwd=xtl_path, text=True)
-    if not GIT2CPP_TEST_WASM:
-        # TODO: fix this in wasm build
-        assert p_rebase.returncode != 0
+    assert p_rebase.returncode != 0
     assert "upstream is required for rebase" in p_rebase.stderr
 
 
@@ -359,9 +356,7 @@ def test_rebase_invalid_upstream_error(xtl_clone, commit_env_config, git2cpp_pat
 
     rebase_cmd = [git2cpp_path, "rebase", "nonexistent-branch"]
     p_rebase = subprocess.run(rebase_cmd, capture_output=True, cwd=xtl_path, text=True)
-    if not GIT2CPP_TEST_WASM:
-        # TODO: fix this in wasm build
-        assert p_rebase.returncode != 0
+    assert p_rebase.returncode != 0
     assert "could not resolve upstream" in p_rebase.stderr or "could not resolve upstream" in p_rebase.stdout
 
 
@@ -390,9 +385,7 @@ def test_rebase_already_in_progress_error(xtl_clone, commit_env_config, git2cpp_
     # Try to start another rebase
     rebase_cmd = [git2cpp_path, "rebase", "master"]
     p_rebase = subprocess.run(rebase_cmd, capture_output=True, cwd=xtl_path, text=True)
-    if not GIT2CPP_TEST_WASM:
-        # TODO: fix this in wasm build
-        assert p_rebase.returncode != 0
+    assert p_rebase.returncode != 0
     assert "rebase is already in progress" in p_rebase.stderr or "rebase is already in progress" in p_rebase.stdout
 
 
@@ -403,9 +396,7 @@ def test_rebase_continue_without_rebase_error(xtl_clone, commit_env_config, git2
 
     continue_cmd = [git2cpp_path, "rebase", "--continue"]
     p_continue = subprocess.run(continue_cmd, capture_output=True, cwd=xtl_path, text=True)
-    if not GIT2CPP_TEST_WASM:
-        # TODO: fix this in wasm build
-        assert p_continue.returncode != 0
+    assert p_continue.returncode != 0
     assert "No rebase in progress" in p_continue.stderr or "No rebase in progress" in p_continue.stdout
 
 
@@ -433,7 +424,5 @@ def test_rebase_continue_with_unresolved_conflicts(xtl_clone, commit_env_config,
     # Try to continue without resolving
     continue_cmd = [git2cpp_path, "rebase", "--continue"]
     p_continue = subprocess.run(continue_cmd, capture_output=True, cwd=xtl_path, text=True)
-    if not GIT2CPP_TEST_WASM:
-        # TODO: fix this in wasm build
-        assert p_continue.returncode != 0
+    assert p_continue.returncode != 0
     assert "resolve conflicts" in p_continue.stderr or "resolve conflicts" in p_continue.stdout
