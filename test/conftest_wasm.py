@@ -89,8 +89,11 @@ class MockPath(pathlib.Path):
         for f in filter(lambda f: f not in ['', '.', '..'], re.split(r"\r?\n", p.stdout)):
             yield MockPath(self / f)
 
-    def mkdir(self):
-        subprocess.run(["mkdir", str(self)], capture_output=True, text=True, check=True)
+    def mkdir(self, *, parents=False):
+        args = [str(self)]
+        if parents:
+            args.append("-p")
+        subprocess.run(["mkdir"] + args, capture_output=True, text=True, check=True)
 
     def read_text(self) -> str:
         p = subprocess.run(["cat", str(self)], capture_output=True, text=True, check=True)
