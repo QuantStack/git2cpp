@@ -38,16 +38,16 @@ private:
     bool m_patience_flag = false;
     bool m_minimal_flag = false;
 
-    // int m_rename_threshold = 50;
-    // bool m_find_renames_flag = false;
-    // int m_copy_threshold = 50;
-    // bool m_find_copies_flag = false;
-    // bool m_find_copies_harder_flag = false;
-    // bool m_break_rewrites_flag = false;
+    uint m_rename_threshold = 50;
+    bool m_find_renames_flag = false;
+    uint m_copy_threshold = 50;
+    bool m_find_copies_flag = false;
+    bool m_find_copies_harder_flag = false;
+    bool m_break_rewrites_flag = false;
 
-    int m_context_lines = 3;
-    int m_interhunk_lines = 0;
-    int m_abbrev = 7;
+    uint m_context_lines = 3;
+    uint m_interhunk_lines = 0;
+    uint m_abbrev = 7;
 
     bool m_colour_flag = true;
     bool m_no_colour_flag = false;
