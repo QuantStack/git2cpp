@@ -196,9 +196,6 @@ def test_status_mixed_changes(xtl_clone, git2cpp_path, tmp_path, short_flag):
 @pytest.mark.parametrize("short_flag", ["", "-s"])
 def test_status_typechange(xtl_clone, git2cpp_path, tmp_path, short_flag):
     """Test status shows typechange (file to symlink or vice versa)"""
-    if os.name == 'nt':
-        pytest.skip("Symlink test not reliable on Windows")
-
     xtl_path = tmp_path / "xtl"
 
     # Remove a file and replace with a symlink
