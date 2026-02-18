@@ -339,7 +339,7 @@ void status_run(status_subcommand_options options)
     }
 
     // TODO: check if this message should be displayed even if there are untracked files
-    if (is_long & (!(sl.has_tobecommited_header() | sl.has_notstagged_header() | sl.has_unmerged_header() | sl.has_untracked_header())))
+    if (is_long & !(sl.has_tobecommited_header() | sl.has_notstagged_header() | sl.has_unmerged_header() | sl.has_untracked_header()))
     {
         std::cout << treeclean_message << std::endl;
     }

@@ -162,7 +162,7 @@ def test_status_mixed_changes(xtl_clone, git2cpp_path, tmp_path, short_flag):
     os.remove(del_file)
 
     # Stage the two previous files
-    subprocess.run([git2cpp_path, "add", "staged.txt", "README.md"], cwd=xtl_path)
+    subprocess.run([git2cpp_path, "add", "staged.txt", "README.md"], cwd=xtl_path, check=True)
 
     # Modify an existing file without staging
     unstaged_file = xtl_path / "CMakeLists.txt"
@@ -196,7 +196,6 @@ def test_status_mixed_changes(xtl_clone, git2cpp_path, tmp_path, short_flag):
 @pytest.mark.parametrize("short_flag", ["", "-s"])
 def test_status_typechange(xtl_clone, git2cpp_path, tmp_path, short_flag):
     """Test status shows typechange (file to symlink or vice versa)"""
-    # Note: This test may need to be skipped on Windows
     if os.name == 'nt':
         pytest.skip("Symlink test not reliable on Windows")
 
@@ -255,7 +254,7 @@ def test_status_ahead_of_upstream(commit_env_config, git2cpp_path, tmp_path, sho
     repo_path.mkdir()
 
     # Initialize repo
-    subprocess.run([git2cpp_path, "init"], cwd=repo_path)
+    subprocess.run([git2cpp_path, "init"], cwd=repo_path, check=True)
 
     # Create initial commit
     test_file = repo_path / "file.txt"
@@ -305,7 +304,7 @@ def test_status_with_branch_and_tracking(commit_env_config, git2cpp_path, tmp_pa
 
     # Clone it
     clone_path = tmp_path / "clone"
-    subprocess.run(["git", "clone", str(repo_path), str(clone_path)])
+    subprocess.run(["git", "clone", str(repo_path), str(clone_path)], check=True)
 
     # Make a commit
     clone_file = clone_path / "file2.txt"
@@ -336,7 +335,7 @@ def test_status_all_headers_shown(xtl_clone, git2cpp_path, tmp_path):
     # Changes to be committed
     staged = xtl_path / "staged.txt"
     staged.write_text("staged")
-    subprocess.run([git2cpp_path, "add", "staged.txt"], cwd=xtl_path)
+    subprocess.run([git2cpp_path, "add", "staged.txt"], cwd=xtl_path, check=True)
 
     # Changes not staged
     modified = xtl_path / "CMakeLists.txt"
