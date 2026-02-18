@@ -161,40 +161,11 @@ void print_not_tracked(const std::vector<print_entry>& entries_to_print, const s
     print_entries(not_tracked_entries_to_print, is_long, colour);
 }
 
-void status_subcommand::run()
+void print_tracking_info(repository_wrapper& repo, status_list_wrapper& sl, status_subcommand_options options, bool is_long)
 {
-    status_run(m_options);
-}
-
-void status_run(status_subcommand_options options)
-{
-    auto directory = get_current_git_path();
-    auto repo = repository_wrapper::open(directory);
-    auto sl = status_list_wrapper::status_list(repo);
     auto branch_name = repo.head_short_name();
     auto tracking_info = repo.get_tracking_info();
 
-    std::set<std::string> tracked_dir_set{};
-    std::set<std::string> untracked_dir_set{};
-    std::vector<std::string> untracked_to_print{};
-    std::vector<std::string> ignored_to_print{};
-
-    output_format of = output_format::DEFAULT;
-    if (options.m_short_flag)
-    {
-        of = output_format::SHORT;
-    }
-    if (options.m_long_flag)
-    {
-        of = output_format::LONG;
-    }
-    // else if (porcelain_format)
-    // {
-    //     output_format = 3;
-    // }
-
-    bool is_long;
-    is_long = ((of == output_format::DEFAULT) || (of == output_format::LONG));
     if (is_long)
     {
         std::cout  << "On branch " << branch_name << std::endl;
@@ -273,78 +244,133 @@ void status_run(status_subcommand_options options)
             std::cout << std::endl;
         }
     }
+}
+
+void print_tobecommited(status_list_wrapper& sl, output_format of, std::set<std::string> tracked_dir_set, bool is_long)
+{
+    stream_colour_fn colour = termcolor::green;
+    if (is_long)
+    {
+        std::cout << tobecommited_header;
+    }
+    print_entries(get_entries_to_print(GIT_STATUS_INDEX_NEW, sl, true, of, &tracked_dir_set), is_long, colour);
+    print_entries(get_entries_to_print(GIT_STATUS_INDEX_MODIFIED, sl, true, of, &tracked_dir_set), is_long, colour);
+    print_entries(get_entries_to_print(GIT_STATUS_INDEX_DELETED, sl, true, of, &tracked_dir_set), is_long, colour);
+    print_entries(get_entries_to_print(GIT_STATUS_INDEX_RENAMED, sl, true, of, &tracked_dir_set), is_long, colour);
+    print_entries(get_entries_to_print(GIT_STATUS_INDEX_TYPECHANGE, sl, true, of, &tracked_dir_set), is_long, colour);
+    if (is_long)
+    {
+        std::cout << std::endl;
+    }
+}
+
+void print_notstagged(status_list_wrapper& sl, output_format of, std::set<std::string> tracked_dir_set, bool is_long)
+{
+    stream_colour_fn colour = termcolor::red;
+    if (is_long)
+    {
+        std::cout << notstagged_header;
+    }
+    print_entries(get_entries_to_print(GIT_STATUS_WT_MODIFIED, sl, false, of, &tracked_dir_set), is_long, colour);
+    print_entries(get_entries_to_print(GIT_STATUS_WT_DELETED, sl, false, of, &tracked_dir_set), is_long, colour);
+    print_entries(get_entries_to_print(GIT_STATUS_WT_TYPECHANGE, sl, false, of, &tracked_dir_set), is_long, colour);
+    print_entries(get_entries_to_print(GIT_STATUS_WT_RENAMED, sl, false, of, &tracked_dir_set), is_long, colour);
+    if (is_long)
+    {
+        std::cout << std::endl;
+    }
+}
+
+void print_unmerged(status_list_wrapper& sl, output_format of, std::set<std::string> tracked_dir_set, std::set<std::string> untracked_dir_set, bool is_long)
+{
+    stream_colour_fn colour = termcolor::red;
+    if (is_long)
+    {
+        std::cout << unmerged_header;
+    }
+    print_not_tracked(get_entries_to_print(GIT_STATUS_CONFLICTED, sl, false, of), tracked_dir_set, untracked_dir_set, is_long, colour);
+    if (is_long)
+    {
+        std::cout << std::endl;
+    }
+}
+
+void print_untracked(status_list_wrapper& sl, output_format of, std::set<std::string> tracked_dir_set, std::set<std::string> untracked_dir_set, bool is_long)
+{
+    stream_colour_fn colour = termcolor::red;
+    if (is_long)
+    {
+        std::cout << untracked_header;
+    }
+    print_not_tracked(get_entries_to_print(GIT_STATUS_WT_NEW, sl, false, of), tracked_dir_set, untracked_dir_set, is_long, colour);
+    if (is_long)
+    {
+        std::cout << std::endl;
+    }
+}
+
+void status_subcommand::run()
+{
+    status_run(m_options);
+}
+
+void status_run(status_subcommand_options options)
+{
+    auto directory = get_current_git_path();
+    auto repo = repository_wrapper::open(directory);
+    auto sl = status_list_wrapper::status_list(repo);
+
+    std::set<std::string> tracked_dir_set{};
+    std::set<std::string> untracked_dir_set{};
+    std::vector<std::string> untracked_to_print{};
+    std::vector<std::string> ignored_to_print{};
+
+    output_format of = output_format::DEFAULT;
+    if (options.m_short_flag)
+    {
+        of = output_format::SHORT;
+    }
+    if (options.m_long_flag)
+    {
+        of = output_format::LONG;
+    }
+    // else if (porcelain_format)
+    // {
+    //     output_format = 3;
+    // }
+
+    bool is_long;
+    is_long = ((of == output_format::DEFAULT) || (of == output_format::LONG));
+    print_tracking_info(repo, sl, options, is_long);
 
     if (sl.has_tobecommited_header())
     {
-        stream_colour_fn colour = termcolor::green;
-        if (is_long)
-        {
-            std::cout << tobecommited_header;
-        }
-        print_entries(get_entries_to_print(GIT_STATUS_INDEX_NEW, sl, true, of, &tracked_dir_set), is_long, colour);
-        print_entries(get_entries_to_print(GIT_STATUS_INDEX_MODIFIED, sl, true, of, &tracked_dir_set), is_long, colour);
-        print_entries(get_entries_to_print(GIT_STATUS_INDEX_DELETED, sl, true, of, &tracked_dir_set), is_long, colour);
-        print_entries(get_entries_to_print(GIT_STATUS_INDEX_RENAMED, sl, true, of, &tracked_dir_set), is_long, colour);
-        print_entries(get_entries_to_print(GIT_STATUS_INDEX_TYPECHANGE, sl, true, of, &tracked_dir_set), is_long, colour);
-        if (is_long)
-        {
-            std::cout << std::endl;
-        }
+        print_tobecommited(sl, of, tracked_dir_set,is_long);
     }
 
     if (sl.has_notstagged_header())
     {
-        stream_colour_fn colour = termcolor::red;
-        if (is_long)
-        {
-            std::cout << notstagged_header;
-        }
-        print_entries(get_entries_to_print(GIT_STATUS_WT_MODIFIED, sl, false, of, &tracked_dir_set), is_long, colour);
-        print_entries(get_entries_to_print(GIT_STATUS_WT_DELETED, sl, false, of, &tracked_dir_set), is_long, colour);
-        print_entries(get_entries_to_print(GIT_STATUS_WT_TYPECHANGE, sl, false, of, &tracked_dir_set), is_long, colour);
-        print_entries(get_entries_to_print(GIT_STATUS_WT_RENAMED, sl, false, of, &tracked_dir_set), is_long, colour);
-        if (is_long)
-        {
-            std::cout << std::endl;
-        }
+        print_notstagged(sl, of, tracked_dir_set, is_long);
     }
 
     // TODO: check if should be printed before "not stagged" files
     if (sl.has_unmerged_header())
     {
-        stream_colour_fn colour = termcolor::red;
-        if (is_long)
-        {
-            std::cout << unmerged_header;
-        }
-        print_not_tracked(get_entries_to_print(GIT_STATUS_CONFLICTED, sl, false, of), tracked_dir_set, untracked_dir_set, is_long, colour);
-        if (is_long)
-        {
-            std::cout << std::endl;
-        }
+        print_unmerged(sl, of, tracked_dir_set, untracked_dir_set, is_long);
     }
 
     if (sl.has_untracked_header())
     {
-        stream_colour_fn colour = termcolor::red;
-        if (is_long)
-        {
-            std::cout << untracked_header;
-        }
-        print_not_tracked(get_entries_to_print(GIT_STATUS_WT_NEW, sl, false, of), tracked_dir_set, untracked_dir_set, is_long, colour);
-        if (is_long)
-        {
-            std::cout << std::endl;
-        }
+        print_untracked(sl, of, tracked_dir_set, untracked_dir_set, is_long);
     }
 
     // TODO: check if this message should be displayed even if there are untracked files
-    if (is_long & !(sl.has_tobecommited_header() | sl.has_notstagged_header() | sl.has_unmerged_header() | sl.has_untracked_header()))
+    if (is_long && !(sl.has_tobecommited_header() || sl.has_notstagged_header() || sl.has_unmerged_header() || sl.has_untracked_header()))
     {
         std::cout << treeclean_message << std::endl;
     }
 
-    if (is_long & !sl.has_tobecommited_header() & (sl.has_notstagged_header() | sl.has_untracked_header()))
+    if (is_long & !sl.has_tobecommited_header() && (sl.has_notstagged_header() || sl.has_untracked_header()))
     {
         std::cout << nothingtocommit_message << std::endl;
     }
