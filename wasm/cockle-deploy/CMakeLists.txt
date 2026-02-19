@@ -3,7 +3,7 @@ project(git2cpp-wasm-cockle-deploy)
 
 include("../common.cmake")
 
-set(SERVE_DIR "../serve/cockle")
+set(SERVE_DIR "../serve/dist/cockle")
 
 add_custom_target(build-cockle
     DEPENDS build-recipe cockle

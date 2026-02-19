@@ -7,16 +7,14 @@ option(USE_COCKLE_RELEASE "Use latest cockle release rather than repo main branc
 add_subdirectory(recipe)
 add_subdirectory(cockle-deploy)
 add_subdirectory(lite-deploy)
+add_subdirectory(serve)
 add_subdirectory(test)
 
 # Build everything (package, cockle and lite deployments, tests).
-add_custom_target(build ALL DEPENDS build-recipe build-cockle build-lite build-test)
+add_custom_target(build ALL DEPENDS build-recipe build-cockle build-lite build-serve build-test)
 
 # Rebuild after change in C++ code.
 add_custom_target(rebuild DEPENDS rebuild-recipe rebuild-cockle rebuild-lite rebuild-test)
-
-# Serve both cockle and JupyterLite deployments.
-add_custom_target(serve COMMAND npx static-handler --cors --coop --coep --corp serve)
 
 if (USE_COCKLE_RELEASE)
     execute_process(COMMAND npm view @jupyterlite/cockle version OUTPUT_VARIABLE COCKLE_BRANCH)

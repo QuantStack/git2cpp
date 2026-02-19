@@ -3,11 +3,11 @@
   "scripts": {
     "build": "rspack build",
     "postbuild": "npm run postbuild:wasm && npm run postbuild:index",
-    "postbuild:wasm": "node node_modules/@jupyterlite/cockle/lib/tools/prepare_wasm.js --copy ../serve/cockle/",
-    "postbuild:index": "cp assets/index.html ../serve/cockle/"
+    "postbuild:wasm": "node node_modules/@jupyterlite/cockle/lib/tools/prepare_wasm.js --copy ../serve/dist/cockle/",
+    "postbuild:index": "cp assets/index.html ../serve/dist/cockle/"
   },
-  "main": "../serve/cockle/index.js",
-  "types": "../serve/cockle/index.d.ts",
+  "main": "../serve/dist/cockle/index.js",
+  "types": "../serve/dist/cockle/index.d.ts",
   "keywords": [],
   "author": "",
   "license": "ISC",

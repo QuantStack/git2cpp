@@ -65,6 +65,15 @@ Note that the `source` for the `git2cpp` package is the local filesystem rather 
 version number of the current Emscripten-forge recipe rather than the version of the local `git2cpp`
 source code which can be checked using `git2cpp -v` at the `cockle`/`terminal` command line.
 
+If you want to remotely access git servers using `git2cpp` subcommands such as `clone`, `fetch`
+and `push`, then serve with a local CORS proxy using:
+
+```bash
+make serve-with-cors
+```
+
+which will use the CORS proxy on `http://localhost:8881/`.
+
 ## Rebuild
 
 After making changes to the local `git2cpp` source code you can rebuild the WebAssembly package,

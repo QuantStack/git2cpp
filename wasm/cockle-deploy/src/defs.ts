@@ -6,5 +6,6 @@ export namespace IDeployment {
     browsingContextId: string;
     shellManager: IShellManager;
     targetDiv: HTMLElement;
+    useLocalCors?: string;
   }
 }

@@ -1,0 +1,17 @@
+{
+    "name": "serve",
+    "version": "1.0.0",
+    "license": "BSD-3-Clause",
+    "private": true,
+    "scripts": {
+        "serve": "npm run serve:basic",
+        "serve-with-cors": "COCKLE_LOCAL_CORS=1 concurrently 'npm run serve:basic' 'npm run serve:cors'",
+        "serve:basic": "npx static-handler --cors --coop --coep --corp dist",
+        "serve:cors": "HOST=localhost PORT=8881 node node_modules/cors-anywhere/server.js "
+    },
+    "devDependencies": {
+        "concurrently": "^9.2.1",
+        "cors-anywhere": "^0.4.4",
+        "static-handler": "^0.5.3"
+    }
+}

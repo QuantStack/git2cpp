@@ -24,6 +24,6 @@ module.exports = {
   },
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, '../serve/cockle'),
+    path: path.resolve(__dirname, '../serve/dist/cockle'),
   }
 };

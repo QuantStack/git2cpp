@@ -1,4 +1,4 @@
-import { Shell } from '@jupyterlite/cockle'
+import { IShell, Shell } from '@jupyterlite/cockle'
 import { FitAddon } from '@xterm/addon-fit'
 import { Terminal } from '@xterm/xterm'
 import { IDeployment } from './defs'
@@ -22,13 +22,18 @@ export class Deployment {
 
     const { baseUrl, browsingContextId, shellManager } = options;
 
-    this._shell = new Shell({
+    const shellOptions: IShell.IOptions = {
       browsingContextId,
       baseUrl,
       wasmBaseUrl: baseUrl,
       shellManager,
       outputCallback: this.outputCallback.bind(this),
-    })
+    };
+    if (options.useLocalCors) {
+      shellOptions.environment = { GIT_CORS_PROXY: options.useLocalCors };
+    }
+
+    this._shell = new Shell(shellOptions);
   }
 
   async start(): Promise<void> {

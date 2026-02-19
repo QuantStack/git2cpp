@@ -11,6 +11,6 @@ package-lock.json
 cockle/
 lite-deploy/package.json
 recipe/em-forge-recipes/
-serve/*/
+serve/dist/*/
 test/assets/*/
 test/lib/

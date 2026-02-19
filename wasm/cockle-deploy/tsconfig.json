@@ -13,7 +13,7 @@
     "noUnusedLocals": true,
     "preserveWatchOutput": true,
     "resolveJsonModule": true,
-    "outDir": "../serve/cockle",
+    "outDir": "../serve/dist/cockle",
     "rootDir": "src",
     "strict": true,
     "strictNullChecks": true,

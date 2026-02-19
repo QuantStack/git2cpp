@@ -3,7 +3,7 @@ project(git2cpp-wasm-lite-deploy)
 
 include("../common.cmake")
 
-set(SERVE_DIR "../serve/lite")
+set(SERVE_DIR "../serve/dist/lite")
 
 add_custom_target(build-lite
     DEPENDS build-recipe cockle
