@@ -7,7 +7,6 @@
 #include <termcolor/termcolor.hpp>
 
 #include "status_subcommand.hpp"
-#include "../wrapper/status_wrapper.hpp"
 
 
 status_subcommand::status_subcommand(const libgit2_object&, CLI::App& app)
@@ -47,14 +46,14 @@ struct print_entry
     std::string item;
 };
 
-std::string get_print_status(git_status_t status, output_format of)
+std::string get_print_status(git_status_t status, bool is_long)
 {
     std::string entry_status;
-    if ((of == output_format::DEFAULT) || (of == output_format::LONG))
+    if (is_long)
     {
         entry_status = get_status_msg(status).long_mod;
     }
-    else if (of == output_format::SHORT)
+    else
     {
         entry_status = get_status_msg(status).short_mod;
     }
@@ -89,7 +88,7 @@ std::string get_print_item(const char* old_path, const char* new_path)
 }
 
 std::vector<print_entry> get_entries_to_print(git_status_t status, status_list_wrapper& sl,
-    bool head_selector, output_format of, std::set<std::string>* tracked_dir_set = nullptr)
+    bool head_selector, bool is_long, std::set<std::string>* tracked_dir_set = nullptr)
 {
     std::vector<print_entry> entries_to_print{};
     const auto& entry_list = sl.get_entry_list(status);
@@ -106,7 +105,7 @@ std::vector<print_entry> get_entries_to_print(git_status_t status, status_list_w
 
         update_tracked_dir_set(old_path, tracked_dir_set);
 
-        print_entry e = { get_print_status(status, of), get_print_item(old_path, new_path)};
+        print_entry e = { get_print_status(status, is_long), get_print_item(old_path, new_path)};
 
         entries_to_print.push_back(std::move(e));
     }
@@ -161,15 +160,12 @@ void print_not_tracked(const std::vector<print_entry>& entries_to_print, const s
     print_entries(not_tracked_entries_to_print, is_long, colour);
 }
 
-void print_tracking_info(repository_wrapper& repo, status_list_wrapper& sl, status_subcommand_options options, bool is_long)
+void print_tracking_info(repository_wrapper& repo, status_list_wrapper& sl, bool is_long)
 {
-    auto branch_name = repo.head_short_name();
     auto tracking_info = repo.get_tracking_info();
 
     if (is_long)
     {
-        std::cout  << "On branch " << branch_name << std::endl;
-
         if (tracking_info.has_upstream)
         {
             if(tracking_info.ahead > 0 && tracking_info.behind == 0)
@@ -215,11 +211,6 @@ void print_tracking_info(repository_wrapper& repo, status_list_wrapper& sl, stat
     }
     else
     {
-        if (options.m_branch_flag)
-        {
-            std::cout  << "## " << branch_name << std::endl;
-        }
-
         if (tracking_info.has_upstream)
         {
             std::cout << "..." << tracking_info.upstream_name;
@@ -246,63 +237,100 @@ void print_tracking_info(repository_wrapper& repo, status_list_wrapper& sl, stat
     }
 }
 
-void print_tobecommited(status_list_wrapper& sl, output_format of, std::set<std::string> tracked_dir_set, bool is_long)
+void print_tobecommited(status_list_wrapper& sl, std::set<std::string> tracked_dir_set, bool is_long, bool is_coloured)
 {
-    stream_colour_fn colour = termcolor::green;
+
+    stream_colour_fn colour;
+    if (is_coloured)
+    {
+        colour = termcolor::green;
+    }
+    else
+    {
+        colour = termcolor::bright_white;
+    }
+
     if (is_long)
     {
         std::cout << tobecommited_header;
     }
-    print_entries(get_entries_to_print(GIT_STATUS_INDEX_NEW, sl, true, of, &tracked_dir_set), is_long, colour);
-    print_entries(get_entries_to_print(GIT_STATUS_INDEX_MODIFIED, sl, true, of, &tracked_dir_set), is_long, colour);
-    print_entries(get_entries_to_print(GIT_STATUS_INDEX_DELETED, sl, true, of, &tracked_dir_set), is_long, colour);
-    print_entries(get_entries_to_print(GIT_STATUS_INDEX_RENAMED, sl, true, of, &tracked_dir_set), is_long, colour);
-    print_entries(get_entries_to_print(GIT_STATUS_INDEX_TYPECHANGE, sl, true, of, &tracked_dir_set), is_long, colour);
+    print_entries(get_entries_to_print(GIT_STATUS_INDEX_NEW, sl, true, is_long, &tracked_dir_set), is_long, colour);
+    print_entries(get_entries_to_print(GIT_STATUS_INDEX_MODIFIED, sl, true, is_long, &tracked_dir_set), is_long, colour);
+    print_entries(get_entries_to_print(GIT_STATUS_INDEX_DELETED, sl, true, is_long, &tracked_dir_set), is_long, colour);
+    print_entries(get_entries_to_print(GIT_STATUS_INDEX_RENAMED, sl, true, is_long, &tracked_dir_set), is_long, colour);
+    print_entries(get_entries_to_print(GIT_STATUS_INDEX_TYPECHANGE, sl, true, is_long, &tracked_dir_set), is_long, colour);
     if (is_long)
     {
         std::cout << std::endl;
     }
 }
 
-void print_notstagged(status_list_wrapper& sl, output_format of, std::set<std::string> tracked_dir_set, bool is_long)
+void print_notstagged(status_list_wrapper& sl, std::set<std::string> tracked_dir_set, bool is_long, bool is_coloured)
 {
-    stream_colour_fn colour = termcolor::red;
+    stream_colour_fn colour;
+    if (is_coloured)
+    {
+        colour = termcolor::red;
+    }
+    else
+    {
+        colour = termcolor::bright_white;
+    }
+
     if (is_long)
     {
         std::cout << notstagged_header;
     }
-    print_entries(get_entries_to_print(GIT_STATUS_WT_MODIFIED, sl, false, of, &tracked_dir_set), is_long, colour);
-    print_entries(get_entries_to_print(GIT_STATUS_WT_DELETED, sl, false, of, &tracked_dir_set), is_long, colour);
-    print_entries(get_entries_to_print(GIT_STATUS_WT_TYPECHANGE, sl, false, of, &tracked_dir_set), is_long, colour);
-    print_entries(get_entries_to_print(GIT_STATUS_WT_RENAMED, sl, false, of, &tracked_dir_set), is_long, colour);
+    print_entries(get_entries_to_print(GIT_STATUS_WT_MODIFIED, sl, false, is_long, &tracked_dir_set), is_long, colour);
+    print_entries(get_entries_to_print(GIT_STATUS_WT_DELETED, sl, false, is_long, &tracked_dir_set), is_long, colour);
+    print_entries(get_entries_to_print(GIT_STATUS_WT_TYPECHANGE, sl, false, is_long, &tracked_dir_set), is_long, colour);
+    print_entries(get_entries_to_print(GIT_STATUS_WT_RENAMED, sl, false, is_long, &tracked_dir_set), is_long, colour);
     if (is_long)
     {
         std::cout << std::endl;
     }
 }
 
-void print_unmerged(status_list_wrapper& sl, output_format of, std::set<std::string> tracked_dir_set, std::set<std::string> untracked_dir_set, bool is_long)
+void print_unmerged(status_list_wrapper& sl, std::set<std::string> tracked_dir_set, std::set<std::string> untracked_dir_set, bool is_long, bool is_coloured)
 {
-    stream_colour_fn colour = termcolor::red;
+    stream_colour_fn colour;
+    if (is_coloured)
+    {
+        colour = termcolor::red;
+    }
+    else
+    {
+        colour = termcolor::bright_white;
+    }
+
     if (is_long)
     {
         std::cout << unmerged_header;
     }
-    print_not_tracked(get_entries_to_print(GIT_STATUS_CONFLICTED, sl, false, of), tracked_dir_set, untracked_dir_set, is_long, colour);
+    print_not_tracked(get_entries_to_print(GIT_STATUS_CONFLICTED, sl, false, is_long), tracked_dir_set, untracked_dir_set, is_long, colour);
     if (is_long)
     {
         std::cout << std::endl;
     }
 }
 
-void print_untracked(status_list_wrapper& sl, output_format of, std::set<std::string> tracked_dir_set, std::set<std::string> untracked_dir_set, bool is_long)
+void print_untracked(status_list_wrapper& sl, std::set<std::string> tracked_dir_set, std::set<std::string> untracked_dir_set, bool is_long, bool is_coloured)
 {
-    stream_colour_fn colour = termcolor::red;
+    stream_colour_fn colour;
+    if (is_coloured)
+    {
+        colour = termcolor::red;
+    }
+    else
+    {
+        colour = termcolor::bright_white;
+    }
+
     if (is_long)
     {
         std::cout << untracked_header;
     }
-    print_not_tracked(get_entries_to_print(GIT_STATUS_WT_NEW, sl, false, of), tracked_dir_set, untracked_dir_set, is_long, colour);
+    print_not_tracked(get_entries_to_print(GIT_STATUS_WT_NEW, sl, false, is_long), tracked_dir_set, untracked_dir_set, is_long, colour);
     if (is_long)
     {
         std::cout << std::endl;
@@ -341,27 +369,38 @@ void status_run(status_subcommand_options options)
 
     bool is_long;
     is_long = ((of == output_format::DEFAULT) || (of == output_format::LONG));
-    print_tracking_info(repo, sl, options, is_long);
+
+    auto branch_name = repo.head_short_name();
+    if (is_long)
+    {
+        std::cout  << "On branch " << branch_name << std::endl;
+    }
+    else if (options.m_branch_flag)
+    {
+        std::cout  << "## " << branch_name << std::endl;
+    }
+    bool is_coloured = true;
+    print_tracking_info(repo, sl, is_long);
 
     if (sl.has_tobecommited_header())
     {
-        print_tobecommited(sl, of, tracked_dir_set,is_long);
+        print_tobecommited(sl, tracked_dir_set, is_long, is_coloured);
     }
 
     if (sl.has_notstagged_header())
     {
-        print_notstagged(sl, of, tracked_dir_set, is_long);
+        print_notstagged(sl, tracked_dir_set, is_long, is_coloured);
     }
 
     // TODO: check if should be printed before "not stagged" files
     if (sl.has_unmerged_header())
     {
-        print_unmerged(sl, of, tracked_dir_set, untracked_dir_set, is_long);
+        print_unmerged(sl, tracked_dir_set, untracked_dir_set, is_long, is_coloured);
     }
 
     if (sl.has_untracked_header())
     {
-        print_untracked(sl, of, tracked_dir_set, untracked_dir_set, is_long);
+        print_untracked(sl, tracked_dir_set, untracked_dir_set, is_long, is_coloured);
     }
 
     // TODO: check if this message should be displayed even if there are untracked files

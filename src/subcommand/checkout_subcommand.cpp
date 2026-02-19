@@ -1,9 +1,12 @@
 #include <iostream>
 #include <sstream>
+#include <set>
 
 #include "../subcommand/checkout_subcommand.hpp"
+#include "../subcommand/status_subcommand.hpp"
 #include "../utils/git_exception.hpp"
 #include "../wrapper/repository_wrapper.hpp"
+#include "../wrapper/status_wrapper.hpp"
 
 checkout_subcommand::checkout_subcommand(const libgit2_object&, CLI::App& app)
 {
@@ -15,6 +18,34 @@ checkout_subcommand::checkout_subcommand(const libgit2_object&, CLI::App& app)
     sub->add_flag("-f, --force", m_force_checkout_flag, "When switching branches, proceed even if the index or the working tree differs from HEAD, and even if there are untracked files in the way");
 
     sub->callback([this]() { this->run(); });
+}
+
+void checkout_subcommand::print_message(repository_wrapper& repo)
+{
+    auto sl = status_list_wrapper::status_list(repo);
+    if (sl.has_tobecommited_header())
+    {
+        bool is_long, is_coloured = false;
+        std::set<std::string> tracked_dir_set{};
+        print_tobecommited(sl, tracked_dir_set, is_long, is_coloured);
+    }
+    else if (sl.has_notstagged_header())
+    {
+        std::cout << "Your local changes to the following files would be overwritten by checkout:" << std::endl;
+
+        for (const auto* entry : sl.get_entry_list(GIT_STATUS_WT_MODIFIED))
+        {
+            std::cout << "\t" << entry->head_to_index->new_file.path << std::endl;
+        }
+        for (const auto* entry : sl.get_entry_list(GIT_STATUS_WT_DELETED))
+        {
+            std::cout << "\t" << entry->head_to_index->new_file.path << std::endl;
+        }
+
+        std::cout << "Please commit your changes or stash them before you switch branches.\nAborting" << std::endl;
+    }
+    std::cout << "Switched to branch '" << m_branch_name << "'" << std::endl;
+    print_tracking_info(repo, sl, true);
 }
 
 void checkout_subcommand::run()
@@ -30,7 +61,7 @@ void checkout_subcommand::run()
     git_checkout_options options;
     git_checkout_options_init(&options, GIT_CHECKOUT_OPTIONS_VERSION);
 
-    if(m_force_checkout_flag)
+    if (m_force_checkout_flag)
     {
         options.checkout_strategy = GIT_CHECKOUT_FORCE;
     }
@@ -40,6 +71,8 @@ void checkout_subcommand::run()
         auto annotated_commit = create_local_branch(repo, m_branch_name, m_force_create_flag);
         checkout_tree(repo, annotated_commit, m_branch_name, options);
         update_head(repo, annotated_commit, m_branch_name);
+
+        print_message(repo);
     }
     else
     {
@@ -53,6 +86,8 @@ void checkout_subcommand::run()
         }
         checkout_tree(repo, *optional_commit, m_branch_name, options);
         update_head(repo, *optional_commit, m_branch_name);
+
+        print_message(repo);
     }
 }
 
