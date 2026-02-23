@@ -66,3 +66,21 @@ def repo_init_with_commit(commit_env_config, git2cpp_path, tmp_path, run_in_tmp_
     cmd_commit = [git2cpp_path, "commit", "-m", "Initial commit"]
     p_commit = subprocess.run(cmd_commit, capture_output=True, cwd=tmp_path, text=True)
     assert p_commit.returncode == 0
+
+
+@pytest.fixture(scope="session")
+def private_test_repo():
+    # Fixture containing everything needed to access private github repo.
+    # GIT2CPP_TEST_PRIVATE_TOKEN is the fine-grained Personal Access Token for private test repo.
+    # If this is not available as an environment variable, tests that use this fixture are skipped.
+    token = os.getenv('GIT2CPP_TEST_PRIVATE_TOKEN')
+    if token is None:
+        pytest.skip("No token for private test repo GIT2CPP_TEST_PRIVATE_TOKEN")
+    repo_name = "git2cpp-test-private"
+    org_name = "QuantStack"
+    return {
+        "repo_name": repo_name,
+        "http_url": f"http://github.com/{org_name}/{repo_name}",
+        "https_url": f"https://github.com/{org_name}/{repo_name}",
+        "token": token
+    }
