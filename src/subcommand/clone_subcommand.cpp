@@ -1,7 +1,8 @@
 #include <iostream>
 
 #include "../subcommand/clone_subcommand.hpp"
-#include "../utils/output.hpp"
+#include "../utils/credentials.hpp"
+#include "../utils/input_output.hpp"
 #include "../utils/progress.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 
@@ -42,6 +43,7 @@ void clone_subcommand::run()
     checkout_opts.progress_cb = checkout_progress;
     checkout_opts.progress_payload = &pd;
     clone_opts.checkout_opts = checkout_opts;
+    clone_opts.fetch_opts.callbacks.credentials = user_credentials;
     clone_opts.fetch_opts.callbacks.sideband_progress = sideband_progress;
     clone_opts.fetch_opts.callbacks.transfer_progress = fetch_progress;
     clone_opts.fetch_opts.callbacks.payload = &pd;

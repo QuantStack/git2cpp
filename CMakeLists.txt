@@ -88,10 +88,12 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/utils/ansi_code.hpp
     ${GIT2CPP_SOURCE_DIR}/utils/common.cpp
     ${GIT2CPP_SOURCE_DIR}/utils/common.hpp
+    ${GIT2CPP_SOURCE_DIR}/utils/credentials.cpp
+    ${GIT2CPP_SOURCE_DIR}/utils/credentials.hpp
     ${GIT2CPP_SOURCE_DIR}/utils/git_exception.cpp
     ${GIT2CPP_SOURCE_DIR}/utils/git_exception.hpp
-    ${GIT2CPP_SOURCE_DIR}/utils/output.cpp
-    ${GIT2CPP_SOURCE_DIR}/utils/output.hpp
+    ${GIT2CPP_SOURCE_DIR}/utils/input_output.cpp
+    ${GIT2CPP_SOURCE_DIR}/utils/input_output.hpp
     ${GIT2CPP_SOURCE_DIR}/utils/progress.cpp
     ${GIT2CPP_SOURCE_DIR}/utils/progress.hpp
     ${GIT2CPP_SOURCE_DIR}/utils/terminal_pager.cpp

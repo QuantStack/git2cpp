@@ -48,6 +48,8 @@ jobs:
           ./git2cpp -v
 
       - name: Run tests
+        env:
+          GIT2CPP_TEST_PRIVATE_TOKEN: ${{ secrets.GIT2CPP_TEST_PRIVATE_TOKEN }}
         run: |
           pytest -v
 
@@ -76,6 +78,8 @@ jobs:
         run: cmake --build . --parallel 8
 
       - name: Run tests
+        env:
+          GIT2CPP_TEST_PRIVATE_TOKEN: ${{ secrets.GIT2CPP_TEST_PRIVATE_TOKEN }}
         run: |
           pytest -v
 

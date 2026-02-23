@@ -2,6 +2,7 @@
 #include <unistd.h>
 
 #include "../subcommand/commit_subcommand.hpp"
+#include "../utils/input_output.hpp"
 #include "../wrapper/index_wrapper.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 
@@ -24,8 +25,7 @@ void commit_subcommand::run()
 
     if (m_commit_message.empty())
     {
-        std::cout << "Please enter a commit message:" << std::endl;
-        std::getline(std::cin, m_commit_message);
+        m_commit_message = prompt_input("Please enter a commit message:\n");
         if (m_commit_message.empty())
         {
             throw std::runtime_error("Aborting, no commit message specified.");
