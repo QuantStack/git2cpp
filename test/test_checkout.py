@@ -167,7 +167,7 @@ def test_checkout_refuses_overwrite(
     )
 
     if force_flag == "":
-        assert p_checkout.returncode == 0
+        assert p_checkout.returncode != 0
         assert (
             "Your local changes to the following files would be overwritten by checkout:"
             in p_checkout.stdout

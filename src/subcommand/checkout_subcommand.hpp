@@ -12,7 +12,6 @@ class checkout_subcommand
 {
 public:
 
-    void print_message(repository_wrapper& repo);
     explicit checkout_subcommand(const libgit2_object&, CLI::App& app);
     void run();
 
