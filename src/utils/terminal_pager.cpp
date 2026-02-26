@@ -10,7 +10,7 @@
 #include <termcolor/termcolor.hpp>
 
 #include "ansi_code.hpp"
-#include "output.hpp"
+#include "input_output.hpp"
 #include "terminal_pager.hpp"
 #include "common.hpp"
 
