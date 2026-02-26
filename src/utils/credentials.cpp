@@ -18,7 +18,10 @@ int user_credentials(
     *out = nullptr;
 
     if (allowed_types & GIT_CREDENTIAL_USERPASS_PLAINTEXT) {
-        std::string username = username_from_url ? username_from_url : prompt_input("Username: ");
+        std::string username = username_from_url ? username_from_url : "";
+        if (username.empty()) {
+            username = prompt_input("Username: ");
+        }
         if (username.empty()) {
             giterr_set_str(GIT_ERROR_HTTP, "No username specified");
             return GIT_EAUTH;
