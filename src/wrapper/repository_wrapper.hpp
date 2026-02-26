@@ -116,10 +116,10 @@ public:
     config_wrapper get_config();
 
     // Diff
-    diff_wrapper diff_tree_to_index(tree_wrapper old_tree, std::optional<index_wrapper> index, git_diff_options* diffopts);
-    diff_wrapper diff_tree_to_tree(tree_wrapper old_tree, tree_wrapper new_tree, git_diff_options* diffopts);
-    diff_wrapper diff_tree_to_workdir(tree_wrapper old_tree, git_diff_options* diffopts);
-    diff_wrapper diff_tree_to_workdir_with_index(tree_wrapper old_tree, git_diff_options* diffopts);
+    diff_wrapper diff_tree_to_index(const tree_wrapper& old_tree, std::optional<index_wrapper> index, git_diff_options* diffopts);
+    diff_wrapper diff_tree_to_tree(const tree_wrapper& old_tree, const tree_wrapper& new_tree, git_diff_options* diffopts);
+    diff_wrapper diff_tree_to_workdir(const tree_wrapper& old_tree, git_diff_options* diffopts);
+    diff_wrapper diff_tree_to_workdir_with_index(const tree_wrapper& old_tree, git_diff_options* diffopts);
     diff_wrapper diff_index_to_workdir(std::optional<index_wrapper> index, git_diff_options* diffopts);
 
     //Tags

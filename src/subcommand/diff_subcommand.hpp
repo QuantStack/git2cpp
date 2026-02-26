@@ -11,7 +11,6 @@ class diff_subcommand
 public:
 
     explicit diff_subcommand(const libgit2_object&, CLI::App& app);
-    void print_stats(const diff_wrapper& diff, bool use_colour);
     void print_diff(diff_wrapper& diff, bool use_colour);
     void run();
 
@@ -53,3 +52,5 @@ private:
     bool m_colour_flag = true;
     bool m_no_colour_flag = false;
 };
+
+void print_stats(const diff_wrapper& diff, bool use_colour, bool stat_flag, bool shortstat_flag, bool numstat_flag, bool summary_flag);

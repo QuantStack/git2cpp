@@ -54,12 +54,12 @@ diff_subcommand::diff_subcommand(const libgit2_object&, CLI::App& app)
     sub->callback([this]() { this->run(); });
 }
 
-void diff_subcommand::print_stats(const diff_wrapper& diff, bool use_colour)
+void print_stats(const diff_wrapper& diff, bool use_colour, bool stat_flag, bool shortstat_flag, bool numstat_flag, bool summary_flag)
 {
     git_diff_stats_format_t format;
-    if (m_stat_flag)
+    if (stat_flag)
     {
-        if (m_shortstat_flag || m_numstat_flag || m_summary_flag)
+        if (shortstat_flag || numstat_flag || summary_flag)
         {
             throw git_exception("Only one of --stat, --shortstat, --numstat and --summary should be provided.", git2cpp_error_code::BAD_ARGUMENT);
         }
@@ -68,9 +68,9 @@ void diff_subcommand::print_stats(const diff_wrapper& diff, bool use_colour)
             format = GIT_DIFF_STATS_FULL;
         }
     }
-    else if (m_shortstat_flag)
+    else if (shortstat_flag)
     {
-        if (m_numstat_flag || m_summary_flag)
+        if (numstat_flag || summary_flag)
         {
             throw git_exception("Only one of --stat, --shortstat, --numstat and --summary should be provided.", git2cpp_error_code::BAD_ARGUMENT);
         }
@@ -79,9 +79,9 @@ void diff_subcommand::print_stats(const diff_wrapper& diff, bool use_colour)
             format = GIT_DIFF_STATS_SHORT;
         }
     }
-    else if (m_numstat_flag)
+    else if (numstat_flag)
     {
-        if (m_summary_flag)
+        if (summary_flag)
         {
             throw git_exception("Only one of --stat, --shortstat, --numstat and --summary should be provided.", git2cpp_error_code::BAD_ARGUMENT);
         }
@@ -90,7 +90,7 @@ void diff_subcommand::print_stats(const diff_wrapper& diff, bool use_colour)
             format = GIT_DIFF_STATS_NUMBER;
         }
     }
-    else if (m_summary_flag)
+    else if (summary_flag)
     {
         format = GIT_DIFF_STATS_INCLUDE_SUMMARY;
     }
@@ -98,7 +98,7 @@ void diff_subcommand::print_stats(const diff_wrapper& diff, bool use_colour)
     auto stats = diff.get_stats();
     auto buf = stats.to_buf(format, 80);
 
-    if (use_colour && m_stat_flag)
+    if (use_colour && stat_flag)
     {
         // Add colors to + and - characters
         std::string output(buf.ptr);
@@ -179,7 +179,7 @@ void diff_subcommand::print_diff(diff_wrapper& diff, bool use_colour)
 {
     if (m_stat_flag || m_shortstat_flag || m_numstat_flag || m_summary_flag)
     {
-        print_stats(diff, use_colour);
+        print_stats(diff, use_colour, m_stat_flag, m_shortstat_flag, m_numstat_flag, m_summary_flag);
         return;
     }
 
@@ -320,7 +320,7 @@ void diff_subcommand::run()
         {
             if (tree1.has_value() && tree2.has_value())
             {
-                return repo.diff_tree_to_tree(std::move(tree1.value()), std::move(tree2.value()), &diffopts);
+                return repo.diff_tree_to_tree(tree1.value(), tree2.value(), &diffopts);
             }
             else if (m_cached_flag)
             {
@@ -328,11 +328,11 @@ void diff_subcommand::run()
                 {
                     tree1 = repo.treeish_to_tree("HEAD");
                 }
-                return repo.diff_tree_to_index(std::move(tree1.value()), std::nullopt, &diffopts);
+                return repo.diff_tree_to_index(tree1.value(), std::nullopt, &diffopts);
             }
             else if (tree1)
             {
-                return repo.diff_tree_to_workdir_with_index(std::move(tree1.value()), &diffopts);
+                return repo.diff_tree_to_workdir_with_index(tree1.value(), &diffopts);
             }
             else
             {

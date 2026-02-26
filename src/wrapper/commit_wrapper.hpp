@@ -4,6 +4,7 @@
 #include <string>
 
 #include "../wrapper/wrapper_base.hpp"
+#include "../wrapper/tree_wrapper.hpp"
 
 class commit_wrapper;
 using commit_list_wrapper = list_wrapper<commit_wrapper>;
@@ -27,7 +28,10 @@ public:
     std::string message() const;
     std::string summary() const;
 
+    commit_wrapper get_parent(size_t i) const;
     commit_list_wrapper get_parents_list() const;
+
+    tree_wrapper tree() const;
 
 private:
 

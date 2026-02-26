@@ -507,7 +507,7 @@ config_wrapper repository_wrapper::get_config()
 
 // Diff
 
-diff_wrapper repository_wrapper::diff_tree_to_index(tree_wrapper old_tree, std::optional<index_wrapper> index, git_diff_options* diffopts)
+diff_wrapper repository_wrapper::diff_tree_to_index(const tree_wrapper& old_tree, std::optional<index_wrapper> index, git_diff_options* diffopts)
 {
     git_diff* diff;
     git_index* idx = nullptr;
@@ -519,21 +519,21 @@ diff_wrapper repository_wrapper::diff_tree_to_index(tree_wrapper old_tree, std::
     return diff_wrapper(diff);
 }
 
-diff_wrapper repository_wrapper::diff_tree_to_tree(tree_wrapper old_tree, tree_wrapper new_tree, git_diff_options* diffopts)
+diff_wrapper repository_wrapper::diff_tree_to_tree(const tree_wrapper& old_tree, const tree_wrapper& new_tree, git_diff_options* diffopts)
 {
     git_diff* diff;
     throw_if_error(git_diff_tree_to_tree(&diff, *this, old_tree, new_tree, diffopts));
     return diff_wrapper(diff);
 }
 
-diff_wrapper repository_wrapper::diff_tree_to_workdir(tree_wrapper old_tree, git_diff_options* diffopts)
+diff_wrapper repository_wrapper::diff_tree_to_workdir(const tree_wrapper& old_tree, git_diff_options* diffopts)
 {
     git_diff* diff;
     throw_if_error(git_diff_tree_to_workdir(&diff, *this, old_tree, diffopts));
     return diff_wrapper(diff);
 }
 
-diff_wrapper repository_wrapper::diff_tree_to_workdir_with_index(tree_wrapper old_tree, git_diff_options* diffopts)
+diff_wrapper repository_wrapper::diff_tree_to_workdir_with_index(const tree_wrapper& old_tree, git_diff_options* diffopts)
 {
     git_diff* diff;
     throw_if_error(git_diff_tree_to_workdir_with_index(&diff, *this, old_tree, diffopts));

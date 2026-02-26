@@ -1,5 +1,8 @@
-#include "../wrapper/commit_wrapper.hpp"
 #include <git2/commit.h>
+
+#include "../utils/git_exception.hpp"
+#include "tree_wrapper.hpp"
+#include "../wrapper/commit_wrapper.hpp"
 
 commit_wrapper::commit_wrapper(git_commit* commit)
     : base_type(commit)
@@ -38,6 +41,13 @@ std::string commit_wrapper::summary() const
     return git_commit_summary(*this);
 }
 
+commit_wrapper commit_wrapper::get_parent(size_t i) const
+{
+    git_commit* parent;
+    throw_if_error(git_commit_parent(&parent, *this, i));
+    return commit_wrapper(parent);
+}
+
 commit_list_wrapper commit_wrapper::get_parents_list() const
 {
     size_t parent_count = git_commit_parentcount(*this);
@@ -51,4 +61,11 @@ commit_list_wrapper commit_wrapper::get_parents_list() const
         parents_list.push_back(commit_wrapper(parent));
     }
     return commit_list_wrapper(std::move(parents_list));
+}
+
+tree_wrapper commit_wrapper::tree() const
+{
+    git_tree* tree;
+    throw_if_error(git_commit_tree(&tree, *this));
+    return tree_wrapper(tree);
 }

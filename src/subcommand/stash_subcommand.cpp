@@ -5,13 +5,13 @@
 
 #include <git2/remote.h>
 
+#include "../subcommand/diff_subcommand.hpp"
 #include "../subcommand/stash_subcommand.hpp"
 #include "../subcommand/status_subcommand.hpp"
-#include "../wrapper/repository_wrapper.hpp"
 
 bool has_subcommand(CLI::App* cmd)
 {
-    std::vector<std::string> subs = { "push", "pop", "list", "apply" };
+    std::vector<std::string> subs = { "push", "pop", "list", "apply", "show" };
     return std::any_of(subs.begin(), subs.end(), [cmd](const std::string& s) { return cmd->got_subcommand(s); });
 }
 
@@ -22,10 +22,15 @@ stash_subcommand::stash_subcommand(const libgit2_object&, CLI::App& app)
     auto* list = stash->add_subcommand("list", "");
     auto* pop = stash->add_subcommand("pop", "");
     auto* apply = stash->add_subcommand("apply", "");
+    auto* show = stash->add_subcommand("show", "Show the changes recorded in the stash as a diff");
 
     push->add_option("-m,--message", m_message, "");
     pop->add_option("--index", m_index, "");
     apply->add_option("--index", m_index, "");
+    show->add_flag("--stat", m_stat_flag, "Generate a diffstat");
+    show->add_flag("--shortstat", m_shortstat_flag, "Output only the last line of --stat");
+    show->add_flag("--numstat", m_numstat_flag, "Machine-friendly --stat");
+    show->add_flag("--summary", m_summary_flag, "Output a condensed summary");
 
     stash->callback([this,stash]()
        {
@@ -38,6 +43,7 @@ stash_subcommand::stash_subcommand(const libgit2_object&, CLI::App& app)
     list->callback([this]() { this->run_list(); });
     pop->callback([this]() { this->run_pop(); });
     apply->callback([this]() { this->run_apply(); });
+    show->callback([this]() { this->run_show(); });
 }
 
 void stash_subcommand::run_push()
@@ -66,14 +72,20 @@ void stash_subcommand::run_list()
     throw_if_error(git_stash_foreach(repo, list_stash_cb, NULL));
 }
 
+git_oid stash_subcommand::resolve_stash_commit(repository_wrapper& repo)
+{
+    std::string stash_spec = "stash@{" + std::to_string(m_index) + "}";
+    auto stash_obj = repo.revparse_single(stash_spec);
+    git_oid stash_id = stash_obj->oid();
+    return stash_id;
+}
+
 void stash_subcommand::run_pop()
 {
     auto directory = get_current_git_path();
     auto repo = repository_wrapper::open(directory);
 
-    std::string stash_spec = "stash@{" + std::to_string(m_index) + "}";
-    auto stash_obj = repo.revparse_single(stash_spec);
-    git_oid stash_id = stash_obj->oid();
+    git_oid stash_id = resolve_stash_commit(repo);
     char id_string[GIT_OID_HEXSZ + 1];
     git_oid_tostr(id_string, sizeof(id_string), &stash_id);
 
@@ -89,4 +101,34 @@ void stash_subcommand::run_apply()
 
     throw_if_error(git_stash_apply(repo, m_index, NULL));
     status_run();
+}
+
+void stash_subcommand::run_show()
+{
+    auto directory = get_current_git_path();
+    auto repo = repository_wrapper::open(directory);
+
+    git_oid stash_id = resolve_stash_commit(repo);
+    commit_wrapper stash_commit = repo.find_commit(stash_id);
+
+    if (git_commit_parentcount(stash_commit) < 1)
+    {
+        throw std::runtime_error("stash show: stash commit has no parents");
+    }
+
+    commit_wrapper parent_commit = stash_commit.get_parent(0);
+
+    tree_wrapper stash_tree = stash_commit.tree();
+    tree_wrapper parent_tree = parent_commit.tree();
+
+    git_diff_options diff_opts = GIT_DIFF_OPTIONS_INIT;
+
+    diff_wrapper diff = repo.diff_tree_to_tree(parent_tree, stash_tree, &diff_opts);
+
+    bool use_colour = true;
+    if (!m_shortstat_flag && !m_numstat_flag && !m_summary_flag)
+    {
+        m_stat_flag = true;
+    }
+    print_stats(diff, use_colour, m_stat_flag, m_shortstat_flag, m_numstat_flag, m_summary_flag);
 }

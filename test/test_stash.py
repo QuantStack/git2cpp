@@ -137,3 +137,28 @@ def test_stash_apply(xtl_clone, commit_env_config, git2cpp_path, tmp_path, index
     assert "stash@{0}" in p_list.stdout
     if index_flag != "":
         assert "stash@{1}" in p_list.stdout
+
+
+def test_stash_show(xtl_clone, commit_env_config, git2cpp_path, tmp_path):
+    assert (tmp_path / "xtl").exists()
+    xtl_path = tmp_path / "xtl"
+
+    filename = "mook_show.txt"
+    p = xtl_path / filename
+    p.write_text("Hello")
+
+    cmd_add = [git2cpp_path, "add", filename]
+    p_add = subprocess.run(cmd_add, cwd=xtl_path, text=True)
+    assert p_add.returncode == 0
+
+    cmd_stash = [git2cpp_path, "stash"]
+    p_stash = subprocess.run(cmd_stash, capture_output=True, cwd=xtl_path, text=True)
+    assert p_stash.returncode == 0
+
+    cmd_show = [git2cpp_path, "stash", "show", "--stat"]
+    p_show = subprocess.run(cmd_show, capture_output=True, cwd=xtl_path, text=True)
+    assert p_show.returncode == 0
+
+    # A diffstat should mention the file and summary "file changed"
+    assert filename in p_show.stdout
+    assert "1 file changed" in p_show.stdout
