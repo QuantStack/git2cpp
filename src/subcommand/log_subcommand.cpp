@@ -1,9 +1,9 @@
-#include <exception>
 #include <format>
 #include <git2.h>
 #include <git2/oid.h>
 #include <git2/refs.h>
 #include <git2/types.h>
+#include <sstream>
 #include <string_view>
 #include <vector>
 
@@ -77,11 +77,11 @@ std::vector<std::string> get_tags_for_commit(repository_wrapper& repo, const git
         }
     }
 
-    git_strarray_dispose(&tag_names);
+    git_strarray_dispose(&tag_names);   // TODO: refactor git_strarray_wrapper to use it here
     return tags;
 }
 
-std::vector<std::string> get_branches_for_commit(repository_wrapper& repo, git_branch_t type, const git_oid* commit_oid, const std::string exclude_branch)
+std::vector<std::string> get_branches_for_commit(repository_wrapper& repo, git_branch_t type, const git_oid& commit_oid, const std::string exclude_branch)
 {
     std::vector<std::string> branches;
 
@@ -105,7 +105,7 @@ std::vector<std::string> get_branches_for_commit(repository_wrapper& repo, git_b
             }
         }
 
-        if (branch_target && git_oid_equal(branch_target, commit_oid))
+        if (branch_target && git_oid_equal(branch_target, &commit_oid))
         {
             std::string branch_name;
             branch_name = branch->name();
@@ -139,7 +139,7 @@ struct commit_refs
     }
 };
 
-commit_refs get_refs_for_commit(repository_wrapper& repo, const git_oid* commit_oid)
+commit_refs get_refs_for_commit(repository_wrapper& repo, const git_oid& commit_oid)
 {
     commit_refs refs;
 
@@ -147,20 +147,20 @@ commit_refs get_refs_for_commit(repository_wrapper& repo, const git_oid* commit_
     {
         auto head = repo.head();
         auto head_taget = head.target();
-        if (git_oid_equal(head_taget, commit_oid))
+        if (git_oid_equal(head_taget, &commit_oid))
         {
             refs.head_branch = head.short_name();
         }
     }
 
-    refs.tags = get_tags_for_commit(repo, commit_oid);
+    refs.tags = get_tags_for_commit(repo, &commit_oid);
     refs.local_branches = get_branches_for_commit(repo, GIT_BRANCH_LOCAL, commit_oid, refs.head_branch);
     refs.remote_branches = get_branches_for_commit(repo, GIT_BRANCH_REMOTE, commit_oid, "");
 
     return refs;
 }
 
-void print_refs(commit_refs refs)
+void print_refs(const commit_refs& refs)
 {
     if (!refs.has_refs())
     {
@@ -223,7 +223,7 @@ void print_commit(repository_wrapper& repo, const commit_wrapper& commit, std::s
     stream_colour_fn colour = termcolor::yellow;
     std::cout << colour << "commit " << buf;
 
-    commit_refs refs = get_refs_for_commit(repo, &commit.oid());
+    commit_refs refs = get_refs_for_commit(repo, commit.oid());
     print_refs(refs);
 
     std::cout << termcolor::reset << std::endl;
@@ -247,7 +247,19 @@ void print_commit(repository_wrapper& repo, const commit_wrapper& commit, std::s
             print_time(author.when(), "Date:\t");
         }
     }
-    std::cout << "\n    " << commit.message();
+
+    std::string message = commit.message();
+    while (!message.empty() && message.back() == '\n')
+    {
+        message.pop_back();
+    }
+    std::istringstream message_stream(message);
+    std::string line;
+    while (std::getline(message_stream, line))
+    {
+        std::cout << "\n    " << line;
+    }
+    std::cout << std::endl;
 }
 
 void log_subcommand::run()
