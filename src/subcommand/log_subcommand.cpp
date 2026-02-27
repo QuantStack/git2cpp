@@ -53,7 +53,7 @@ void print_time(git_time intime, std::string prefix)
 	std::cout << prefix << out << " " << sign << std::format("{:02d}", hours) << std::format("{:02d}", minutes) <<std::endl;
 }
 
-std::vector<std::string> get_tags_for_commit(repository_wrapper& repo, const git_oid* commit_oid)
+std::vector<std::string> get_tags_for_commit(repository_wrapper& repo, const git_oid& commit_oid)
 {
     std::vector<std::string> tags;
     git_strarray tag_names = {0};
@@ -71,7 +71,7 @@ std::vector<std::string> get_tags_for_commit(repository_wrapper& repo, const git
         reference_wrapper tag_ref = repo.find_reference(ref_name);
         object_wrapper peeled = tag_ref.peel<object_wrapper>();
 
-        if (git_oid_equal(&peeled.oid(), commit_oid))
+        if (git_oid_equal(&peeled.oid(), &commit_oid))
         {
             tags.push_back(std::string(tag_name));
         }
@@ -107,8 +107,7 @@ std::vector<std::string> get_branches_for_commit(repository_wrapper& repo, git_b
 
         if (branch_target && git_oid_equal(branch_target, &commit_oid))
         {
-            std::string branch_name;
-            branch_name = branch->name();
+            std::string branch_name(branch->name());
             if (type == GIT_BRANCH_LOCAL)
             {
                 if (branch_name != exclude_branch)
@@ -153,7 +152,7 @@ commit_refs get_refs_for_commit(repository_wrapper& repo, const git_oid& commit_
         }
     }
 
-    refs.tags = get_tags_for_commit(repo, &commit_oid);
+    refs.tags = get_tags_for_commit(repo, commit_oid);
     refs.local_branches = get_branches_for_commit(repo, GIT_BRANCH_LOCAL, commit_oid, refs.head_branch);
     refs.remote_branches = get_branches_for_commit(repo, GIT_BRANCH_REMOTE, commit_oid, "");
 
