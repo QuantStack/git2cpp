@@ -38,3 +38,22 @@ See the `README.md` in the `wasm` directory for further details.
 
 The latest `cockle` and JupyterLite `terminal` deployments using `git2cpp` are available at
 [https://quantstack.net/git2cpp](https://quantstack.net/git2cpp)
+
+# Documentation
+
+The project documentation is generated from the `git2cpp` help pages. To build the documentation
+locally first build `git2cpp` as usual as described above, then install the documentation
+dependencies:
+
+```bash
+micromamba install myst-parser sphinx sphinx-book-theme
+```
+
+and build the documentation:
+
+```bash
+cd docs
+make html
+```
+
+The top-level documentation page will be `docs/_build/html/index.html`

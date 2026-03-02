@@ -1,0 +1,19 @@
+version: 2
+
+build:
+  os: ubuntu-24.04
+  tools:
+    python: mambaforge-23.11
+  jobs:
+    post_install:
+      - cmake -Bbuild -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX
+      - cd build && make
+      - pip install myst-parser sphinx sphinx-book-theme
+
+conda:
+  environment: dev-environment.yml
+
+sphinx:
+  builder: html
+  configuration: docs/conf.py
+  fail_on_warning: true
