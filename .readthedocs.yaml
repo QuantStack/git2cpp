@@ -8,7 +8,9 @@ build:
     post_install:
       - cmake -Bbuild -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX
       - cd build && make
-      - pip install myst-parser sphinx sphinx-book-theme
+      - python -m pip install myst-parser sphinx sphinx-book-theme
+    pre_build:
+      - cd docs && python create_markdown.py
 
 conda:
   environment: dev-environment.yml
