@@ -39,7 +39,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: ./wasm/serve
+          path: ./wasm/serve/dist
 
   deploy:
     needs: build
