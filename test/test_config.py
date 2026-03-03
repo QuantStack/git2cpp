@@ -54,3 +54,13 @@ def test_config_unset(git2cpp_path, tmp_path):
     p_get = subprocess.run(cmd_get, capture_output=True, cwd=tmp_path, text=True)
     assert p_get.returncode != 0
     assert p_get.stderr == "error: config value 'core.bare' was not found\n"
+
+
+def test_config_get_missing_name_exit_code(git2cpp_path, tmp_path):
+    p = subprocess.run(
+        [git2cpp_path, "config", "get"],
+        capture_output=True,
+        text=True,
+        cwd=tmp_path,
+    )
+    assert p.returncode == 129
