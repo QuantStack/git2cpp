@@ -87,7 +87,7 @@ jobs:
           genhtml coverage.lcov --output-directory outdir
 
       - name: Upload artifact containing coverage report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: coverage_report
           path: outdir
