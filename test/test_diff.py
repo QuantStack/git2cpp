@@ -1,5 +1,6 @@
 import re
 import subprocess
+from sys import stderr
 
 import pytest
 
@@ -547,120 +548,158 @@ def test_diff_minimal(repo_init_with_commit, git2cpp_path, tmp_path):
 #         assert bool(re.search(ansi_escape, p.stdout))
 
 
-# TODO: add the following flags after the "move" subcommand has been implemented (needed for the tests)
-# @pytest.mark.parametrize("renames_flag", ["-M", "--find-renames"])
-# def test_diff_find_renames(xtl_clone, git2cpp_path, tmp_path, renames_flag):
-#     """Test diff with -M/--find-renames"""
-#     xtl_path = tmp_path / "xtl"
+@pytest.mark.parametrize("renames_flag", ["-M", "--find-renames"])
+def test_diff_find_renames(repo_init_with_commit, git2cpp_path, tmp_path, renames_flag):
+    """Test diff with -M/--find-renames"""
+    assert (tmp_path / "initial.txt").exists()
 
-#     old_file = xtl_path / "old_name.txt"
-#     old_file.write_text("Hello\n")
+    old_file = tmp_path / "old.txt"
+    old_file.write_text("Hello\n")
 
-#     cmd_add = [git2cpp_path, "add", "old_name.txt"]
-#     subprocess.run(cmd_add, cwd=xtl_path, check=True)
+    cmd_add = [git2cpp_path, "add", "old.txt"]
+    subprocess.run(cmd_add, cwd=tmp_path, check=True)
 
-#     cmd_commit = [git2cpp_path, "commit", "-m", "Add file"]
-#     subprocess.run(cmd_commit, cwd=xtl_path, check=True)
+    cmd_commit = [git2cpp_path, "commit", "-m", "Add file"]
+    subprocess.run(cmd_commit, cwd=tmp_path, check=True)
 
-#     new_file = xtl_path / "new_name.txt"
-#     old_file.rename(new_file)
-#     old_file.write_text("Goodbye\n")
+    cmd_mv = [git2cpp_path, "mv", "old.txt", "new.txt"]
+    subprocess.run(cmd_mv, cwd=tmp_path, check=True)
 
-#     cmd_add_all = [git2cpp_path, "add", "-A"]
-#     subprocess.run(cmd_add_all, cwd=xtl_path, check=True)
-
-#     cmd = [git2cpp_path, "diff", "--cached", renames_flag]
-#     p = subprocess.run(cmd, capture_output=True, cwd=xtl_path, text=True)
-#     assert p.returncode == 0
-#     # assert "similarity index" in p.stdout
-#     # assert "rename from" in p.stdout
-#     assert "+++ b/new_name.txt" in p.stdout
-#     assert "--- a/old_name.txt" in p.stdout
-#     print("===\n", p.stdout, "===\n")
+    cmd = [git2cpp_path, "diff", "--cached", renames_flag]
+    p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p.returncode == 0
+    assert "similarity index" in p.stdout
+    assert "rename from old.txt" in p.stdout
+    assert "rename to new.txt" in p.stdout
 
 
-# def test_diff_find_renames_with_threshold(xtl_clone, git2cpp_path, tmp_path):
-#     """Test diff with -M with threshold value"""
-#     xtl_path = tmp_path / "xtl"
+def test_diff_find_renames_with_threshold(
+    repo_init_with_commit, git2cpp_path, tmp_path
+):
+    """Test diff with -M with threshold value"""
+    assert (tmp_path / "initial.txt").exists()
 
-#     old_file = xtl_path / "old.txt"
-#     old_file.write_text("Content\n")
+    old_file = tmp_path / "old.txt"
+    old_file.write_text("Content\n")
 
-#     cmd_add = [git2cpp_path, "add", "old.txt"]
-#     subprocess.run(cmd_add, cwd=xtl_path, check=True)
+    cmd_add = [git2cpp_path, "add", "old.txt"]
+    subprocess.run(cmd_add, cwd=tmp_path, check=True)
 
-#     cmd_commit = [git2cpp_path, "commit", "-m", "Add file"]
-#     subprocess.run(cmd_commit, cwd=xtl_path, check=True)
+    cmd_commit = [git2cpp_path, "commit", "-m", "Add file"]
+    subprocess.run(cmd_commit, cwd=tmp_path, check=True)
 
-#     new_file = xtl_path / "new.txt"
-#     old_file.rename(new_file)
+    new_file = tmp_path / "new.txt"
+    old_file.rename(new_file)
 
-#     cmd_add_all = [git2cpp_path, "add", "-A"]
-#     subprocess.run(cmd_add_all, cwd=xtl_path, check=True)
+    cmd_add_all = [git2cpp_path, "add", "-A"]
+    subprocess.run(cmd_add_all, cwd=tmp_path, check=True)
 
-#     cmd = [git2cpp_path, "diff", "--cached", "-M50"]
-#     p = subprocess.run(cmd, capture_output=True, cwd=xtl_path, text=True)
-#     assert p.returncode == 0
-#     print(p.stdout)  # Doesn't do the same as the previous one. Why ???
-
-
-# @pytest.mark.parametrize("copies_flag", ["-C", "--find-copies"])
-# def test_diff_find_copies(xtl_clone, git2cpp_path, tmp_path, copies_flag):
-#     """Test diff with -C/--find-copies"""
-#     xtl_path = tmp_path / "xtl"
-
-#     original_file = xtl_path / "original.txt"
-#     original_file.write_text("Content to be copied\n")
-
-#     cmd_add = [git2cpp_path, "add", "original.txt"]
-#     subprocess.run(cmd_add, cwd=xtl_path, check=True)
-
-#     copied_file = xtl_path / "copied.txt"
-#     copied_file.write_text("Content to be copied\n")
-
-#     cmd_add_copy = [git2cpp_path, "add", "copied.txt"]
-#     subprocess.run(cmd_add_copy, cwd=xtl_path, check=True)
-
-#     cmd = [git2cpp_path, "diff", "--cached", copies_flag]
-#     p = subprocess.run(cmd, capture_output=True, cwd=xtl_path, text=True)
-#     assert p.returncode == 0
-#     print(p.stdout)
+    cmd = [git2cpp_path, "diff", "--cached", "-M60"]
+    p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p.returncode == 0
+    assert "similarity index" in p.stdout
+    assert "rename from old.txt" in p.stdout
+    assert "rename to new.txt" in p.stdout
 
 
-# def test_diff_find_copies_with_threshold(xtl_clone, git2cpp_path, tmp_path):
-#     """Test diff with -C with threshold value"""
-#     xtl_path = tmp_path / "xtl"
+@pytest.mark.parametrize("copies_flag", ["-C", "--find-copies"])
+def test_diff_find_copies_from_modified(
+    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path, copies_flag
+):
+    """Test diff with -C/--find-copies when source file is also modified"""
+    assert (tmp_path / "initial.txt").exists()
 
-#     original_file = xtl_path / "original.txt"
-#     original_file.write_text("Content\n")
+    original_file = tmp_path / "original.txt"
+    original_file.write_text("Content to be copied\n")
 
-#     cmd_add = [git2cpp_path, "add", "original.txt"]
-#     subprocess.run(cmd_add, cwd=xtl_path, check=True)
+    cmd_add = [git2cpp_path, "add", "original.txt"]
+    subprocess.run(cmd_add, cwd=tmp_path, check=True)
 
-#     copied_file = xtl_path / "copied.txt"
-#     copied_file.write_text("Content to be copied\n")
+    cmd_commit = [git2cpp_path, "commit", "-m", "add original file"]
+    subprocess.run(cmd_commit, cwd=tmp_path, check=True)
 
-#     cmd_add_copy = [git2cpp_path, "add", "copied.txt"]
-#     subprocess.run(cmd_add_copy, cwd=xtl_path, check=True)
+    # Modify original.txt (this makes it a candidate for copy detection)
+    original_file.write_text("Content to be copied\nExtra line\n")
+    subprocess.run([git2cpp_path, "add", "original.txt"], cwd=tmp_path, check=True)
 
-#     cmd = [git2cpp_path, "diff", "--cached", "-C50"]
-#     p = subprocess.run(cmd, capture_output=True, cwd=xtl_path, text=True)
-#     assert p.returncode == 0
+    # Create copy with original content
+    copied_file = tmp_path / "copied.txt"
+    copied_file.write_text("Content to be copied\n")
+    subprocess.run([git2cpp_path, "add", "copied.txt"], cwd=tmp_path, check=True)
+
+    cmd = [git2cpp_path, "diff", "--cached", copies_flag]
+    p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p.returncode == 0
+    assert "similarity index" in p.stdout
+    assert "copy from original.txt" in p.stdout
+    assert "copy to copied.txt" in p.stdout
 
 
-# def test_diff_find_copies_harder(xtl_clone, git2cpp_path, tmp_path):
-#     """Test diff with --find-copies-harder"""
-#     xtl_path = tmp_path / "xtl"
+@pytest.mark.parametrize("copies_flag", ["-C", "--find-copies"])
+def test_diff_find_copies_harder(
+    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path, copies_flag
+):
+    """Test diff with -C/--find-copies and --find-copies-harder for unmodified sources"""
+    assert (tmp_path / "initial.txt").exists()
 
-#     test_file = xtl_path / "test.txt"
-#     test_file.write_text("Content\n")
+    original_file = tmp_path / "original.txt"
+    original_file.write_text("Content to be copied\n")
 
-#     cmd_add = [git2cpp_path, "add", "test.txt"]
-#     subprocess.run(cmd_add, cwd=xtl_path, check=True)
+    subprocess.run([git2cpp_path, "add", "original.txt"], cwd=tmp_path, check=True)
+    subprocess.run(
+        [git2cpp_path, "commit", "-m", "add original file"],
+        cwd=tmp_path,
+        check=True,
+        env=commit_env_config,
+    )
 
-#     cmd = [git2cpp_path, "diff", "--cached", "--find-copies-harder"]
-#     p = subprocess.run(cmd, capture_output=True, cwd=xtl_path, text=True)
-#     assert p.returncode == 0
+    # Create identical copy
+    copied_file = tmp_path / "copied.txt"
+    copied_file.write_text("Content to be copied\n")
+    subprocess.run([git2cpp_path, "add", "copied.txt"], cwd=tmp_path, check=True)
+
+    # Use --find-copies-harder to detect copies from unmodified files
+    cmd = [git2cpp_path, "diff", "--cached", copies_flag, "--find-copies-harder"]
+    p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
+
+    assert p.returncode == 0
+    assert "similarity index 100%" in p.stdout
+    assert "copy from original.txt" in p.stdout
+    assert "copy to copied.txt" in p.stdout
+
+
+@pytest.mark.parametrize("copies_flag", ["-C50", "--find-copies=50"])
+def test_diff_find_copies_with_threshold(
+    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path, copies_flag
+):
+    """Test diff with -C with custom threshold"""
+    assert (tmp_path / "initial.txt").exists()
+
+    original_file = tmp_path / "original.txt"
+    original_content = "Line 1\nLine 2\nLine 3\nLine 4\nLine 5\n"
+    original_file.write_text(original_content)
+
+    subprocess.run([git2cpp_path, "add", "original.txt"], cwd=tmp_path, check=True)
+    subprocess.run(
+        [git2cpp_path, "commit", "-m", "add original file"],
+        cwd=tmp_path,
+        check=True,
+        env=commit_env_config,
+    )
+
+    # Create a partial copy (60% similar)
+    copied_file = tmp_path / "copied.txt"
+    copied_file.write_text("Line 1\nLine 2\nLine 3\nNew line\nAnother line\n")
+    subprocess.run([git2cpp_path, "add", "copied.txt"], cwd=tmp_path, check=True)
+
+    # With threshold of 50%, should detect copy
+    cmd = [git2cpp_path, "diff", "--cached", copies_flag, "--find-copies-harder"]
+    p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
+
+    assert p.returncode == 0
+    assert "similarity index" in p.stdout
+    assert "copy from original.txt" in p.stdout
+    assert "copy to copied.txt" in p.stdout
 
 
 # @pytest.mark.parametrize("break_rewrites_flag", ["-B", "--break-rewrites"])
@@ -683,4 +722,35 @@ def test_diff_minimal(repo_init_with_commit, git2cpp_path, tmp_path):
 #     cmd = [git2cpp_path, "diff", break_rewrites_flag]
 #     p = subprocess.run(cmd, capture_output=True, cwd=xtl_path, text=True)
 #     assert p.returncode == 0
-#     print(p.stdout)
+
+
+def test_diff_refuses_more_than_two_treeish(
+    repo_init_with_commit, git2cpp_path, tmp_path
+):
+    # HEAD exists thanks to repo_init_with_commit
+    p = subprocess.run(
+        [git2cpp_path, "diff", "HEAD", "HEAD", "HEAD"],
+        capture_output=True,
+        text=True,
+        cwd=tmp_path,
+    )
+    assert p.returncode != 0
+    assert "2 required but received 3" in p.stderr
+
+
+def test_diff_cached_and_no_index_are_incompatible(git2cpp_path, tmp_path):
+    # Create two files to satisfy the --no-index path arguments
+    a = tmp_path / "a.txt"
+    b = tmp_path / "b.txt"
+    a.write_text("hello\n")
+    b.write_text("world\n")
+
+    p = subprocess.run(
+        [git2cpp_path, "diff", "--cached", "--no-index", str(a), str(b)],
+        capture_output=True,
+        text=True,
+        cwd=tmp_path,
+    )
+
+    assert p.returncode != 0
+    assert "--cached and --no-index are incompatible" in (p.stderr + p.stdout)
