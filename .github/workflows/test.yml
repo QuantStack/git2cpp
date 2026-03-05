@@ -49,9 +49,11 @@ jobs:
 
       - name: Run tests
         env:
-          GIT2CPP_TEST_PRIVATE_TOKEN: ${{ secrets.GIT2CPP_TEST_PRIVATE_TOKEN }}
+          #GIT2CPP_TEST_PRIVATE_TOKEN: ${{ secrets.GIT2CPP_TEST_PRIVATE_TOKEN }}"
+          GIT2CPP_TEST_PRIVATE_TOKEN: "ZZZZZ_${{ secrets.GIT2CPP_TEST_PRIVATE_TOKEN }}_XXXXX"
         run: |
-          pytest -v
+          env | sort
+          pytest -v -rP
 
   coverage:
     name: 'Test coverage'
