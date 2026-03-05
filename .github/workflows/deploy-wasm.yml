@@ -39,10 +39,11 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: ./wasm/serve
+          path: ./wasm/serve/dist
 
   deploy:
     needs: build
+    if: github.ref == 'refs/heads/main'
     permissions:
       pages: write
       id-token: write
