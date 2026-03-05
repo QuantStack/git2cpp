@@ -73,8 +73,8 @@ def private_test_repo():
     # Fixture containing everything needed to access private github repo.
     # GIT2CPP_TEST_PRIVATE_TOKEN is the fine-grained Personal Access Token for private test repo.
     # If this is not available as an environment variable, tests that use this fixture are skipped.
-    token = os.getenv('GIT2CPP_TEST_PRIVATE_TOKEN')
-    if token is None:
+    token = os.getenv("GIT2CPP_TEST_PRIVATE_TOKEN")
+    if token is None or len(token) == 0:
         pytest.skip("No token for private test repo GIT2CPP_TEST_PRIVATE_TOKEN")
     repo_name = "git2cpp-test-private"
     org_name = "QuantStack"
