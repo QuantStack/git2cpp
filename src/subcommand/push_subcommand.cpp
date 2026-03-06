@@ -3,6 +3,7 @@
 #include <git2/remote.h>
 
 #include "../subcommand/push_subcommand.hpp"
+#include "../utils/credentials.hpp"
 #include "../utils/progress.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 
@@ -27,6 +28,7 @@ void push_subcommand::run()
     auto remote = repo.find_remote(remote_name);
 
     git_push_options push_opts = GIT_PUSH_OPTIONS_INIT;
+    push_opts.callbacks.credentials = user_credentials;
     push_opts.callbacks.push_transfer_progress = push_transfer_progress;
     push_opts.callbacks.push_update_reference = push_update_reference;
 
