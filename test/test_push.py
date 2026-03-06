@@ -2,7 +2,7 @@ import subprocess
 from uuid import uuid4
 
 
-def test_push_private_repo(git2cpp_path, tmp_path, run_in_tmp_path, private_test_repo):
+def test_push_private_repo(git2cpp_path, tmp_path, run_in_tmp_path, private_test_repo, commit_env_config):
     # Unique branch name to avoid branch name collisions on remote repo.
     branch_name = f"test-{uuid4()}"
 
