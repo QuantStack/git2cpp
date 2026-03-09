@@ -1,3 +1,4 @@
+import re
 import subprocess
 
 import pytest
@@ -193,7 +194,7 @@ def test_log_with_annotated_tag(commit_env_config, git2cpp_path, tmp_path):
 
     # Create an annotated tag
     subprocess.run(
-        ["git", "tag", "-a", "v2.0.0", "-m", "Version 2.0.0"],
+        [git2cpp_path, "tag", "-a", "v2.0.0", "-m", "Version 2.0.0"],
         cwd=tmp_path,
         check=True,
     )
@@ -284,3 +285,119 @@ def test_log_commit_without_references(commit_env_config, git2cpp_path, tmp_path
     if "(" in second_commit_line:
         # If it has parentheses, they shouldn't be empty
         assert "()" not in second_commit_line
+
+
+@pytest.mark.parametrize(
+    "abbrev_commit_flag", ["", "--abbrev-commit", "--no-abbrev-commit"]
+)
+@pytest.mark.parametrize("abbrev_flag", ["", "--abbrev=10"])
+def test_log_abbrev_commit_flags(
+    repo_init_with_commit,
+    commit_env_config,
+    git2cpp_path,
+    tmp_path,
+    abbrev_commit_flag,
+    abbrev_flag,
+):
+    """Test for --abbrev-commit, --abbrev=<n> (only applies when --abbrev-commit is set) and --no-abbrev-commit"""
+    assert (tmp_path / "initial.txt").exists()
+
+    cmd = [git2cpp_path, "log", "-n", "1"]
+    if abbrev_commit_flag != "":
+        cmd.append(abbrev_commit_flag)
+    if abbrev_flag != "":
+        cmd.append(abbrev_flag)
+    p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p.returncode == 0
+
+    m = re.search(r"^commit\s+([0-9a-fA-F]+)", p.stdout, flags=re.MULTILINE)
+    if abbrev_commit_flag in ["", "--no-abbrev-commit"]:
+        assert len(m.group(1)) == 40
+    else:
+        if abbrev_flag == "--abbrev=10":
+            assert len(m.group(1)) == 10
+        else:
+            assert len(m.group(1)) == 7
+
+
+def test_log_format_oneline(repo_init_with_commit, git2cpp_path, tmp_path):
+    """Test --format=oneline prints the full sha"""
+    assert (tmp_path / "initial.txt").exists()
+
+    p = subprocess.run(
+        [git2cpp_path, "rev-parse", "HEAD"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+    )
+    assert p.returncode == 0
+    full_sha = p.stdout.strip()
+
+    p = subprocess.run(
+        [git2cpp_path, "log", "--format=oneline", "-n", "1"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+    )
+    assert p.returncode == 0
+
+    # assert: should contain full 40-hex sha and subject
+    assert full_sha in p.stdout
+    assert "Initial commit" in p.stdout
+
+
+def test_log_oneline(repo_init_with_commit, git2cpp_path, tmp_path):
+    """Test --oneline prints the default length sha (i.e 7)"""
+    assert (tmp_path / "initial.txt").exists()
+
+    p = subprocess.run(
+        [git2cpp_path, "rev-parse", "HEAD"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+    )
+    assert p.returncode == 0
+    full_sha = str(p.stdout.strip())
+    abbrev7 = full_sha[:7]
+
+    subprocess.run(
+        [git2cpp_path, "tag", "v1"], capture_output=True, cwd=tmp_path, check=True
+    )
+
+    p = subprocess.run(
+        [git2cpp_path, "log", "--oneline", "-n", "1"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+    )
+    assert p.returncode == 0
+
+    assert abbrev7 in p.stdout
+    assert full_sha not in p.stdout
+    assert "tag: v1" in p.stdout
+    assert "Initial commit" in p.stdout
+
+
+def test_log_oneline_no_abbrev_commit(repo_init_with_commit, git2cpp_path, tmp_path):
+    """Test --oneline prints prints the full sha when using --no-abbrev-commit"""
+    assert (tmp_path / "initial.txt").exists()
+
+    p = subprocess.run(
+        [git2cpp_path, "rev-parse", "HEAD"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+    )
+    assert p.returncode == 0
+    full_sha = str(p.stdout.strip())
+
+    p = subprocess.run(
+        [git2cpp_path, "log", "--oneline", "--no-abbrev-commit", "-n", "1"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+    )
+    assert p.returncode == 0
+
+    assert full_sha in p.stdout
+    assert "Initial commit" in p.stdout

@@ -28,5 +28,6 @@ private:
     std::string m_target;
     bool m_list_flag = false;
     bool m_force_flag = false;
+    bool m_annotate_flag = false;
     int m_num_lines = 0;
 };

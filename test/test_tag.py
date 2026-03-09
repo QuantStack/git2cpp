@@ -55,7 +55,7 @@ def test_tag_create_on_specific_commit(
     assert (tmp_path / "initial.txt").exists()
 
     # Get the commit SHA before creating new commit
-    old_head_cmd = ["git", "rev-parse", "HEAD"]
+    old_head_cmd = [git2cpp_path, "rev-parse", "HEAD"]
     p_old_head = subprocess.run(
         old_head_cmd, capture_output=True, cwd=tmp_path, text=True
     )
@@ -72,7 +72,7 @@ def test_tag_create_on_specific_commit(
     subprocess.run(commit_cmd, cwd=tmp_path, check=True)
 
     # Get new HEAD commit SHA
-    new_head_cmd = ["git", "rev-parse", "HEAD"]
+    new_head_cmd = [git2cpp_path, "rev-parse", "HEAD"]
     p_new_head = subprocess.run(
         new_head_cmd, capture_output=True, cwd=tmp_path, text=True
     )
@@ -92,7 +92,7 @@ def test_tag_create_on_specific_commit(
     assert "v1.0.0" in p_list.stdout
 
     # Get commit SHA that the tag points to
-    tag_sha_cmd = ["git", "rev-parse", "v1.0.0^{commit}"]
+    tag_sha_cmd = [git2cpp_path, "rev-parse", "v1.0.0^{commit}"]
     p_tag_sha = subprocess.run(
         tag_sha_cmd, capture_output=True, cwd=tmp_path, text=True
     )
@@ -320,3 +320,33 @@ def test_tag_on_new_commit(
     assert p_list.returncode == 0
     assert "before-change" in p_list.stdout
     assert "after-change" in p_list.stdout
+
+
+def test_tag_create_annotated_with_a_flag(
+    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path
+):
+    """Test creating an annotated tag using -a flag."""
+    assert (tmp_path / "initial.txt").exists()
+
+    # Create an annotated tag using -a and -m
+    create_cmd = [git2cpp_path, "tag", "-a", "-m", "Release version 1.0", "v1.0.0"]
+    subprocess.run(create_cmd, capture_output=True, cwd=tmp_path, text=True, check=True)
+
+    # List tags with message lines to verify it was created as an annotated tag
+    list_cmd = [git2cpp_path, "tag", "-n", "1"]
+    p_list = subprocess.run(list_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_list.returncode == 0
+    assert "v1.0.0" in p_list.stdout
+    assert "Release version 1.0" in p_list.stdout
+
+
+def test_tag_annotate_flag_requires_message(
+    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path
+):
+    """Test that -a/--annotate without -m fails."""
+    assert (tmp_path / "initial.txt").exists()
+
+    create_cmd = [git2cpp_path, "tag", "-a", "v1.0.0"]
+    p = subprocess.run(create_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p.returncode != 0
+    assert "requires -m" in p.stderr

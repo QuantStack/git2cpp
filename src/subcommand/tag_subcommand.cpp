@@ -1,8 +1,6 @@
 #include <git2.h>
 
 #include "../subcommand/tag_subcommand.hpp"
-#include "../wrapper/commit_wrapper.hpp"
-#include "../wrapper/tag_wrapper.hpp"
 
 tag_subcommand::tag_subcommand(const libgit2_object&, CLI::App& app)
 {
@@ -12,6 +10,7 @@ tag_subcommand::tag_subcommand(const libgit2_object&, CLI::App& app)
     sub->add_flag("-f,--force", m_force_flag, "Replace an existing tag with the given name (instead of failing)");
     sub->add_option("-d,--delete", m_delete, "Delete existing tags with the given names.");
     sub->add_option("-n", m_num_lines, "<num> specifies how many lines from the annotation, if any, are printed when using -l. Implies --list.");
+    sub->add_flag("-a,--annotate", m_annotate_flag, "Make an annotated tag.");
     sub->add_option("-m,--message", m_message, "Tag message for annotated tags");
     sub->add_option("<tagname>", m_tag_name, "Tag name");
     sub->add_option("<commit>", m_target, "Target commit (defaults to HEAD)");
@@ -217,9 +216,17 @@ void tag_subcommand::run()
     {
         delete_tag(repo);
     }
-    else if (m_list_flag || (m_tag_name.empty() && m_message.empty()))
+    else if (m_list_flag || (m_tag_name.empty() && m_message.empty() && !m_annotate_flag))
     {
         list_tags(repo);
+    }
+    else if (m_annotate_flag)
+    {
+        if (m_message.empty())
+        {
+            throw git_exception("error: -a/--annotate requires -m/--message", git2cpp_error_code::BAD_ARGUMENT);
+        }
+        create_tag(repo);
     }
     else if (!m_message.empty())
     {

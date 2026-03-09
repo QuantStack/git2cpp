@@ -11,16 +11,17 @@
 
 #include "log_subcommand.hpp"
 #include "../utils/terminal_pager.hpp"
-#include "../wrapper/repository_wrapper.hpp"
-#include "../wrapper/commit_wrapper.hpp"
 
 log_subcommand::log_subcommand(const libgit2_object&, CLI::App& app)
 {
     auto *sub = app.add_subcommand("log", "Shows commit logs");
 
-    sub->add_flag("--format", m_format_flag, "Pretty-print the contents of the commit logs in a given format, where <format> can be one of full and fuller");
+    sub->add_option("--format", m_format_flag, "Pretty-print the contents of the commit logs in a given format, where <format> can be one of full and fuller");
     sub->add_option("-n,--max-count", m_max_count_flag, "Limit the output to <number> commits.");
-    // sub->add_flag("--oneline", m_oneline_flag, "This is a shorthand for --pretty=oneline --abbrev-commit used together.");
+    sub->add_flag("--abbrev-commit", m_abbrev_commit_flag, "Instead of showing the full 40-byte hexadecimal commit object name, show a prefix that names the object uniquely. --abbrev=<n> (which also modifies diff output, if it is displayed) option can be used to specify the minimum length of the prefix.");
+    sub->add_option("--abbrev", m_abbrev, "Instead of showing the full 40-byte hexadecimal object name in diff-raw format output and diff-tree header lines, show the shortest prefix that is at least <n> hexdigits long that uniquely refers the object.");
+    sub->add_flag("--no-abbrev-commit", m_no_abbrev_commit_flag, "Show the full 40-byte hexadecimal commit object name. This negates --abbrev-commit, either explicit or implied by other options such as --oneline.");
+    sub->add_flag("--oneline", m_oneline_flag, "This is a shorthand for --format=oneline --abbrev-commit used together.");
 
     sub->callback([this]() { this->run(); });
 };
@@ -166,6 +167,7 @@ void print_refs(const commit_refs& refs)
         return;
     }
 
+    std::cout << termcolor::yellow;
     std::cout << " (";
 
     bool first = true;
@@ -179,7 +181,7 @@ void print_refs(const commit_refs& refs)
         first = false;
     }
 
-    for (const auto& tag :refs.tags)
+    for (const auto& tag : refs.tags)
     {
         if (!first)
         {
@@ -212,17 +214,47 @@ void print_refs(const commit_refs& refs)
     std::cout << ")" << termcolor::reset;
 }
 
-void print_commit(repository_wrapper& repo, const commit_wrapper& commit, std::string m_format_flag)
+void log_subcommand::print_commit(repository_wrapper& repo, const commit_wrapper& commit)
 {
-    std::string buf = commit.commit_oid_tostr();
+    const bool abbrev_commit = (m_abbrev_commit_flag || m_oneline_flag) && !m_no_abbrev_commit_flag;
+    const bool oneline = (m_format_flag == "oneline") || m_oneline_flag;
+
+    std::string sha = commit.commit_oid_tostr();
+
+    if (abbrev_commit && m_abbrev <= sha.size())
+    {
+        sha = sha.substr(0, m_abbrev);
+    }
+
+    commit_refs refs = get_refs_for_commit(repo, commit.oid());
+
+    std::string message = commit.message();
+    while (!message.empty() && message.back() == '\n')
+        message.pop_back();
+
+    if (oneline)
+    {
+        std::string subject;
+        {
+            std::istringstream s(message);
+            std::getline(s, subject);
+        }
+
+        std::cout << termcolor::yellow << sha << termcolor::reset;
+        print_refs(refs);
+        if (!subject.empty())
+        {
+            std::cout << " " << subject;
+        }
+        return;
+    }
 
     signature_wrapper author = signature_wrapper::get_commit_author(commit);
     signature_wrapper committer = signature_wrapper::get_commit_committer(commit);
 
     stream_colour_fn colour = termcolor::yellow;
-    std::cout << colour << "commit " << buf;
+    std::cout << colour << "commit " << sha << termcolor::reset;
 
-    commit_refs refs = get_refs_for_commit(repo, commit.oid());
     print_refs(refs);
 
     std::cout << termcolor::reset << std::endl;
@@ -247,11 +279,6 @@ void print_commit(repository_wrapper& repo, const commit_wrapper& commit, std::s
         }
     }
 
-    std::string message = commit.message();
-    while (!message.empty() && message.back() == '\n')
-    {
-        message.pop_back();
-    }
     std::istringstream message_stream(message);
     std::string line;
     while (std::getline(message_stream, line))
@@ -287,7 +314,7 @@ void log_subcommand::run()
             std::cout << std::endl;
         }
         commit_wrapper commit = repo.find_commit(commit_oid);
-        print_commit(repo, commit, m_format_flag);
+        print_commit(repo, commit);
         ++i;
     }
 

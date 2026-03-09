@@ -29,3 +29,47 @@ def test_revparse_shallow(git2cpp_path, tmp_path, run_in_tmp_path):
     p2 = subprocess.run(cmd2, capture_output=True, text=True, cwd=xtl_path)
     assert p2.returncode == 0
     assert p2.stdout == "true\n"
+
+    cmd3 = [
+        git2cpp_path,
+        "rev-parse",
+        "--is-shallow-repository",
+        "--is-bare-repository",
+    ]
+    p3 = subprocess.run(cmd3, capture_output=True, text=True, cwd=xtl_path)
+    assert p3.returncode == 0
+    assert p3.stdout == "true\nfalse\n"
+
+
+def test_revparse_multiple_revs(repo_init_with_commit, git2cpp_path, tmp_path):
+    """Test one sha per line is printed when multiple revisions are provided"""
+    assert (tmp_path / "initial.txt").exists()
+
+    (tmp_path / "second.txt").write_text("second")
+    subprocess.run(
+        [git2cpp_path, "add", "second.txt"],
+        capture_output=True,
+        text=True,
+        cwd=tmp_path,
+        check=True,
+    )
+    subprocess.run(
+        [git2cpp_path, "commit", "-m", "Second commit"],
+        capture_output=True,
+        text=True,
+        cwd=tmp_path,
+        check=True,
+    )
+
+    p = subprocess.run(
+        [git2cpp_path, "rev-parse", "HEAD", "HEAD~1"],
+        capture_output=True,
+        text=True,
+        cwd=tmp_path,
+    )
+    assert p.returncode == 0
+
+    lines = p.stdout.splitlines()
+    assert len(lines) == 2
+    assert all(len(x) == 40 for x in lines)
+    assert lines[0] != lines[1]
