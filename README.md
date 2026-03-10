@@ -1,6 +1,7 @@
 # git2cpp
 [![GithubActions](https://github.com/QuantStack/git2cpp/actions/workflows/test.yml/badge.svg)](https://github.com/QuantStack/git2cpp/actions/workflows/test.yml)
 [![Documentation Status](http://readthedocs.org/projects/git2cpp/badge/?version=latest)](https://git2cpp.readthedocs.io/en/latest/?badge=latest)
+[![Codecov](https://codecov.io/gh/QuantStack/git2cpp/graph/badge.svg)](https://app.codecov.io/gh/QuantStack/git2cpp)
 
 This is a C++ wrapper of [libgit2](https://libgit2.org/) to provide a command-line interface (CLI)
 to `git` functionality. The intended use is in WebAssembly in-browser terminals (see
