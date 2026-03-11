@@ -37,33 +37,29 @@ void revparse_subcommand::run()
     auto repo = repository_wrapper::open(directory);
 
     size_t i = 0;
-    if (!m_queries_in_order.empty())
+    for (const auto& q : m_queries_in_order)
     {
-        for (const auto& q : m_queries_in_order)
+        if (q == "is_bare")
         {
-            if (q == "is_bare")
-            {
-                std::cout << std::boolalpha << repo.is_bare() << std::endl;
-            }
-            else if (q == "is_shallow")
-            {
-                std::cout << std::boolalpha << repo.is_shallow() << std::endl;
-            }
-            else if (q == "is_rev")
-            {
-                const auto& rev = m_revisions[i];
-                auto obj = repo.revparse_single(rev.c_str());
+            std::cout << std::boolalpha << repo.is_bare() << std::endl;
+        }
+        else if (q == "is_shallow")
+        {
+            std::cout << std::boolalpha << repo.is_shallow() << std::endl;
+        }
+        else if (q == "is_rev")
+        {
+            const auto& rev = m_revisions[i];
+            auto obj = repo.revparse_single(rev.c_str());
 
-                if (!obj.has_value())
-                {
-                    throw git_exception("bad revision '" + rev + "'", git2cpp_error_code::BAD_ARGUMENT);
-                }
-
-                auto oid = obj.value().oid();
-                std::cout << git_oid_tostr_s(&oid) << std::endl;
-                i += 1;
+            if (!obj.has_value())
+            {
+                throw git_exception("bad revision '" + rev + "'", git2cpp_error_code::BAD_ARGUMENT);
             }
+
+            auto oid = obj.value().oid();
+            std::cout << git_oid_tostr_s(&oid) << std::endl;
+            i += 1;
         }
     }
-    return;
 }
