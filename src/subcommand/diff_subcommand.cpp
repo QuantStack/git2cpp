@@ -224,12 +224,12 @@ void diff_subcommand::print_diff(diff_wrapper& diff, bool use_colour)
         if (m_find_renames_flag || m_find_copies_flag)
         {
             find_opts.flags |= GIT_DIFF_FIND_RENAMES;
-            find_opts.rename_threshold = (uint16_t)m_rename_threshold;
+            find_opts.rename_threshold = m_rename_threshold;
         }
         if (m_find_copies_flag)
         {
             find_opts.flags |= GIT_DIFF_FIND_COPIES;
-            find_opts.copy_threshold = (uint16_t)m_copy_threshold;
+            find_opts.copy_threshold = m_copy_threshold;
         }
         if (m_find_copies_harder_flag)
         {

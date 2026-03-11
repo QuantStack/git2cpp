@@ -38,9 +38,9 @@ private:
     bool m_patience_flag = false;
     bool m_minimal_flag = false;
 
-    uint m_rename_threshold = 50;
+    uint16_t m_rename_threshold = 50;
     bool m_find_renames_flag = false;
-    uint m_copy_threshold = 50;
+    uint16_t m_copy_threshold = 50;
     bool m_find_copies_flag = false;
     bool m_find_copies_harder_flag = false;
     bool m_break_rewrites_flag = false;
