@@ -179,22 +179,30 @@ static int colour_printer([[maybe_unused]] const git_diff_delta* delta, [[maybe_
         if (delta->status == GIT_DELTA_COPIED)
         {
             if (use_colour)
-                std::cout << termcolor::bold;
+            {
+                 std::cout << termcolor::bold;
+            }
             std::cout << "similarity index " << delta->similarity << "%\n";
             std::cout << "copy from " << delta->old_file.path << "\n";
             std::cout << "copy to " << delta->new_file.path << "\n";
             if (use_colour)
-                std::cout << termcolor::reset;
+            {
+                    std::cout << termcolor::reset;
+            }
         }
         else if (delta->status == GIT_DELTA_RENAMED)
         {
             if (use_colour)
-                std::cout << termcolor::bold;
+            {
+                    std::cout << termcolor::bold;
+            }
             std::cout << "similarity index " << delta->similarity << "%\n";
             std::cout << "rename from " << delta->old_file.path << "\n";
             std::cout << "rename to " << delta->new_file.path << "\n";
             if (use_colour)
-                std::cout << termcolor::reset;
+            {
+                 std::cout << termcolor::reset;
+            }
         }
     }
 
@@ -285,10 +293,6 @@ void diff_subcommand::run()
 {
     git_diff_options diffopts;
     git_diff_options_init(&diffopts, GIT_DIFF_OPTIONS_VERSION);
-
-    std::cerr << "DEBUG cached=" << m_cached_flag
-                  << " no_index=" << m_no_index_flag
-                  << " files=" << m_files.size() << "\n";
 
     bool use_colour = false;
     if (m_no_colour_flag)
