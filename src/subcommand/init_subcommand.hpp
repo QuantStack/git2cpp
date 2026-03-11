@@ -16,4 +16,5 @@ public:
 private:
     bool m_bare = false;
     std::string m_directory;
+    std::string m_branch;
 };

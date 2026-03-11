@@ -31,6 +31,13 @@ repository_wrapper repository_wrapper::init(std::string_view directory, bool bar
     return rw;
 }
 
+repository_wrapper repository_wrapper::init_ext(std::string_view directory, git_repository_init_options* opts)
+{
+    repository_wrapper rw;
+    throw_if_error(git_repository_init_ext(&(rw.p_resource), directory.data(), opts));
+    return rw;
+}
+
 repository_wrapper repository_wrapper::clone(std::string_view url, std::string_view path, const git_clone_options& opts)
 {
     repository_wrapper rw;

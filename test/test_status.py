@@ -12,14 +12,6 @@ def test_status_new_file(
 ):
     assert (tmp_path / "initial.txt").exists()
 
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
-
     p = tmp_path / "mook_file.txt"  # Untracked files
     p.write_text("")
 
@@ -42,7 +34,7 @@ def test_status_new_file(
     p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True, check=True)
 
     if (long_flag == "--long") or ((long_flag == "") & (short_flag == "")):
-        assert f"On branch {default_branch}" in p.stdout
+        assert "On branch main" in p.stdout
         assert "Changes not staged for commit" in p.stdout
         assert "Untracked files" in p.stdout
         assert "deleted" in p.stdout
@@ -101,23 +93,14 @@ def test_status_new_repo(git2cpp_path, tmp_path, run_in_tmp_path):
     # tmp_path exists and is empty.
     assert list(tmp_path.iterdir()) == []
 
-    cmd = [git2cpp_path, "init"]
+    cmd = [git2cpp_path, "init", "-b", "main"]
     p = subprocess.run(cmd, cwd=tmp_path)
     assert p.returncode == 0
-
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
-    print(default_branch)
 
     cmd_status = [git2cpp_path, "status"]
     p_status = subprocess.run(cmd_status, capture_output=True, cwd=tmp_path, text=True)
     assert p_status.returncode == 0
-    assert f"On branch {default_branch}" in p_status.stdout
+    assert "On branch main" in p_status.stdout
     assert "No commit yet" in p_status.stdout
     assert "Nothing to commit, working tree clean" in p_status.stdout
 
@@ -126,19 +109,11 @@ def test_status_clean_tree(repo_init_with_commit, git2cpp_path, tmp_path):
     """Test 'Nothing to commit, working tree clean' message"""
     assert (tmp_path / "initial.txt").exists()
 
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
-
     cmd = [git2cpp_path, "status"]
     p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
 
     assert p.returncode == 0
-    assert f"On branch {default_branch}" in p.stdout
+    assert "On branch main" in p.stdout
     assert "Nothing to commit, working tree clean" in p.stdout
 
 
@@ -308,15 +283,7 @@ def test_status_ahead_of_upstream(
     repo_path.mkdir()
 
     # Initialize repo
-    subprocess.run([git2cpp_path, "init"], cwd=repo_path, check=True)
-
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=repo_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
+    subprocess.run([git2cpp_path, "init", "-b", "main"], cwd=repo_path, check=True)
 
     # Create initial commit
     test_file = repo_path / "file.txt"
@@ -344,10 +311,10 @@ def test_status_ahead_of_upstream(
 
     assert p.returncode == 0
     if short_flag == "-s":
-        assert f"...origin/{default_branch}" in p.stdout
+        assert "...origin/main" in p.stdout
         assert "[ahead 1]" in p.stdout
     else:
-        assert f"Your branch is ahead of 'origin/{default_branch}'" in p.stdout
+        assert "Your branch is ahead of 'origin/main'" in p.stdout
         assert "by 1 commit" in p.stdout
         assert 'use "git push"' in p.stdout
 
@@ -362,15 +329,7 @@ def test_status_with_branch_and_tracking(
     repo_path = tmp_path / "repo"
     repo_path.mkdir()
 
-    subprocess.run([git2cpp_path, "init"], cwd=repo_path)
-
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=repo_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
+    subprocess.run([git2cpp_path, "init", "-b", "main"], cwd=repo_path)
 
     test_file = repo_path / "file.txt"
     test_file.write_text("initial")
@@ -395,16 +354,12 @@ def test_status_with_branch_and_tracking(
 
     assert p.returncode == 0
     if short_flag == "-s":
-        assert (
-            f"## {default_branch}" in p.stdout
-        )  # "main" locally, but "master" in the CI
+        assert "## main" in p.stdout  # "main" locally, but "master" in the CI
         assert "[ahead 1]" in p.stdout
     else:
+        assert "On branch main" in p.stdout  # "main" locally, but "master" in the CI
         assert (
-            f"On branch {default_branch}" in p.stdout
-        )  # "main" locally, but "master" in the CI
-        assert (
-            f"Your branch is ahead of 'origin/{default_branch}'" in p.stdout
+            "Your branch is ahead of 'origin/main'" in p.stdout
         )  # "main" locally, but "master" in the CI
         assert "1 commit." in p.stdout
 
@@ -412,14 +367,6 @@ def test_status_with_branch_and_tracking(
 def test_status_all_headers_shown(repo_init_with_commit, git2cpp_path, tmp_path):
     """Test that all status headers can be shown together"""
     assert (tmp_path / "initial.txt").exists()
-
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
 
     # Changes to be committed
     staged = tmp_path / "staged.txt"
@@ -438,7 +385,7 @@ def test_status_all_headers_shown(repo_init_with_commit, git2cpp_path, tmp_path)
     p = subprocess.run(cmd_status, capture_output=True, cwd=tmp_path, text=True)
 
     assert p.returncode == 0
-    assert f"On branch {default_branch}" in p.stdout
+    assert "On branch main" in p.stdout
     assert "Changes to be committed:" in p.stdout
     assert 'use "git reset HEAD <file>..." to unstage' in p.stdout
     assert "Changes not staged for commit:" in p.stdout

@@ -52,7 +52,7 @@ def commit_env_config(monkeypatch):
 
 @pytest.fixture
 def repo_init_with_commit(commit_env_config, git2cpp_path, tmp_path, run_in_tmp_path):
-    cmd_init = [git2cpp_path, "init", "."]
+    cmd_init = [git2cpp_path, "init", ".", "-b", "main"]
     p_init = subprocess.run(cmd_init, capture_output=True, cwd=tmp_path, text=True)
     assert p_init.returncode == 0
 
@@ -70,7 +70,7 @@ def repo_init_with_commit(commit_env_config, git2cpp_path, tmp_path, run_in_tmp_
 
 @pytest.fixture(scope="session")
 def private_test_repo():
-    # Fixture containing everything needed to access private github repo.
+    # Fixture containing everything needed to access private github repo.
     # GIT2CPP_TEST_PRIVATE_TOKEN is the fine-grained Personal Access Token for private test repo.
     # If this is not available as an environment variable, tests that use this fixture are skipped.
     token = os.getenv("GIT2CPP_TEST_PRIVATE_TOKEN")
@@ -82,5 +82,5 @@ def private_test_repo():
         "repo_name": repo_name,
         "http_url": f"http://github.com/{org_name}/{repo_name}",
         "https_url": f"https://github.com/{org_name}/{repo_name}",
-        "token": token
+        "token": token,
     }

@@ -6,14 +6,6 @@ import pytest
 def test_checkout(repo_init_with_commit, git2cpp_path, tmp_path):
     assert (tmp_path / "initial.txt").exists()
 
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
-
     create_cmd = [git2cpp_path, "branch", "foregone"]
     p_create = subprocess.run(create_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_create.returncode == 0
@@ -28,26 +20,18 @@ def test_checkout(repo_init_with_commit, git2cpp_path, tmp_path):
     branch_cmd = [git2cpp_path, "branch"]
     p_branch = subprocess.run(branch_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_branch.returncode == 0
-    assert p_branch.stdout == f"* foregone\n  {default_branch}\n"
+    assert p_branch.stdout == "* foregone\n  main\n"
 
-    checkout_cmd[2] = default_branch
+    checkout_cmd[2] = "main"
     p_checkout2 = subprocess.run(
         checkout_cmd, capture_output=True, cwd=tmp_path, text=True
     )
     assert p_checkout2.returncode == 0
-    assert f"Switched to branch '{default_branch}'" in p_checkout2.stdout
+    assert "Switched to branch 'main'" in p_checkout2.stdout
 
 
 def test_checkout_b(repo_init_with_commit, git2cpp_path, tmp_path):
     assert (tmp_path / "initial.txt").exists()
-
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
 
     checkout_cmd = [git2cpp_path, "checkout", "-b", "foregone"]
     p_checkout = subprocess.run(
@@ -59,16 +43,16 @@ def test_checkout_b(repo_init_with_commit, git2cpp_path, tmp_path):
     branch_cmd = [git2cpp_path, "branch"]
     p_branch = subprocess.run(branch_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_branch.returncode == 0
-    assert p_branch.stdout == f"* foregone\n  {default_branch}\n"
+    assert p_branch.stdout == "* foregone\n  main\n"
 
     checkout_cmd.remove("-b")
-    checkout_cmd[2] = default_branch
+    checkout_cmd[2] = "main"
     p_checkout2 = subprocess.run(checkout_cmd, cwd=tmp_path, text=True)
     assert p_checkout2.returncode == 0
 
     p_branch2 = subprocess.run(branch_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_branch2.returncode == 0
-    assert p_branch2.stdout == f"  foregone\n* {default_branch}\n"
+    assert p_branch2.stdout == "  foregone\n* main\n"
 
 
 def test_checkout_B_force_create(repo_init_with_commit, git2cpp_path, tmp_path):
@@ -143,14 +127,6 @@ def test_checkout_refuses_overwrite(
     initial_file = tmp_path / "initial.txt"
     assert (initial_file).exists()
 
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
-
     # Create a new branch and switch to it
     create_cmd = [git2cpp_path, "checkout", "-b", "newbranch"]
     p_create = subprocess.run(create_cmd, capture_output=True, cwd=tmp_path, text=True)
@@ -166,14 +142,14 @@ def test_checkout_refuses_overwrite(
     subprocess.run(commit_cmd, cwd=tmp_path, text=True)
 
     # Switch back to default branch
-    checkout_default_cmd = [git2cpp_path, "checkout", default_branch]
+    checkout_default_cmd = [git2cpp_path, "checkout", "main"]
     p_default = subprocess.run(
         checkout_default_cmd, capture_output=True, cwd=tmp_path, text=True
     )
     assert p_default.returncode == 0
 
     # Now modify initial.txt locally (unstaged) on default branch
-    initial_file.write_text(f"Local modification on {default_branch}")
+    initial_file.write_text("Local modification on main")
 
     # Try to checkout newbranch
     checkout_cmd = [git2cpp_path, "checkout"]
@@ -201,7 +177,7 @@ def test_checkout_refuses_overwrite(
         p_branch = subprocess.run(
             branch_cmd, capture_output=True, cwd=tmp_path, text=True
         )
-        assert f"* {default_branch}" in p_branch.stdout
+        assert "* main" in p_branch.stdout
     else:
         assert "Switched to branch 'newbranch'" in p_checkout.stdout
 

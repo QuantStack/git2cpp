@@ -10,14 +10,6 @@ def test_merge_fast_forward(
 ):
     assert (tmp_path / "initial.txt").exists()
 
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
-
     checkout_cmd = [git2cpp_path, "checkout", "-b", "foregone"]
     p_checkout = subprocess.run(
         checkout_cmd, capture_output=True, cwd=tmp_path, text=True
@@ -35,7 +27,7 @@ def test_merge_fast_forward(
     p_commit = subprocess.run(commit_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_commit.returncode == 0
 
-    checkout_cmd_2 = [git2cpp_path, "checkout", default_branch]
+    checkout_cmd_2 = [git2cpp_path, "checkout", "main"]
     p_checkout_2 = subprocess.run(
         checkout_cmd_2, capture_output=True, cwd=tmp_path, text=True
     )
@@ -64,14 +56,6 @@ def test_merge_fast_forward(
 def test_merge_commit(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path):
     assert (tmp_path / "initial.txt").exists()
 
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
-
     checkout_cmd = [git2cpp_path, "checkout", "-b", "foregone"]
     p_checkout = subprocess.run(
         checkout_cmd, capture_output=True, cwd=tmp_path, text=True
@@ -89,7 +73,7 @@ def test_merge_commit(repo_init_with_commit, commit_env_config, git2cpp_path, tm
     p_commit = subprocess.run(commit_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_commit.returncode == 0
 
-    checkout_cmd_2 = [git2cpp_path, "checkout", default_branch]
+    checkout_cmd_2 = [git2cpp_path, "checkout", "main"]
     p_checkout_2 = subprocess.run(
         checkout_cmd_2, capture_output=True, cwd=tmp_path, text=True
     )
@@ -135,14 +119,6 @@ def test_merge_conflict(
 ):
     assert (tmp_path / "initial.txt").exists()
 
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
-
     checkout_cmd = [git2cpp_path, "checkout", "-b", "foregone"]
     p_checkout = subprocess.run(
         checkout_cmd, capture_output=True, cwd=tmp_path, text=True
@@ -163,7 +139,7 @@ def test_merge_conflict(
     p_commit = subprocess.run(commit_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_commit.returncode == 0
 
-    checkout_cmd_2 = [git2cpp_path, "checkout", default_branch]
+    checkout_cmd_2 = [git2cpp_path, "checkout", "main"]
     p_checkout_2 = subprocess.run(
         checkout_cmd_2, capture_output=True, cwd=tmp_path, text=True
     )

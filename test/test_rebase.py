@@ -7,14 +7,6 @@ def test_rebase_basic(repo_init_with_commit, commit_env_config, git2cpp_path, tm
     """Test basic rebase operation with fast-forward"""
     assert (tmp_path / "initial.txt").exists()
 
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
-
     # Create a feature branch
     checkout_cmd = [git2cpp_path, "checkout", "-b", "feature"]
     p_checkout = subprocess.run(
@@ -35,7 +27,7 @@ def test_rebase_basic(repo_init_with_commit, commit_env_config, git2cpp_path, tm
     assert p_commit.returncode == 0
 
     # Go back to master and create another commit
-    checkout_master_cmd = [git2cpp_path, "checkout", default_branch]
+    checkout_master_cmd = [git2cpp_path, "checkout", "main"]
     p_checkout_master = subprocess.run(
         checkout_master_cmd, capture_output=True, cwd=tmp_path, text=True
     )
@@ -61,7 +53,7 @@ def test_rebase_basic(repo_init_with_commit, commit_env_config, git2cpp_path, tm
     )
     assert p_checkout_feature.returncode == 0
 
-    rebase_cmd = [git2cpp_path, "rebase", default_branch]
+    rebase_cmd = [git2cpp_path, "rebase", "main"]
     p_rebase = subprocess.run(rebase_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_rebase.returncode == 0
     assert "Successfully rebased" in p_rebase.stdout
@@ -77,14 +69,6 @@ def test_rebase_multiple_commits(
 ):
     """Test rebase with multiple commits"""
     assert (tmp_path / "initial.txt").exists()
-
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
 
     # Create feature branch with multiple commits
     checkout_cmd = [git2cpp_path, "checkout", "-b", "feature"]
@@ -118,7 +102,7 @@ def test_rebase_multiple_commits(
     subprocess.run(commit_cmd_3, cwd=tmp_path, text=True)
 
     # Go to master and add a commit
-    checkout_master_cmd = [git2cpp_path, "checkout", default_branch]
+    checkout_master_cmd = [git2cpp_path, "checkout", "main"]
     subprocess.run(checkout_master_cmd, cwd=tmp_path)
 
     master_file = tmp_path / "master_file.txt"
@@ -130,7 +114,7 @@ def test_rebase_multiple_commits(
     checkout_feature_cmd = [git2cpp_path, "checkout", "feature"]
     subprocess.run(checkout_feature_cmd, cwd=tmp_path)
 
-    rebase_cmd = [git2cpp_path, "rebase", default_branch]
+    rebase_cmd = [git2cpp_path, "rebase", "main"]
     p_rebase = subprocess.run(rebase_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_rebase.returncode == 0
     assert "Rebasing 3 commit(s)" in p_rebase.stdout
@@ -149,14 +133,6 @@ def test_rebase_with_conflicts(
     """Test rebase with conflicts"""
     assert (tmp_path / "initial.txt").exists()
 
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
-
     # Create feature branch
     checkout_cmd = [git2cpp_path, "checkout", "-b", "feature"]
     subprocess.run(checkout_cmd, capture_output=True, cwd=tmp_path, text=True)
@@ -168,7 +144,7 @@ def test_rebase_with_conflicts(
     subprocess.run([git2cpp_path, "commit", "-m", "feature commit"], cwd=tmp_path)
 
     # Go to master and create conflicting commit
-    checkout_master_cmd = [git2cpp_path, "checkout", default_branch]
+    checkout_master_cmd = [git2cpp_path, "checkout", "main"]
     subprocess.run(checkout_master_cmd, cwd=tmp_path)
 
     conflict_file.write_text("master content")
@@ -179,7 +155,7 @@ def test_rebase_with_conflicts(
     checkout_feature_cmd = [git2cpp_path, "checkout", "feature"]
     subprocess.run(checkout_feature_cmd, cwd=tmp_path)
 
-    rebase_cmd = [git2cpp_path, "rebase", default_branch]
+    rebase_cmd = [git2cpp_path, "rebase", "main"]
     p_rebase = subprocess.run(rebase_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_rebase.returncode == 0
     assert "Conflicts detected" in p_rebase.stdout
@@ -192,14 +168,6 @@ def test_rebase_abort(repo_init_with_commit, commit_env_config, git2cpp_path, tm
     """Test rebase abort after conflicts"""
     assert (tmp_path / "initial.txt").exists()
 
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
-
     # Create feature branch
     checkout_cmd = [git2cpp_path, "checkout", "-b", "feature"]
     subprocess.run(checkout_cmd, cwd=tmp_path)
@@ -211,14 +179,14 @@ def test_rebase_abort(repo_init_with_commit, commit_env_config, git2cpp_path, tm
     subprocess.run([git2cpp_path, "commit", "-m", "feature commit"], cwd=tmp_path)
 
     # Go to master and create conflicting commit
-    subprocess.run([git2cpp_path, "checkout", default_branch], cwd=tmp_path)
+    subprocess.run([git2cpp_path, "checkout", "main"], cwd=tmp_path)
     conflict_file.write_text("master content")
     subprocess.run([git2cpp_path, "add", "conflict.txt"], cwd=tmp_path)
     subprocess.run([git2cpp_path, "commit", "-m", "master commit"], cwd=tmp_path)
 
     # Rebase and get conflict
     subprocess.run([git2cpp_path, "checkout", "feature"], cwd=tmp_path)
-    subprocess.run([git2cpp_path, "rebase", default_branch], cwd=tmp_path)
+    subprocess.run([git2cpp_path, "rebase", "main"], cwd=tmp_path)
 
     # Abort the rebase
     abort_cmd = [git2cpp_path, "rebase", "--abort"]
@@ -236,14 +204,6 @@ def test_rebase_continue(
     """Test rebase continue after resolving conflicts"""
     assert (tmp_path / "initial.txt").exists()
 
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
-
     # Create feature branch
     subprocess.run([git2cpp_path, "checkout", "-b", "feature"], cwd=tmp_path)
 
@@ -254,14 +214,14 @@ def test_rebase_continue(
     subprocess.run([git2cpp_path, "commit", "-m", "feature commit"], cwd=tmp_path)
 
     # Go to master and create conflicting commit
-    subprocess.run([git2cpp_path, "checkout", default_branch], cwd=tmp_path)
+    subprocess.run([git2cpp_path, "checkout", "main"], cwd=tmp_path)
     conflict_file.write_text("master content")
     subprocess.run([git2cpp_path, "add", "conflict.txt"], cwd=tmp_path)
     subprocess.run([git2cpp_path, "commit", "-m", "master commit"], cwd=tmp_path)
 
     # Rebase and get conflict
     subprocess.run([git2cpp_path, "checkout", "feature"], cwd=tmp_path)
-    subprocess.run([git2cpp_path, "rebase", default_branch], cwd=tmp_path)
+    subprocess.run([git2cpp_path, "rebase", "main"], cwd=tmp_path)
 
     # Resolve conflict
     conflict_file.write_text("resolved content")
@@ -283,14 +243,6 @@ def test_rebase_skip(repo_init_with_commit, commit_env_config, git2cpp_path, tmp
     """Test rebase skip to skip current commit"""
     assert (tmp_path / "initial.txt").exists()
 
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
-
     # Create feature branch
     subprocess.run([git2cpp_path, "checkout", "-b", "feature"], cwd=tmp_path)
 
@@ -301,14 +253,14 @@ def test_rebase_skip(repo_init_with_commit, commit_env_config, git2cpp_path, tmp
     subprocess.run([git2cpp_path, "commit", "-m", "feature commit"], cwd=tmp_path)
 
     # Go to master and create conflicting commit
-    subprocess.run([git2cpp_path, "checkout", default_branch], cwd=tmp_path)
+    subprocess.run([git2cpp_path, "checkout", "main"], cwd=tmp_path)
     conflict_file.write_text("master content")
     subprocess.run([git2cpp_path, "add", "conflict.txt"], cwd=tmp_path)
     subprocess.run([git2cpp_path, "commit", "-m", "master commit"], cwd=tmp_path)
 
     # Rebase and get conflict
     subprocess.run([git2cpp_path, "checkout", "feature"], cwd=tmp_path)
-    subprocess.run([git2cpp_path, "rebase", default_branch], cwd=tmp_path)
+    subprocess.run([git2cpp_path, "rebase", "main"], cwd=tmp_path)
 
     # Skip the conflicting commit
     skip_cmd = [git2cpp_path, "rebase", "--skip"]
@@ -321,14 +273,6 @@ def test_rebase_quit(repo_init_with_commit, commit_env_config, git2cpp_path, tmp
     """Test rebase quit to cleanup state without resetting HEAD"""
     assert (tmp_path / "initial.txt").exists()
 
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
-
     # Create feature branch
     subprocess.run([git2cpp_path, "checkout", "-b", "feature"], cwd=tmp_path)
 
@@ -339,14 +283,14 @@ def test_rebase_quit(repo_init_with_commit, commit_env_config, git2cpp_path, tmp
     subprocess.run([git2cpp_path, "commit", "-m", "feature commit"], cwd=tmp_path)
 
     # Create conflict on master
-    subprocess.run([git2cpp_path, "checkout", default_branch], cwd=tmp_path)
+    subprocess.run([git2cpp_path, "checkout", "main"], cwd=tmp_path)
     conflict_file.write_text("master content")
     subprocess.run([git2cpp_path, "add", "conflict.txt"], cwd=tmp_path)
     subprocess.run([git2cpp_path, "commit", "-m", "master commit"], cwd=tmp_path)
 
     # Start rebase
     subprocess.run([git2cpp_path, "checkout", "feature"], cwd=tmp_path)
-    subprocess.run([git2cpp_path, "rebase", default_branch], cwd=tmp_path)
+    subprocess.run([git2cpp_path, "rebase", "main"], cwd=tmp_path)
 
     # Quit rebase
     quit_cmd = [git2cpp_path, "rebase", "--quit"]
@@ -359,14 +303,6 @@ def test_rebase_quit(repo_init_with_commit, commit_env_config, git2cpp_path, tmp
 def test_rebase_onto(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path):
     """Test rebase with --onto option"""
     assert (tmp_path / "initial.txt").exists()
-
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
 
     # Create first branch
     subprocess.run([git2cpp_path, "checkout", "-b", "branch1"], cwd=tmp_path)
@@ -383,7 +319,7 @@ def test_rebase_onto(repo_init_with_commit, commit_env_config, git2cpp_path, tmp
     subprocess.run([git2cpp_path, "commit", "-m", "branch2 commit"], cwd=tmp_path)
 
     # Create target branch from master
-    subprocess.run([git2cpp_path, "checkout", default_branch], cwd=tmp_path)
+    subprocess.run([git2cpp_path, "checkout", "main"], cwd=tmp_path)
     subprocess.run([git2cpp_path, "checkout", "-b", "target"], cwd=tmp_path)
     target_file = tmp_path / "target.txt"
     target_file.write_text("target")
@@ -433,14 +369,6 @@ def test_rebase_already_in_progress_error(
     """Test that starting rebase when one is in progress fails"""
     assert (tmp_path / "initial.txt").exists()
 
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
-
     # Create feature branch with conflict
     subprocess.run([git2cpp_path, "checkout", "-b", "feature"], cwd=tmp_path)
     conflict_file = tmp_path / "conflict.txt"
@@ -449,17 +377,17 @@ def test_rebase_already_in_progress_error(
     subprocess.run([git2cpp_path, "commit", "-m", "feature"], cwd=tmp_path)
 
     # Create conflict on master
-    subprocess.run([git2cpp_path, "checkout", default_branch], cwd=tmp_path)
-    conflict_file.write_text(default_branch)
+    subprocess.run([git2cpp_path, "checkout", "main"], cwd=tmp_path)
+    conflict_file.write_text("main")
     subprocess.run([git2cpp_path, "add", "conflict.txt"], cwd=tmp_path)
-    subprocess.run([git2cpp_path, "commit", "-m", default_branch], cwd=tmp_path)
+    subprocess.run([git2cpp_path, "commit", "-m", "main"], cwd=tmp_path)
 
     # Start rebase with conflict
     subprocess.run([git2cpp_path, "checkout", "feature"], cwd=tmp_path)
-    subprocess.run([git2cpp_path, "rebase", default_branch], cwd=tmp_path)
+    subprocess.run([git2cpp_path, "rebase", "main"], cwd=tmp_path)
 
     # Try to start another rebase
-    rebase_cmd = [git2cpp_path, "rebase", default_branch]
+    rebase_cmd = [git2cpp_path, "rebase", "main"]
     p_rebase = subprocess.run(rebase_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_rebase.returncode != 0
     assert (
@@ -491,14 +419,6 @@ def test_rebase_continue_with_unresolved_conflicts(
     """Test that --continue with unresolved conflicts fails"""
     assert (tmp_path / "initial.txt").exists()
 
-    default_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        capture_output=True,
-        cwd=tmp_path,
-        text=True,
-        check=True,
-    ).stdout.strip()  # TODO: use git2cpp when "branch --show-current" is implemented
-
     # Create conflict scenario
     subprocess.run([git2cpp_path, "checkout", "-b", "feature"], cwd=tmp_path)
     conflict_file = tmp_path / "conflict.txt"
@@ -506,14 +426,14 @@ def test_rebase_continue_with_unresolved_conflicts(
     subprocess.run([git2cpp_path, "add", "conflict.txt"], cwd=tmp_path)
     subprocess.run([git2cpp_path, "commit", "-m", "feature"], cwd=tmp_path)
 
-    subprocess.run([git2cpp_path, "checkout", default_branch], cwd=tmp_path)
-    conflict_file.write_text(default_branch)
+    subprocess.run([git2cpp_path, "checkout", "main"], cwd=tmp_path)
+    conflict_file.write_text("main")
     subprocess.run([git2cpp_path, "add", "conflict.txt"], cwd=tmp_path)
-    subprocess.run([git2cpp_path, "commit", "-m", default_branch], cwd=tmp_path)
+    subprocess.run([git2cpp_path, "commit", "-m", "main"], cwd=tmp_path)
 
     # Start rebase
     subprocess.run([git2cpp_path, "checkout", "feature"], cwd=tmp_path)
-    subprocess.run([git2cpp_path, "rebase", default_branch], cwd=tmp_path)
+    subprocess.run([git2cpp_path, "rebase", "main"], cwd=tmp_path)
 
     # Try to continue without resolving
     continue_cmd = [git2cpp_path, "rebase", "--continue"]
