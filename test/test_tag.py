@@ -135,8 +135,8 @@ def test_tag_delete_nonexistent(repo_init_with_commit, git2cpp_path, tmp_path):
     assert "not found" in p_delete.stderr
 
 
-@pytest.mark.parametrize("list_flag", ["-l", "--list"])
-def test_tag_list_with_flag(
+@pytest.mark.parametrize("list_flag", ["", "-l", "--list"])
+def test_tag_list(
     repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path, list_flag
 ):
     """Test listing tags with -l or --list flag."""
@@ -350,3 +350,18 @@ def test_tag_annotate_flag_requires_message(
     p = subprocess.run(create_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p.returncode != 0
     assert "requires -m" in p.stderr
+
+
+def test_tag_errors(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path):
+    assert (tmp_path / "initial.txt").exists()
+
+    # Test that -a/--annotate without -m fails.
+    create_cmd = [git2cpp_path, "tag", "-a", "v1.0.0"]
+    p_create = subprocess.run(create_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_create.returncode != 0
+    assert "requires -m" in p_create.stderr
+
+    # Test that command fails when no message
+    del_cmd = [git2cpp_path, "tag", "-d"]
+    p_del = subprocess.run(del_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_del.returncode != 0

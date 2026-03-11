@@ -16,7 +16,7 @@ log_subcommand::log_subcommand(const libgit2_object&, CLI::App& app)
 {
     auto *sub = app.add_subcommand("log", "Shows commit logs");
 
-    sub->add_option("--format", m_format_flag, "Pretty-print the contents of the commit logs in a given format, where <format> can be one of full and fuller");
+    sub->add_option("--format", m_format_flag, "Pretty-print the contents of the commit logs in a given format, where <format> can be one of full, fuller or oneline");
     sub->add_option("-n,--max-count", m_max_count_flag, "Limit the output to <number> commits.");
     sub->add_flag("--abbrev-commit", m_abbrev_commit_flag, "Instead of showing the full 40-byte hexadecimal commit object name, show a prefix that names the object uniquely. --abbrev=<n> (which also modifies diff output, if it is displayed) option can be used to specify the minimum length of the prefix.");
     sub->add_option("--abbrev", m_abbrev, "Instead of showing the full 40-byte hexadecimal object name in diff-raw format output and diff-tree header lines, show the shortest prefix that is at least <n> hexdigits long that uniquely refers the object.");
@@ -230,7 +230,9 @@ void log_subcommand::print_commit(repository_wrapper& repo, const commit_wrapper
 
     std::string message = commit.message();
     while (!message.empty() && message.back() == '\n')
+    {
         message.pop_back();
+    }
 
     if (oneline)
     {
