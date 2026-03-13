@@ -45,7 +45,7 @@ repository_wrapper repository_wrapper::clone(std::string_view url, std::string_v
     return rw;
 }
 
-std::string repository_wrapper::git_path() const
+std::string repository_wrapper::path() const
 {
     return git_repository_path(*this);
 }
@@ -350,8 +350,8 @@ size_t repository_wrapper::shallow_depth_from_head() const
         return 0u;
     }
 
-    std::string git_path = this->git_path();
-    std::string shallow_path = git_path + "shallow";
+    std::string path = this->path();
+    std::string shallow_path = path + "shallow";
 
     std::vector<git_oid> boundaries_list;
     std::ifstream f(shallow_path);
