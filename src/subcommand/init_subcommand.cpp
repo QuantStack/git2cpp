@@ -22,24 +22,22 @@ void init_subcommand::run()
     std::filesystem::path target_dir = m_directory;
     bool reinit = std::filesystem::exists(target_dir / ".git" / "HEAD");
 
-    std::string path;
-    if (m_branch.empty())
-    {
-        auto repo = repository_wrapper::init(m_directory, m_bare);
-        path = repo.path();
-    }
-    else
-    {
-        git_repository_init_options opts = GIT_REPOSITORY_INIT_OPTIONS_INIT;
-        if (m_bare)
+    repository_wrapper repo = [this]() {
+        if (m_branch.empty())
         {
-            opts.flags |= GIT_REPOSITORY_INIT_BARE;
+            return repository_wrapper::init(m_directory, m_bare);
         }
-        opts.initial_head = m_branch.c_str();
+        else
+        {
+            git_repository_init_options opts = GIT_REPOSITORY_INIT_OPTIONS_INIT;
+            if (m_bare) { opts.flags |= GIT_REPOSITORY_INIT_BARE; }
+            opts.initial_head = m_branch.c_str();
 
-        auto repo = repository_wrapper::init_ext(m_directory, &opts);
-        path = repo.path();
-    }
+            return repository_wrapper::init_ext(m_directory, &opts);
+        }
+    }();
+
+    std::string path = repo.path();
 
     if (reinit)
     {
