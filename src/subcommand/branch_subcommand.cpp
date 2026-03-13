@@ -14,6 +14,7 @@ branch_subcommand::branch_subcommand(const libgit2_object&, CLI::App& app)
     sub->add_flag("-r,--remotes", m_remote_flag, "List or delete (if used with -d) the remote-tracking branches");
     sub->add_flag("-l,--list", m_list_flag, "List branches");
     sub->add_flag("-f,--force", m_force_flag, "Skips confirmation");
+    sub->add_flag("--show-current", m_show_current_flag, "Print the name of the current branch. In detached HEAD state, nothing is printed.");
 
     sub->callback([this]() { this->run(); });
 }
@@ -23,7 +24,12 @@ void branch_subcommand::run()
     auto directory = get_current_git_path();
     auto repo = repository_wrapper::open(directory);
 
-    if (m_list_flag || m_branch_name.empty())
+    if (m_show_current_flag)
+    {
+        // TODO: if another flag, return usage/Generic options/Specific git-branch actions
+        run_show_current(repo);
+    }
+    else if (m_list_flag || m_branch_name.empty())
     {
         run_list(repo);
     }
@@ -64,9 +70,20 @@ void branch_subcommand::run_deletion(repository_wrapper& repo)
     delete_branch(std::move(branch));
 }
 
-
 void branch_subcommand::run_creation(repository_wrapper& repo)
 {
     // TODO: handle specification of starting commit
     repo.create_branch(m_branch_name, m_force_flag);
+}
+
+void branch_subcommand::run_show_current(const repository_wrapper& repo)
+{
+    auto name = repo.head_short_name();
+
+    if (name == "HEAD")
+    {
+        return;
+    }
+
+    std::cout << name << std::endl;
 }

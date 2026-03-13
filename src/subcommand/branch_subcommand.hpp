@@ -19,6 +19,7 @@ private:
     void run_list(const repository_wrapper& repo);
     void run_deletion(repository_wrapper& repo);
     void run_creation(repository_wrapper& repo);
+    void run_show_current(const repository_wrapper& repo);
 
     std::string m_branch_name = {};
     bool m_deletion_flag = false;
@@ -26,4 +27,5 @@ private:
     bool m_remote_flag = false;
     bool m_list_flag = false;
     bool m_force_flag = false;
+    bool m_show_current_flag = false;
 };
