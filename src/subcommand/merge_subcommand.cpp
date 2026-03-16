@@ -324,9 +324,10 @@ void merge_subcommand::run()
         std::cout << "Already up-to-date" << std::endl;
         return;
     }
-    else if (analysis & GIT_MERGE_ANALYSIS_UNBORN
-             || (analysis & GIT_MERGE_ANALYSIS_FASTFORWARD
-                 && !(preference & GIT_MERGE_PREFERENCE_NO_FASTFORWARD)))
+    else if (
+        analysis & GIT_MERGE_ANALYSIS_UNBORN
+        || (analysis & GIT_MERGE_ANALYSIS_FASTFORWARD && !(preference & GIT_MERGE_PREFERENCE_NO_FASTFORWARD))
+    )
     {
         if (analysis & GIT_MERGE_ANALYSIS_UNBORN)
         {
