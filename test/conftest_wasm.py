@@ -15,7 +15,7 @@ def pytest_ignore_collect(collection_path: pathlib.Path) -> bool:
     return collection_path.name not in [
         "test_add.py",
         "test_branch.py",
-        "test_checkout.py"
+        "test_checkout.py",
         "test_clone.py",
         "test_commit.py",
         "test_config.py",

@@ -404,9 +404,9 @@ def test_diff_inter_hunk_context(
     # Count hunks in small context output
     hunk_count_small = len(
         [
-            l
-            for l in p_small.stdout.split("\n")
-            if l.startswith("@@") and l.endswith("@@")
+            line
+            for line in p_small.stdout.split("\n")
+            if line.startswith("@@") and line.endswith("@@")
         ]
     )
 
@@ -421,9 +421,9 @@ def test_diff_inter_hunk_context(
     # Count hunks in large context output
     hunk_count_large = len(
         [
-            l
-            for l in p_large.stdout.split("\n")
-            if l.startswith("@@") and l.endswith("@@")
+            line
+            for line in p_large.stdout.split("\n")
+            if line.startswith("@@") and line.endswith("@@")
         ]
     )
 

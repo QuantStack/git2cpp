@@ -276,11 +276,11 @@ def test_log_commit_without_references(commit_env_config, git2cpp_path, tmp_path
 
     # First commit line should have references
     lines = p_log.stdout.split("\n")
-    first_commit_line = [l for l in lines if l.startswith("commit")][0]
+    first_commit_line = [line for line in lines if line.startswith("commit")][0]
     assert "(" in first_commit_line  # Has references
 
     # Second commit (older one) should not have empty parentheses
-    second_commit_line = [l for l in lines if l.startswith("commit")][1]
+    second_commit_line = [line for line in lines if line.startswith("commit")][1]
     # Should either have no parentheses or have actual references
     if "(" in second_commit_line:
         # If it has parentheses, they shouldn't be empty

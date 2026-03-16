@@ -7,7 +7,7 @@ import pytest
 GIT2CPP_TEST_WASM = os.getenv("GIT2CPP_TEST_WASM") == "1"
 
 if GIT2CPP_TEST_WASM:
-    from .conftest_wasm import *
+    from .conftest_wasm import *  # noqa: F403
 
 
 # Fixture to run test in current tmp_path
