@@ -1,0 +1,6 @@
+# This is not a python project but it contains python tests so here are settings for python linting.
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+[tool.ruff.format]
+line-ending = "lf"

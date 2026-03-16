@@ -29,6 +29,12 @@ The CLI is tested using `python`. From the top-level directory:
 pytest -v
 ```
 
+`pre-commit` runs automatically on `git commit`. To run it manually use:
+
+```bash
+pre-commit run --all-files
+```
+
 # WebAssembly build and deployment
 
 The `wasm` directory contains everything needed to build the local `git2cpp` source code as an

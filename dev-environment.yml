@@ -6,6 +6,7 @@ dependencies:
   - libgit2
   - cmake
   - pkg-config
+  - pre-commit
   - python
   - pytest
   - termcolor-cpp

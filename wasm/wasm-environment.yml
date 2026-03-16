@@ -3,6 +3,7 @@ name: git2cpp-wasm
 channels:
   - conda-forge
 dependencies:
+  - pre-commit
   # To modify emscripten-forge recipe
   - python
   - pyyaml
