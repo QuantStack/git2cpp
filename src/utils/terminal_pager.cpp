@@ -6,16 +6,17 @@
 
 // OS-specific libraries.
 #include <sys/ioctl.h>
-
 #include <termcolor/termcolor.hpp>
 
 #include "ansi_code.hpp"
+#include "common.hpp"
 #include "input_output.hpp"
 #include "terminal_pager.hpp"
-#include "common.hpp"
 
 terminal_pager::terminal_pager()
-    : m_rows(0), m_columns(0), m_start_row_index(0)
+    : m_rows(0)
+    , m_columns(0)
+    , m_start_row_index(0)
 {
     maybe_grab_cout();
 }

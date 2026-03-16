@@ -2,17 +2,19 @@ import subprocess
 from uuid import uuid4
 
 
-def test_push_private_repo(git2cpp_path, tmp_path, run_in_tmp_path, private_test_repo, commit_env_config):
-    # Unique branch name to avoid branch name collisions on remote repo.
+def test_push_private_repo(
+    git2cpp_path, tmp_path, run_in_tmp_path, private_test_repo, commit_env_config
+):
+    # Unique branch name to avoid branch name collisions on remote repo.
     branch_name = f"test-{uuid4()}"
 
     # Start of test follows test_clone_private_repo, then creates a new local branch and pushes
     # that to the remote.
     username = "abc"  # Can be any non-empty string.
-    password = private_test_repo['token']
+    password = private_test_repo["token"]
     input = f"{username}\n{password}"
-    repo_path = tmp_path / private_test_repo['repo_name']
-    url = private_test_repo['https_url']
+    repo_path = tmp_path / private_test_repo["repo_name"]
+    url = private_test_repo["https_url"]
 
     clone_cmd = [git2cpp_path, "clone", url]
     p_clone = subprocess.run(clone_cmd, capture_output=True, text=True, input=input)

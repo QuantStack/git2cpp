@@ -363,9 +363,7 @@ def test_unshallow(git2cpp_path, tmp_path, run_in_tmp_path):
     assert p_log.stdout.count("Author") == 1
 
     unshallow_cmd = [git2cpp_path, "fetch", "--unshallow"]
-    p_unshallow = subprocess.run(
-        unshallow_cmd, capture_output=True, cwd=xtl_path, text=True
-    )
+    p_unshallow = subprocess.run(unshallow_cmd, capture_output=True, cwd=xtl_path, text=True)
     assert p_unshallow.returncode == 0
 
     p_log_2 = subprocess.run(cmd_log, capture_output=True, cwd=xtl_path, text=True)
@@ -426,9 +424,7 @@ def test_push_local(xtl_clone, commit_env_config, git2cpp_path, tmp_path):
     xtl_path = tmp_path / "xtl"
 
     checkout_cmd = [git2cpp_path, "checkout", "-b", "foregone"]
-    p_checkout = subprocess.run(
-        checkout_cmd, capture_output=True, check=True, cwd=xtl_path
-    )
+    p_checkout = subprocess.run(checkout_cmd, capture_output=True, check=True, cwd=xtl_path)
     assert p_checkout.returncode == 0
 
     p = xtl_path / "mook_file.txt"

@@ -1,8 +1,9 @@
 #pragma once
 
-#include <CLI/CLI.hpp>
 #include <string>
 #include <vector>
+
+#include <CLI/CLI.hpp>
 
 #include "../utils/common.hpp"
 
@@ -18,4 +19,3 @@ private:
     std::vector<std::string> m_pathspec;
     bool m_recursive = false;
 };
-

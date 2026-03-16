@@ -1,7 +1,8 @@
+#include "revwalk_wrapper.hpp"
+
 #include <git2/index.h>
 #include <git2/types.h>
 
-#include "revwalk_wrapper.hpp"
 #include "../utils/git_exception.hpp"
 
 revwalk_wrapper::revwalk_wrapper(git_revwalk* walker)
@@ -12,7 +13,7 @@ revwalk_wrapper::revwalk_wrapper(git_revwalk* walker)
 revwalk_wrapper::~revwalk_wrapper()
 {
     git_revwalk_free(p_resource);
-    p_resource=nullptr;
+    p_resource = nullptr;
 }
 
 void revwalk_wrapper::push_head()

@@ -1,6 +1,5 @@
 import re
 import subprocess
-from sys import stderr
 
 import pytest
 
@@ -43,9 +42,7 @@ def test_diff_cached(repo_init_with_commit, git2cpp_path, tmp_path, cached_flag)
     assert "+Hello, world!" in p_diff.stdout
 
 
-def test_diff_two_commits(
-    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path
-):
+def test_diff_two_commits(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path):
     assert (tmp_path / "initial.txt").exists()
 
     new_file = tmp_path / "new_file.txt"
@@ -192,17 +189,13 @@ def test_diff_reverse(repo_init_with_commit, git2cpp_path, tmp_path):
     assert "+Added line" in p_normal.stdout
 
     cmd_reverse = [git2cpp_path, "diff", "-R"]
-    p_reverse = subprocess.run(
-        cmd_reverse, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_reverse = subprocess.run(cmd_reverse, capture_output=True, cwd=tmp_path, text=True)
     assert p_reverse.returncode == 0
     assert "-Added line" in p_reverse.stdout
 
 
 @pytest.mark.parametrize("text_flag", ["-a", "--text"])
-def test_diff_text(
-    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path, text_flag
-):
+def test_diff_text(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path, text_flag):
     """Test diff with -a/--text (treat all files as text)"""
     assert (tmp_path / "initial.txt").exists()
 
@@ -372,9 +365,7 @@ def test_diff_unified_context(
         assert "Line 8" not in p.stdout or p.stdout.count("Line 8") == 0
 
 
-def test_diff_inter_hunk_context(
-    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path
-):
+def test_diff_inter_hunk_context(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path):
     """Test diff with --inter-hunk-context"""
     assert (tmp_path / "initial.txt").exists()
 
@@ -455,9 +446,7 @@ def test_diff_abbrev(repo_init_with_commit, commit_env_config, git2cpp_path, tmp
 
     # Test default --abbrev
     cmd_default = [git2cpp_path, "diff", "--abbrev"]
-    p_default = subprocess.run(
-        cmd_default, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_default = subprocess.run(cmd_default, capture_output=True, cwd=tmp_path, text=True)
     assert p_default.returncode == 0
     assert "test.txt" in p_default.stdout
 
@@ -489,9 +478,7 @@ def test_diff_abbrev(repo_init_with_commit, commit_env_config, git2cpp_path, tmp
 
 
 # Note: only checking if the output is a diff
-def test_diff_patience(
-    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path
-):
+def test_diff_patience(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path):
     """Test diff with --patience algorithm"""
     assert (tmp_path / "initial.txt").exists()
 
@@ -573,9 +560,7 @@ def test_diff_find_renames(repo_init_with_commit, git2cpp_path, tmp_path, rename
     assert "rename to new.txt" in p.stdout
 
 
-def test_diff_find_renames_with_threshold(
-    repo_init_with_commit, git2cpp_path, tmp_path
-):
+def test_diff_find_renames_with_threshold(repo_init_with_commit, git2cpp_path, tmp_path):
     """Test diff with -M with threshold value"""
     assert (tmp_path / "initial.txt").exists()
 
@@ -724,9 +709,7 @@ def test_diff_find_copies_with_threshold(
 #     assert p.returncode == 0
 
 
-def test_diff_refuses_more_than_two_treeish(
-    repo_init_with_commit, git2cpp_path, tmp_path
-):
+def test_diff_refuses_more_than_two_treeish(repo_init_with_commit, git2cpp_path, tmp_path):
     # HEAD exists thanks to repo_init_with_commit
     p = subprocess.run(
         [git2cpp_path, "diff", "HEAD", "HEAD", "HEAD"],

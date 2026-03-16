@@ -1,8 +1,9 @@
+#include "../wrapper/commit_wrapper.hpp"
+
 #include <git2/commit.h>
 
 #include "../utils/git_exception.hpp"
 #include "tree_wrapper.hpp"
-#include "../wrapper/commit_wrapper.hpp"
 
 commit_wrapper::commit_wrapper(git_commit* commit)
     : base_type(commit)
@@ -54,7 +55,7 @@ commit_list_wrapper commit_wrapper::get_parents_list() const
     std::vector<commit_wrapper> parents_list;
     parents_list.reserve(parent_count);
 
-    for (size_t i=0; i < parent_count; ++i)
+    for (size_t i = 0; i < parent_count; ++i)
     {
         git_commit* parent;
         git_commit_parent(&parent, *this, i);

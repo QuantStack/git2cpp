@@ -1,7 +1,7 @@
 #pragma once
 
-#include <utility>
 #include <string_view>
+#include <utility>
 
 #include <git2.h>
 
@@ -29,8 +29,7 @@ public:
     static signature_wrapper get_commit_author(const commit_wrapper&);
     static signature_wrapper get_commit_committer(const commit_wrapper&);
     static signature_wrapper signature_now(std::string_view name, std::string_view email);
-    static author_committer_signatures signature_now
-    (
+    static author_committer_signatures signature_now(
         std::string_view author_name,
         std::string_view author_email,
         std::string_view committer_name,
@@ -40,5 +39,5 @@ public:
 private:
 
     signature_wrapper() = default;
-    bool m_ownership=true;
+    bool m_ownership = true;
 };

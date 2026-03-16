@@ -2,8 +2,8 @@
 
 #include <git2.h>
 
-#include "../wrapper/wrapper_base.hpp"
 #include "../wrapper/diffstats_wrapper.hpp"
+#include "../wrapper/wrapper_base.hpp"
 
 class diff_wrapper : public wrapper_base<git_diff>
 {

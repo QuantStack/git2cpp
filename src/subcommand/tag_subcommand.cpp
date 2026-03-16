@@ -1,6 +1,6 @@
-#include <git2.h>
-
 #include "../subcommand/tag_subcommand.hpp"
+
+#include <git2.h>
 
 tag_subcommand::tag_subcommand(const libgit2_object&, CLI::App& app)
 {
@@ -9,13 +9,22 @@ tag_subcommand::tag_subcommand(const libgit2_object&, CLI::App& app)
     sub->add_flag("-l,--list", m_list_flag, "List tags. With optional <pattern>.");
     sub->add_flag("-f,--force", m_force_flag, "Replace an existing tag with the given name (instead of failing)");
     sub->add_option("-d,--delete", m_delete, "Delete existing tags with the given names.");
-    sub->add_option("-n", m_num_lines, "<num> specifies how many lines from the annotation, if any, are printed when using -l. Implies --list.");
+    sub->add_option(
+        "-n",
+        m_num_lines,
+        "<num> specifies how many lines from the annotation, if any, are printed when using -l. Implies --list."
+    );
     sub->add_flag("-a,--annotate", m_annotate_flag, "Make an annotated tag.");
     sub->add_option("-m,--message", m_message, "Tag message for annotated tags");
     sub->add_option("<tagname>", m_tag_name, "Tag name");
     sub->add_option("<commit>", m_target, "Target commit (defaults to HEAD)");
 
-    sub->callback([this]() { this->run(); });
+    sub->callback(
+        [this]()
+        {
+            this->run();
+        }
+    );
 }
 
 // Tag listing: Print individual message lines
@@ -38,7 +47,7 @@ void print_list_lines(const std::string& message, int num_lines)
     }
     else
     {
-        for (size_t i = 1; i < lines.size() ; i++)
+        for (size_t i = 1; i < lines.size(); i++)
         {
             if (i < num_lines)
             {
@@ -51,72 +60,72 @@ void print_list_lines(const std::string& message, int num_lines)
 // Tag listing: Print an actual tag object
 void print_tag(git_tag* tag, int num_lines)
 {
-	std::cout << std::left << std::setw(16) << git_tag_name(tag);
+    std::cout << std::left << std::setw(16) << git_tag_name(tag);
 
-	if (num_lines)
-	{
-		std::string msg = git_tag_message(tag);
-		if (!msg.empty())
-		{
-		    print_list_lines(msg, num_lines);
-		}
-		else
-		{
-			std::cout << std::endl;
-		}
-	}
-	else
-	{
-		std::cout << std::endl;
-	}
+    if (num_lines)
+    {
+        std::string msg = git_tag_message(tag);
+        if (!msg.empty())
+        {
+            print_list_lines(msg, num_lines);
+        }
+        else
+        {
+            std::cout << std::endl;
+        }
+    }
+    else
+    {
+        std::cout << std::endl;
+    }
 }
 
 // Tag listing: Print a commit (target of a lightweight tag)
 void print_commit(git_commit* commit, std::string name, int num_lines)
 {
-	std::cout << std::left << std::setw(16) << name;
+    std::cout << std::left << std::setw(16) << name;
 
-	if (num_lines)
-	{
-		std::string msg = git_commit_message(commit);
-		if (!msg.empty())
-		{
-		    print_list_lines(msg, num_lines);
-		}
-		else
-		{
-			std::cout <<std::endl;
-		}
-	}
-	else
-	{
-		std::cout <<std::endl;
-	}
+    if (num_lines)
+    {
+        std::string msg = git_commit_message(commit);
+        if (!msg.empty())
+        {
+            print_list_lines(msg, num_lines);
+        }
+        else
+        {
+            std::cout << std::endl;
+        }
+    }
+    else
+    {
+        std::cout << std::endl;
+    }
 }
 
 // Tag listing: Lookup tags based on ref name and dispatch to print
 void each_tag(repository_wrapper& repo, const std::string& name, int num_lines)
 {
-	auto obj = repo.revparse_single(name);
+    auto obj = repo.revparse_single(name);
 
-	if (obj.has_value())
-	{
-	    switch (git_object_type(obj.value()))
-    	{
-    		case GIT_OBJECT_TAG:
-    			print_tag(obj.value(), num_lines);
-    			break;
-    		case GIT_OBJECT_COMMIT:
-    			print_commit(obj.value(), name, num_lines);
-    			break;
-    		default:
-    			std::cout << name << std::endl;
-    	}
-	}
-	else
-	{
-	    std::cout << name << std::endl;
-	}
+    if (obj.has_value())
+    {
+        switch (git_object_type(obj.value()))
+        {
+            case GIT_OBJECT_TAG:
+                print_tag(obj.value(), num_lines);
+                break;
+            case GIT_OBJECT_COMMIT:
+                print_commit(obj.value(), name, num_lines);
+                break;
+            default:
+                std::cout << name << std::endl;
+        }
+    }
+    else
+    {
+        std::cout << name << std::endl;
+    }
 }
 
 void tag_subcommand::list_tags(repository_wrapper& repo)
@@ -124,7 +133,7 @@ void tag_subcommand::list_tags(repository_wrapper& repo)
     std::string pattern = m_tag_name.empty() ? "*" : m_tag_name;
     auto tag_names = repo.tag_list_match(pattern);
 
-    for (const auto& tag_name: tag_names)
+    for (const auto& tag_name : tag_names)
     {
         each_tag(repo, tag_name, m_num_lines);
     }
@@ -202,7 +211,15 @@ void tag_subcommand::create_tag(repository_wrapper& repo)
 
     git_oid oid;
     size_t force = m_force_flag ? 1 : 0;
-    int error = git_tag_create(&oid, repo, m_tag_name.c_str(), target_obj.value(), tagger.first, m_message.c_str(), force);
+    int error = git_tag_create(
+        &oid,
+        repo,
+        m_tag_name.c_str(),
+        target_obj.value(),
+        tagger.first,
+        m_message.c_str(),
+        force
+    );
 
     handle_error(error);
 }
@@ -240,5 +257,4 @@ void tag_subcommand::run()
     {
         list_tags(repo);
     }
-
 }

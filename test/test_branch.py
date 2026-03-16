@@ -1,7 +1,5 @@
 import subprocess
 
-import pytest
-
 
 def test_branch_list(repo_init_with_commit, git2cpp_path, tmp_path):
     assert (tmp_path / "initial.txt").exists()
@@ -112,9 +110,7 @@ def test_branch_create_force_overwrite(
     # Add a second commit so HEAD moves forward
     (tmp_path / "second.txt").write_text("second")
     subprocess.run([git2cpp_path, "add", "second.txt"], cwd=tmp_path, check=True)
-    subprocess.run(
-        [git2cpp_path, "commit", "-m", "Second commit"], cwd=tmp_path, check=True
-    )
+    subprocess.run([git2cpp_path, "commit", "-m", "Second commit"], cwd=tmp_path, check=True)
 
     # Without --force this would fail; with -f it should reset the branch to current HEAD
     cmd = [git2cpp_path, "branch", "-f", "my-branch"]
@@ -163,15 +159,11 @@ def test_branch_show_current(repo_init_with_commit, git2cpp_path, tmp_path):
     assert p.stdout.strip() == "main"
 
 
-def test_branch_show_current_after_create_and_switch(
-    repo_init_with_commit, git2cpp_path, tmp_path
-):
+def test_branch_show_current_after_create_and_switch(repo_init_with_commit, git2cpp_path, tmp_path):
     """--show-current reflects the branch we switched to."""
     assert (tmp_path / "initial.txt").exists()
 
-    subprocess.run(
-        [git2cpp_path, "checkout", "-b", "new-feature"], cwd=tmp_path, check=True
-    )
+    subprocess.run([git2cpp_path, "checkout", "-b", "new-feature"], cwd=tmp_path, check=True)
 
     cmd = [git2cpp_path, "branch", "--show-current"]
     p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
@@ -179,9 +171,7 @@ def test_branch_show_current_after_create_and_switch(
     assert p.stdout == "new-feature\n"
 
 
-def test_branch_show_current_detached_head(
-    repo_init_with_commit, git2cpp_path, tmp_path
-):
+def test_branch_show_current_detached_head(repo_init_with_commit, git2cpp_path, tmp_path):
     """--show-current prints nothing when HEAD is detached."""
     assert (tmp_path / "initial.txt").exists()
 

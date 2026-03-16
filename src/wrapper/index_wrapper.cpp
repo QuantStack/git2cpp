@@ -1,18 +1,19 @@
-#include <git2/index.h>
+#include "index_wrapper.hpp"
+
 #include <algorithm>
 #include <iostream>
 #include <vector>
 
-#include "index_wrapper.hpp"
+#include <git2/index.h>
+
 #include "../utils/common.hpp"
 #include "../utils/git_exception.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 
-
 index_wrapper::~index_wrapper()
 {
     git_index_free(p_resource);
-    p_resource=nullptr;
+    p_resource = nullptr;
 }
 
 index_wrapper index_wrapper::init(repository_wrapper& rw)
@@ -56,10 +57,14 @@ void index_wrapper::remove_entries(std::vector<std::string> paths)
 
 void index_wrapper::remove_directories(std::vector<std::string> entries)
 {
-    std::for_each(entries.cbegin(), entries.cend(), [this](const std::string& path)
-    {
-        throw_if_error(git_index_remove_directory(*this, path.c_str(), 0));
-    });
+    std::for_each(
+        entries.cbegin(),
+        entries.cend(),
+        [this](const std::string& path)
+        {
+            throw_if_error(git_index_remove_directory(*this, path.c_str(), 0));
+        }
+    );
 }
 
 void index_wrapper::write()
@@ -88,33 +93,33 @@ git_index_conflict_iterator* index_wrapper::create_conflict_iterator()
 
 void index_wrapper::output_conflicts()
 {
-	git_index_conflict_iterator* conflicts = create_conflict_iterator();
+    git_index_conflict_iterator* conflicts = create_conflict_iterator();
 
-	const git_index_entry* ancestor;
-	const git_index_entry* our;
-	const git_index_entry* their;
-	int err = 0;
-	std::string msg_conflict;
+    const git_index_entry* ancestor;
+    const git_index_entry* our;
+    const git_index_entry* their;
+    int err = 0;
+    std::string msg_conflict;
 
-	while ((err = git_index_conflict_next(&ancestor, &our, &their, conflicts)) == 0)
-	{
-	    std::string ancestor_path = ancestor ? ancestor->path : "";
-		std::string our_path = our->path ? our->path : "NULL";
-	    std::string their_path = their->path ? their->path : "NULL";
-		msg_conflict  = "conflict: " + ancestor_path + " " + our_path + " " + their_path;
-		std::cout << msg_conflict << std::endl;
-// Message with git is a bit different:
-// Auto-merging mook_file.txt
-// CONFLICT (add/add): Merge conflict in mook_file.txt
-// Automatic merge failed; fix conflicts and then commit the result.
-	}
+    while ((err = git_index_conflict_next(&ancestor, &our, &their, conflicts)) == 0)
+    {
+        std::string ancestor_path = ancestor ? ancestor->path : "";
+        std::string our_path = our->path ? our->path : "NULL";
+        std::string their_path = their->path ? their->path : "NULL";
+        msg_conflict = "conflict: " + ancestor_path + " " + our_path + " " + their_path;
+        std::cout << msg_conflict << std::endl;
+        // Message with git is a bit different:
+        // Auto-merging mook_file.txt
+        // CONFLICT (add/add): Merge conflict in mook_file.txt
+        // Automatic merge failed; fix conflicts and then commit the result.
+    }
 
-	if (err != GIT_ITEROVER)
-	{
-		std::cout << "error iterating conflicts" << std::endl;
-	}
+    if (err != GIT_ITEROVER)
+    {
+        std::cout << "error iterating conflicts" << std::endl;
+    }
 
-	git_index_conflict_iterator_free(conflicts);
+    git_index_conflict_iterator_free(conflicts);
 }
 
 void index_wrapper::conflict_cleanup()

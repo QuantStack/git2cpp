@@ -1,5 +1,6 @@
-#include "../utils/git_exception.hpp"
 #include "../wrapper/diff_wrapper.hpp"
+
+#include "../utils/git_exception.hpp"
 
 diff_wrapper::diff_wrapper(git_diff* diff)
     : base_type(diff)

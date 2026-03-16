@@ -1,7 +1,5 @@
 import subprocess
 
-import pytest
-
 
 def test_rebase_basic(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path):
     """Test basic rebase operation with fast-forward"""
@@ -9,9 +7,7 @@ def test_rebase_basic(repo_init_with_commit, commit_env_config, git2cpp_path, tm
 
     # Create a feature branch
     checkout_cmd = [git2cpp_path, "checkout", "-b", "feature"]
-    p_checkout = subprocess.run(
-        checkout_cmd, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_checkout = subprocess.run(checkout_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_checkout.returncode == 0
 
     # Create a commit on feature branch
@@ -41,9 +37,7 @@ def test_rebase_basic(repo_init_with_commit, commit_env_config, git2cpp_path, tm
     assert p_add_2.returncode == 0
 
     commit_cmd_2 = [git2cpp_path, "commit", "-m", "master commit"]
-    p_commit_2 = subprocess.run(
-        commit_cmd_2, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_commit_2 = subprocess.run(commit_cmd_2, capture_output=True, cwd=tmp_path, text=True)
     assert p_commit_2.returncode == 0
 
     # Switch to feature and rebase onto master
@@ -64,17 +58,13 @@ def test_rebase_basic(repo_init_with_commit, commit_env_config, git2cpp_path, tm
     assert (tmp_path / "master_file.txt").exists()
 
 
-def test_rebase_multiple_commits(
-    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path
-):
+def test_rebase_multiple_commits(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path):
     """Test rebase with multiple commits"""
     assert (tmp_path / "initial.txt").exists()
 
     # Create feature branch with multiple commits
     checkout_cmd = [git2cpp_path, "checkout", "-b", "feature"]
-    p_checkout = subprocess.run(
-        checkout_cmd, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_checkout = subprocess.run(checkout_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_checkout.returncode == 0
 
     # First commit
@@ -127,9 +117,7 @@ def test_rebase_multiple_commits(
     assert (tmp_path / "master_file.txt").exists()
 
 
-def test_rebase_with_conflicts(
-    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path
-):
+def test_rebase_with_conflicts(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path):
     """Test rebase with conflicts"""
     assert (tmp_path / "initial.txt").exists()
 
@@ -198,9 +186,7 @@ def test_rebase_abort(repo_init_with_commit, commit_env_config, git2cpp_path, tm
     assert conflict_file.read_text() == "feature content"
 
 
-def test_rebase_continue(
-    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path
-):
+def test_rebase_continue(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path):
     """Test rebase continue after resolving conflicts"""
     assert (tmp_path / "initial.txt").exists()
 
@@ -229,9 +215,7 @@ def test_rebase_continue(
 
     # Continue rebase
     continue_cmd = [git2cpp_path, "rebase", "--continue"]
-    p_continue = subprocess.run(
-        continue_cmd, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_continue = subprocess.run(continue_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_continue.returncode == 0
     assert "Successfully rebased" in p_continue.stdout
 
@@ -336,9 +320,7 @@ def test_rebase_onto(repo_init_with_commit, commit_env_config, git2cpp_path, tmp
     assert (tmp_path / "file2.txt").exists()
 
 
-def test_rebase_no_upstream_error(
-    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path
-):
+def test_rebase_no_upstream_error(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path):
     """Test that rebase without upstream argument fails"""
     assert (tmp_path / "initial.txt").exists()
 
@@ -403,13 +385,10 @@ def test_rebase_continue_without_rebase_error(
     assert (tmp_path / "initial.txt").exists()
 
     continue_cmd = [git2cpp_path, "rebase", "--continue"]
-    p_continue = subprocess.run(
-        continue_cmd, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_continue = subprocess.run(continue_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_continue.returncode != 0
     assert (
-        "No rebase in progress" in p_continue.stderr
-        or "No rebase in progress" in p_continue.stdout
+        "No rebase in progress" in p_continue.stderr or "No rebase in progress" in p_continue.stdout
     )
 
 
@@ -437,11 +416,6 @@ def test_rebase_continue_with_unresolved_conflicts(
 
     # Try to continue without resolving
     continue_cmd = [git2cpp_path, "rebase", "--continue"]
-    p_continue = subprocess.run(
-        continue_cmd, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_continue = subprocess.run(continue_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_continue.returncode != 0
-    assert (
-        "resolve conflicts" in p_continue.stderr
-        or "resolve conflicts" in p_continue.stdout
-    )
+    assert "resolve conflicts" in p_continue.stderr or "resolve conflicts" in p_continue.stdout

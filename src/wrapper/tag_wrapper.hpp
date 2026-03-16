@@ -1,7 +1,8 @@
 #pragma once
 
-#include <git2.h>
 #include <string>
+
+#include <git2.h>
 
 #include "../wrapper/wrapper_base.hpp"
 
@@ -21,5 +22,5 @@ public:
 
 private:
 
-     tag_wrapper(git_tag* tag);
+    tag_wrapper(git_tag* tag);
 };

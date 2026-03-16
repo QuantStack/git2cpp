@@ -1,8 +1,9 @@
-#include <iostream>
-#include <sstream>
-#include <set>
-
 #include "../subcommand/checkout_subcommand.hpp"
+
+#include <iostream>
+#include <set>
+#include <sstream>
+
 #include "../subcommand/status_subcommand.hpp"
 #include "../utils/git_exception.hpp"
 #include "../wrapper/repository_wrapper.hpp"
@@ -15,9 +16,18 @@ checkout_subcommand::checkout_subcommand(const libgit2_object&, CLI::App& app)
     sub->add_option("<branch>", m_branch_name, "Branch to checkout");
     sub->add_flag("-b", m_create_flag, "Create a new branch before checking it out");
     sub->add_flag("-B", m_force_create_flag, "Create a new branch or reset it if it exists before checking it out");
-    sub->add_flag("-f, --force", m_force_checkout_flag, "When switching branches, proceed even if the index or the working tree differs from HEAD, and even if there are untracked files in the way");
+    sub->add_flag(
+        "-f, --force",
+        m_force_checkout_flag,
+        "When switching branches, proceed even if the index or the working tree differs from HEAD, and even if there are untracked files in the way"
+    );
 
-    sub->callback([this]() { this->run(); });
+    sub->callback(
+        [this]()
+        {
+            this->run();
+        }
+    );
 }
 
 void print_no_switch(status_list_wrapper& sl)
@@ -44,7 +54,7 @@ void checkout_subcommand::run()
 
     if (repo.state() != GIT_REPOSITORY_STATE_NONE)
     {
-         throw std::runtime_error("Cannot checkout, repository is in unexpected state");
+        throw std::runtime_error("Cannot checkout, repository is in unexpected state");
     }
 
     git_checkout_options options;
@@ -112,19 +122,14 @@ void checkout_subcommand::run()
     }
 }
 
-annotated_commit_wrapper checkout_subcommand::create_local_branch
-(
-    repository_wrapper& repo,
-    const std::string_view target_name,
-    bool force
-)
+annotated_commit_wrapper
+checkout_subcommand::create_local_branch(repository_wrapper& repo, const std::string_view target_name, bool force)
 {
     auto branch = repo.create_branch(target_name, force);
     return repo.find_annotated_commit(branch);
 }
 
-void checkout_subcommand::checkout_tree
-(
+void checkout_subcommand::checkout_tree(
     const repository_wrapper& repo,
     const annotated_commit_wrapper& target_annotated_commit,
     const std::string_view target_name,
@@ -135,8 +140,7 @@ void checkout_subcommand::checkout_tree
     throw_if_error(git_checkout_tree(repo, target_commit, &options));
 }
 
-void checkout_subcommand::update_head
-(
+void checkout_subcommand::update_head(
     repository_wrapper& repo,
     const annotated_commit_wrapper& target_annotated_commit,
     const std::string_view target_name

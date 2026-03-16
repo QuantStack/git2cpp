@@ -1,7 +1,5 @@
 import subprocess
 
-import pytest
-
 
 def test_reset(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path):
     assert (tmp_path / "initial.txt").exists()

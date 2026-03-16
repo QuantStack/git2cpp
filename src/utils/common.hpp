@@ -8,12 +8,14 @@
 class noncopyable_nonmovable
 {
 public:
+
     noncopyable_nonmovable(const noncopyable_nonmovable&) = delete;
     noncopyable_nonmovable& operator=(const noncopyable_nonmovable&) = delete;
     noncopyable_nonmovable(noncopyable_nonmovable&&) = delete;
     noncopyable_nonmovable& operator=(noncopyable_nonmovable&&) = delete;
 
 protected:
+
     noncopyable_nonmovable() = default;
     ~noncopyable_nonmovable() = default;
 };
@@ -36,15 +38,18 @@ struct status_messages
 
 status_messages get_status_msg(git_status_t);
 
-using stream_colour_fn = std::ostream& (*)(std::ostream&);
+using stream_colour_fn = std::ostream& (*) (std::ostream&);
 
 class git_strarray_wrapper
 {
 public:
+
     git_strarray_wrapper()
         : m_patterns{}
         , m_array{nullptr, 0}
-    {}
+    {
+    }
+
     git_strarray_wrapper(std::vector<std::string> patterns);
 
     git_strarray_wrapper(const git_strarray_wrapper&) = delete;
@@ -60,6 +65,7 @@ public:
     size_t size();
 
 private:
+
     std::vector<std::string> m_patterns;
     git_strarray m_array;
 

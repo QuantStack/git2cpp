@@ -12,5 +12,6 @@ public:
     void run();
 
 private:
+
     std::string m_commit_message;
 };

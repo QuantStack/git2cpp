@@ -1,57 +1,85 @@
+#include "log_subcommand.hpp"
+
 #include <format>
-#include <git2.h>
-#include <git2/oid.h>
-#include <git2/refs.h>
-#include <git2/types.h>
 #include <sstream>
 #include <string_view>
 #include <vector>
 
+#include <git2.h>
+#include <git2/oid.h>
+#include <git2/refs.h>
+#include <git2/types.h>
 #include <termcolor/termcolor.hpp>
 
-#include "log_subcommand.hpp"
 #include "../utils/terminal_pager.hpp"
 
 log_subcommand::log_subcommand(const libgit2_object&, CLI::App& app)
 {
-    auto *sub = app.add_subcommand("log", "Shows commit logs");
+    auto* sub = app.add_subcommand("log", "Shows commit logs");
 
-    sub->add_option("--format", m_format_flag, "Pretty-print the contents of the commit logs in a given format, where <format> can be one of full, fuller or oneline");
+    sub->add_option(
+        "--format",
+        m_format_flag,
+        "Pretty-print the contents of the commit logs in a given format, where <format> can be one of full, fuller or oneline"
+    );
     sub->add_option("-n,--max-count", m_max_count_flag, "Limit the output to <number> commits.");
-    sub->add_flag("--abbrev-commit", m_abbrev_commit_flag, "Instead of showing the full 40-byte hexadecimal commit object name, show a prefix that names the object uniquely. --abbrev=<n> (which also modifies diff output, if it is displayed) option can be used to specify the minimum length of the prefix.");
-    sub->add_option("--abbrev", m_abbrev, "Instead of showing the full 40-byte hexadecimal object name in diff-raw format output and diff-tree header lines, show the shortest prefix that is at least <n> hexdigits long that uniquely refers the object.");
-    sub->add_flag("--no-abbrev-commit", m_no_abbrev_commit_flag, "Show the full 40-byte hexadecimal commit object name. This negates --abbrev-commit, either explicit or implied by other options such as --oneline.");
-    sub->add_flag("--oneline", m_oneline_flag, "This is a shorthand for --format=oneline --abbrev-commit used together.");
+    sub->add_flag(
+        "--abbrev-commit",
+        m_abbrev_commit_flag,
+        "Instead of showing the full 40-byte hexadecimal commit object name, show a prefix that names the object uniquely. --abbrev=<n> (which also modifies diff output, if it is displayed) option can be used to specify the minimum length of the prefix."
+    );
+    sub->add_option(
+        "--abbrev",
+        m_abbrev,
+        "Instead of showing the full 40-byte hexadecimal object name in diff-raw format output and diff-tree header lines, show the shortest prefix that is at least <n> hexdigits long that uniquely refers the object."
+    );
+    sub->add_flag(
+        "--no-abbrev-commit",
+        m_no_abbrev_commit_flag,
+        "Show the full 40-byte hexadecimal commit object name. This negates --abbrev-commit, either explicit or implied by other options such as --oneline."
+    );
+    sub->add_flag(
+        "--oneline",
+        m_oneline_flag,
+        "This is a shorthand for --format=oneline --abbrev-commit used together."
+    );
 
-    sub->callback([this]() { this->run(); });
+    sub->callback(
+        [this]()
+        {
+            this->run();
+        }
+    );
 };
 
 void print_time(git_time intime, std::string prefix)
 {
-	char sign, out[32];
-	struct tm *intm;
-	int offset, hours, minutes;
-	time_t t;
+    char sign, out[32];
+    struct tm* intm;
+    int offset, hours, minutes;
+    time_t t;
 
-	offset = intime.offset;
-	if (offset < 0) {
-		sign = '-';
-		offset = -offset;
-	}
-	else
-	{
-		sign = '+';
-	}
+    offset = intime.offset;
+    if (offset < 0)
+    {
+        sign = '-';
+        offset = -offset;
+    }
+    else
+    {
+        sign = '+';
+    }
 
-	hours   = offset / 60;
-	minutes = offset % 60;
+    hours = offset / 60;
+    minutes = offset % 60;
 
-	t = (time_t)intime.time + (intime.offset * 60);
+    t = (time_t) intime.time + (intime.offset * 60);
 
-	intm = gmtime(&t);
-	strftime(out, sizeof(out), "%a %b %e %T %Y", intm);
+    intm = gmtime(&t);
+    strftime(out, sizeof(out), "%a %b %e %T %Y", intm);
 
-	std::cout << prefix << out << " " << sign << std::format("{:02d}", hours) << std::format("{:02d}", minutes) <<std::endl;
+    std::cout << prefix << out << " " << sign << std::format("{:02d}", hours)
+              << std::format("{:02d}", minutes) << std::endl;
 }
 
 std::vector<std::string> get_tags_for_commit(repository_wrapper& repo, const git_oid& commit_oid)
@@ -78,11 +106,16 @@ std::vector<std::string> get_tags_for_commit(repository_wrapper& repo, const git
         }
     }
 
-    git_strarray_dispose(&tag_names);   // TODO: refactor git_strarray_wrapper to use it here
+    git_strarray_dispose(&tag_names);  // TODO: refactor git_strarray_wrapper to use it here
     return tags;
 }
 
-std::vector<std::string> get_branches_for_commit(repository_wrapper& repo, git_branch_t type, const git_oid& commit_oid, const std::string exclude_branch)
+std::vector<std::string> get_branches_for_commit(
+    repository_wrapper& repo,
+    git_branch_t type,
+    const git_oid& commit_oid,
+    const std::string exclude_branch
+)
 {
     std::vector<std::string> branches;
 
@@ -133,9 +166,9 @@ struct commit_refs
     std::vector<std::string> local_branches;
     std::vector<std::string> remote_branches;
 
-    bool has_refs() const {
-        return !head_branch.empty() || !tags.empty() ||
-               !local_branches.empty() || !remote_branches.empty();
+    bool has_refs() const
+    {
+        return !head_branch.empty() || !tags.empty() || !local_branches.empty() || !remote_branches.empty();
     }
 };
 
@@ -174,10 +207,9 @@ void print_refs(const commit_refs& refs)
 
     if (!refs.head_branch.empty())
     {
-        std::cout << termcolor::bold << termcolor::cyan << "HEAD" << termcolor::reset
-                  << termcolor::yellow << " -> " << termcolor::reset
-                  << termcolor::bold << termcolor::green << refs.head_branch << termcolor::reset
-                  << termcolor::yellow;
+        std::cout << termcolor::bold << termcolor::cyan << "HEAD" << termcolor::reset << termcolor::yellow
+                  << " -> " << termcolor::reset << termcolor::bold << termcolor::green << refs.head_branch
+                  << termcolor::reset << termcolor::yellow;
         first = false;
     }
 
@@ -261,19 +293,19 @@ void log_subcommand::print_commit(repository_wrapper& repo, const commit_wrapper
 
     std::cout << termcolor::reset << std::endl;
 
-    if (m_format_flag=="fuller")
+    if (m_format_flag == "fuller")
     {
-        std::cout << "Author:\t    " <<  author.name() << " " << author.email() << std::endl;
+        std::cout << "Author:\t    " << author.name() << " " << author.email() << std::endl;
         print_time(author.when(), "AuthorDate: ");
-        std::cout << "Commit:\t    " <<  committer.name() << " " << committer.email() << std::endl;
+        std::cout << "Commit:\t    " << committer.name() << " " << committer.email() << std::endl;
         print_time(committer.when(), "CommitDate: ");
     }
     else
     {
-        std::cout << "Author:\t" <<  author.name() << " " << author.email() << std::endl;
-        if (m_format_flag=="full")
+        std::cout << "Author:\t" << author.name() << " " << author.email() << std::endl;
+        if (m_format_flag == "full")
         {
-            std::cout << "Commit:\t" <<  committer.name() << " " << committer.email() << std::endl;
+            std::cout << "Commit:\t" << committer.name() << " " << committer.email() << std::endl;
         }
         else
         {
@@ -307,9 +339,9 @@ void log_subcommand::run()
 
     terminal_pager pager;
 
-    std::size_t i=0;
+    std::size_t i = 0;
     git_oid commit_oid;
-    while (!walker.next(commit_oid) && i<m_max_count_flag)
+    while (!walker.next(commit_oid) && i < m_max_count_flag)
     {
         if (i != 0)
         {

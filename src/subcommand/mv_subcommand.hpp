@@ -1,7 +1,8 @@
 #pragma once
 
-#include <CLI/CLI.hpp>
 #include <string>
+
+#include <CLI/CLI.hpp>
 
 #include "../utils/common.hpp"
 
@@ -18,4 +19,3 @@ private:
     std::string m_destination_path;
     bool m_force = false;
 };
-

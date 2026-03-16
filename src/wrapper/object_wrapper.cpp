@@ -18,10 +18,10 @@ const git_oid& object_wrapper::oid() const
 
 object_wrapper::operator git_commit*() const noexcept
 {
-     return reinterpret_cast<git_commit*>(p_resource);
+    return reinterpret_cast<git_commit*>(p_resource);
 }
 
 object_wrapper::operator git_tag*() const noexcept
 {
-     return reinterpret_cast<git_tag*>(p_resource);
+    return reinterpret_cast<git_tag*>(p_resource);
 }

@@ -1,18 +1,26 @@
-#include <git2/deprecated.h>
-#include <git2/oid.h>
-#include <git2/stash.h>
+#include "../subcommand/stash_subcommand.hpp"
+
 #include <iostream>
 
+#include <git2/deprecated.h>
+#include <git2/oid.h>
 #include <git2/remote.h>
+#include <git2/stash.h>
 
 #include "../subcommand/diff_subcommand.hpp"
-#include "../subcommand/stash_subcommand.hpp"
 #include "../subcommand/status_subcommand.hpp"
 
 bool has_subcommand(CLI::App* cmd)
 {
-    std::vector<std::string> subs = { "push", "pop", "list", "apply", "show" };
-    return std::any_of(subs.begin(), subs.end(), [cmd](const std::string& s) { return cmd->got_subcommand(s); });
+    std::vector<std::string> subs = {"push", "pop", "list", "apply", "show"};
+    return std::any_of(
+        subs.begin(),
+        subs.end(),
+        [cmd](const std::string& s)
+        {
+            return cmd->got_subcommand(s);
+        }
+    );
 }
 
 stash_subcommand::stash_subcommand(const libgit2_object&, CLI::App& app)
@@ -32,18 +40,45 @@ stash_subcommand::stash_subcommand(const libgit2_object&, CLI::App& app)
     show->add_flag("--numstat", m_numstat_flag, "Machine-friendly --stat");
     show->add_flag("--summary", m_summary_flag, "Output a condensed summary");
 
-    stash->callback([this,stash]()
-       {
-           if (!has_subcommand(stash))
-           {
-               this->run_push();
-           }
-       });
-    push->callback([this]() { this->run_push(); });
-    list->callback([this]() { this->run_list(); });
-    pop->callback([this]() { this->run_pop(); });
-    apply->callback([this]() { this->run_apply(); });
-    show->callback([this]() { this->run_show(); });
+    stash->callback(
+        [this, stash]()
+        {
+            if (!has_subcommand(stash))
+            {
+                this->run_push();
+            }
+        }
+    );
+    push->callback(
+        [this]()
+        {
+            this->run_push();
+        }
+    );
+    list->callback(
+        [this]()
+        {
+            this->run_list();
+        }
+    );
+    pop->callback(
+        [this]()
+        {
+            this->run_pop();
+        }
+    );
+    apply->callback(
+        [this]()
+        {
+            this->run_apply();
+        }
+    );
+    show->callback(
+        [this]()
+        {
+            this->run_show();
+        }
+    );
 }
 
 void stash_subcommand::run_push()
@@ -52,16 +87,18 @@ void stash_subcommand::run_push()
     auto repo = repository_wrapper::open(directory);
     auto author_committer_signatures = signature_wrapper::get_default_signature_from_env(repo);
 
-	git_oid stash_id;
-    throw_if_error(git_stash_save(&stash_id, repo, author_committer_signatures.first, m_message.c_str(), GIT_STASH_DEFAULT));
+    git_oid stash_id;
+    throw_if_error(
+        git_stash_save(&stash_id, repo, author_committer_signatures.first, m_message.c_str(), GIT_STASH_DEFAULT)
+    );
     auto stash = repo.find_commit(stash_id);
     std::cout << "Saved working directory and index state " << stash.summary() << std::endl;
 }
 
 static int list_stash_cb(size_t index, const char* message, const git_oid* stash_id, void* payload)
 {
-	std::cout << "stash@{" << index << "}: " << message << std::endl;
-	return 0;
+    std::cout << "stash@{" << index << "}: " << message << std::endl;
+    return 0;
 }
 
 void stash_subcommand::run_list()

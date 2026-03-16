@@ -1,7 +1,5 @@
 import subprocess
 
-import pytest
-
 
 def test_config_list(commit_env_config, git2cpp_path, tmp_path):
     cmd_init = [git2cpp_path, "init", "--bare", str(tmp_path)]

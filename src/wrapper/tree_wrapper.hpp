@@ -17,8 +17,8 @@ public:
 
 private:
 
-     tree_wrapper(git_tree* tree);
+    tree_wrapper(git_tree* tree);
 
-     friend class commit_wrapper;
-     friend class repository_wrapper;
+    friend class commit_wrapper;
+    friend class repository_wrapper;
 };

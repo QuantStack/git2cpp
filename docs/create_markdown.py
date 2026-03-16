@@ -26,7 +26,7 @@ def sanitise_line(line):
     return line
 
 
-# Process a single subcommand, adding new subcommands found to to_process.
+# Process a single subcommand, adding new subcommands found to to_process.
 def process(args, to_process):
     cmd = args + ["--help"]
     cmd_string = " ".join(cmd)
@@ -37,7 +37,7 @@ def process(args, to_process):
     p = subprocess.run(cmd, capture_output=True, text=True, check=True)
 
     # Write output markdown file, identifying subcommands at the same time to provide
-    # links to the subcommand markdown files.
+    # links to the subcommand markdown files.
     subcommands = []
     with open(filename, "w") as f:
         f.write(f"({filename})=\n")  # Target for links.
@@ -52,7 +52,9 @@ def process(args, to_process):
                 if match:
                     subcommand = match.group(2)
                     subcommand_filename = get_filename(args + [subcommand])
-                    line = match.group(1) + f"[{subcommand}]({subcommand_filename})" + match.group(3)
+                    line = (
+                        match.group(1) + f"[{subcommand}]({subcommand_filename})" + match.group(3)
+                    )
                     subcommands.append(subcommand)
             elif line.startswith("SUBCOMMANDS:"):
                 in_subcommand_section = True
@@ -74,10 +76,10 @@ def process(args, to_process):
 
 
 if __name__ == "__main__":
-    # Modify the PATH so that git2cpp is found by name, as using a full path will cause the help
+    # Modify the PATH so that git2cpp is found by name, as using a full path will cause the help
     # pages to write that full path.
-    git2cpp_dir = Path(__file__).parent.parent / 'build'
-    os.environ["PATH"] = f'{git2cpp_dir}{os.pathsep}{os.environ["PATH"]}'
+    git2cpp_dir = Path(__file__).parent.parent / "build"
+    os.environ["PATH"] = f"{git2cpp_dir}{os.pathsep}{os.environ['PATH']}"
 
     to_process = [["git2cpp"]]
     while len(to_process) > 0:

@@ -1,4 +1,5 @@
 #include "../wrapper/tag_wrapper.hpp"
+
 #include <git2/tag.h>
 
 tag_wrapper::tag_wrapper(git_tag* tag)

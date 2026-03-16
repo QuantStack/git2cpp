@@ -7,9 +7,7 @@ import pytest
 
 @pytest.mark.parametrize("short_flag", ["", "-s", "--short"])
 @pytest.mark.parametrize("long_flag", ["", "--long"])
-def test_status_new_file(
-    repo_init_with_commit, git2cpp_path, tmp_path, short_flag, long_flag
-):
+def test_status_new_file(repo_init_with_commit, git2cpp_path, tmp_path, short_flag, long_flag):
     assert (tmp_path / "initial.txt").exists()
 
     p = tmp_path / "mook_file.txt"  # Untracked files
@@ -21,9 +19,7 @@ def test_status_new_file(
     deletable = tmp_path / "to_delete.txt"
     deletable.write_text("delete me")
     subprocess.run([git2cpp_path, "add", "to_delete.txt"], cwd=tmp_path, check=True)
-    subprocess.run(
-        [git2cpp_path, "commit", "-m", "Add deletable"], cwd=tmp_path, check=True
-    )
+    subprocess.run([git2cpp_path, "commit", "-m", "Add deletable"], cwd=tmp_path, check=True)
     os.remove(deletable)  # Changes not staged for commit / deleted
 
     cmd = [git2cpp_path, "status"]
@@ -55,9 +51,7 @@ def test_status_nogit(git2cpp_path, tmp_path):
 
 @pytest.mark.parametrize("short_flag", ["", "-s", "--short"])
 @pytest.mark.parametrize("long_flag", ["", "--long"])
-def test_status_add_file(
-    repo_init_with_commit, git2cpp_path, tmp_path, short_flag, long_flag
-):
+def test_status_add_file(repo_init_with_commit, git2cpp_path, tmp_path, short_flag, long_flag):
     assert (tmp_path / "initial.txt").exists()
 
     p = tmp_path / "mook_file.txt"  # Changes to be committed / new file
@@ -118,9 +112,7 @@ def test_status_clean_tree(repo_init_with_commit, git2cpp_path, tmp_path):
 
 
 @pytest.mark.parametrize("short_flag", ["", "-s"])
-def test_status_rename_detection(
-    repo_init_with_commit, git2cpp_path, tmp_path, short_flag
-):
+def test_status_rename_detection(repo_init_with_commit, git2cpp_path, tmp_path, short_flag):
     """Test that renamed files are detected correctly"""
     assert (tmp_path / "initial.txt").exists()
 
@@ -128,9 +120,7 @@ def test_status_rename_detection(
     new_file = tmp_path / "other_file.txt"
     new_file.write_text("Another file")
     subprocess.run([git2cpp_path, "add", "other_file.txt"], cwd=tmp_path, check=True)
-    subprocess.run(
-        [git2cpp_path, "commit", "-m", "Add file to rename"], cwd=tmp_path, check=True
-    )
+    subprocess.run([git2cpp_path, "commit", "-m", "Add file to rename"], cwd=tmp_path, check=True)
 
     # Rename a file by moving and staging
     # Move the initial file
@@ -163,9 +153,7 @@ def test_status_rename_detection(
 
 
 @pytest.mark.parametrize("short_flag", ["", "-s"])
-def test_status_mixed_changes(
-    repo_init_with_commit, git2cpp_path, tmp_path, short_flag
-):
+def test_status_mixed_changes(repo_init_with_commit, git2cpp_path, tmp_path, short_flag):
     """Test status with both staged and unstaged changes"""
     assert (tmp_path / "initial.txt").exists()
 
@@ -177,15 +165,11 @@ def test_status_mixed_changes(
     del_file = tmp_path / "to_delete.txt"
     del_file.write_text("delete me")
     subprocess.run([git2cpp_path, "add", "to_delete.txt"], cwd=tmp_path, check=True)
-    subprocess.run(
-        [git2cpp_path, "commit", "-m", "Add deletable"], cwd=tmp_path, check=True
-    )
+    subprocess.run([git2cpp_path, "commit", "-m", "Add deletable"], cwd=tmp_path, check=True)
     os.remove(del_file)
 
     # Stage the two previous files
-    subprocess.run(
-        [git2cpp_path, "add", "staged.txt", "to_delete.txt"], cwd=tmp_path, check=True
-    )
+    subprocess.run([git2cpp_path, "add", "staged.txt", "to_delete.txt"], cwd=tmp_path, check=True)
 
     # Modify an existing file without staging
     unstaged_file = tmp_path / "initial.txt"
@@ -225,9 +209,7 @@ def test_status_typechange(repo_init_with_commit, git2cpp_path, tmp_path, short_
     test_file = tmp_path / "typechange"
     test_file.write_text("regular file")
     subprocess.run([git2cpp_path, "add", "typechange"], cwd=tmp_path, check=True)
-    subprocess.run(
-        [git2cpp_path, "commit", "-m", "Add typechange"], cwd=tmp_path, check=True
-    )
+    subprocess.run([git2cpp_path, "commit", "-m", "Add typechange"], cwd=tmp_path, check=True)
     os.remove(test_file)
     os.symlink("initial.txt", test_file)
 
@@ -245,9 +227,7 @@ def test_status_typechange(repo_init_with_commit, git2cpp_path, tmp_path, short_
 
 
 @pytest.mark.parametrize("short_flag", ["", "-s"])
-def test_status_untracked_directory(
-    repo_init_with_commit, git2cpp_path, tmp_path, short_flag
-):
+def test_status_untracked_directory(repo_init_with_commit, git2cpp_path, tmp_path, short_flag):
     """Test that untracked directories are shown with trailing slash"""
     assert (tmp_path / "initial.txt").exists()
 
@@ -274,9 +254,7 @@ def test_status_untracked_directory(
 
 
 @pytest.mark.parametrize("short_flag", ["", "-s"])
-def test_status_ahead_of_upstream(
-    commit_env_config, git2cpp_path, tmp_path, short_flag
-):
+def test_status_ahead_of_upstream(commit_env_config, git2cpp_path, tmp_path, short_flag):
     """Test status when local branch is ahead of upstream"""
     # Create a repository with remote tracking
     repo_path = tmp_path / "repo"
@@ -299,9 +277,7 @@ def test_status_ahead_of_upstream(
     clone_file = clone_path / "file2.txt"
     clone_file.write_text("new file")
     subprocess.run([git2cpp_path, "add", "file2.txt"], cwd=clone_path, check=True)
-    subprocess.run(
-        [git2cpp_path, "commit", "-m", "second commit"], cwd=clone_path, check=True
-    )
+    subprocess.run([git2cpp_path, "commit", "-m", "second commit"], cwd=clone_path, check=True)
 
     # Check status
     cmd_status = [git2cpp_path, "status"]

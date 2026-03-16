@@ -1,7 +1,8 @@
+#include "../subcommand/remote_subcommand.hpp"
+
 #include <iostream>
 #include <stdexcept>
 
-#include "../subcommand/remote_subcommand.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 
 remote_subcommand::remote_subcommand(const libgit2_object&, CLI::App& app)
@@ -17,7 +18,12 @@ remote_subcommand::remote_subcommand(const libgit2_object&, CLI::App& app)
     // Allow positional arguments after operation
     m_subcommand->allow_extras();
 
-    m_subcommand->callback([this]() { this->run(); });
+    m_subcommand->callback(
+        [this]()
+        {
+            this->run();
+        }
+    );
 }
 
 void remote_subcommand::run()
@@ -93,7 +99,8 @@ void remote_subcommand::run_add(repository_wrapper& repo)
 {
     if (m_remote_name.empty())
     {
-        throw std::runtime_error("usage: git remote add <name> <url>");   // TODO: add [<options>] when implemented
+        throw std::runtime_error("usage: git remote add <name> <url>");  // TODO: add [<options>] when
+                                                                         // implemented
     }
     repo.create_remote(m_remote_name, m_url);
 }
@@ -111,7 +118,8 @@ void remote_subcommand::run_rename(repository_wrapper& repo)
 {
     if (m_old_name.empty())
     {
-        throw std::runtime_error("usage: git remote rename <old> <new>");   // TODO: add  [--[no-]progress] when implemented
+        throw std::runtime_error("usage: git remote rename <old> <new>");  // TODO: add  [--[no-]progress]
+                                                                           // when implemented
     }
     repo.rename_remote(m_old_name, m_new_name);
 }

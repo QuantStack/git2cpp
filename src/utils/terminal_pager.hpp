@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <sstream>
+#include <vector>
 
 /**
  * Terminal pager that displays output written to stdout one page at a time, allowing the user to
@@ -29,6 +29,7 @@
 class terminal_pager
 {
 public:
+
     terminal_pager();
 
     ~terminal_pager();
@@ -36,6 +37,7 @@ public:
     void show();
 
 private:
+
     std::string get_input() const;
 
     void maybe_grab_cout();

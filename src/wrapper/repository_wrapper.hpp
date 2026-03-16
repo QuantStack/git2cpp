@@ -79,7 +79,11 @@ public:
     // Commits
     commit_wrapper find_commit(std::string_view ref_name = "HEAD") const;
     commit_wrapper find_commit(const git_oid& id) const;
-    void create_commit(const signature_wrapper::author_committer_signatures&, const std::string_view, const std::optional<commit_list_wrapper>& parents_list);
+    void create_commit(
+        const signature_wrapper::author_committer_signatures&,
+        const std::string_view,
+        const std::optional<commit_list_wrapper>& parents_list
+    );
     std::optional<annotated_commit_wrapper> resolve_local_ref(const std::string_view target_name) const;
 
     // Annotated commits
@@ -95,7 +99,8 @@ public:
     // Head manipulations
     void set_head(std::string_view ref_name);
     void set_head_detached(const annotated_commit_wrapper& commit);
-    void reset(const object_wrapper& target, git_reset_t reset_type, const git_checkout_options& checkout_options);
+    void
+    reset(const object_wrapper& target, git_reset_t reset_type, const git_checkout_options& checkout_options);
 
     // TODO: check if it's the right place to put the following
     size_t shallow_depth_from_head() const;
@@ -117,14 +122,16 @@ public:
     config_wrapper get_config();
 
     // Diff
-    diff_wrapper diff_tree_to_index(const tree_wrapper& old_tree, std::optional<index_wrapper> index, git_diff_options* diffopts);
-    diff_wrapper diff_tree_to_tree(const tree_wrapper& old_tree, const tree_wrapper& new_tree, git_diff_options* diffopts);
+    diff_wrapper
+    diff_tree_to_index(const tree_wrapper& old_tree, std::optional<index_wrapper> index, git_diff_options* diffopts);
+    diff_wrapper
+    diff_tree_to_tree(const tree_wrapper& old_tree, const tree_wrapper& new_tree, git_diff_options* diffopts);
     diff_wrapper diff_tree_to_workdir(const tree_wrapper& old_tree, git_diff_options* diffopts);
     diff_wrapper diff_tree_to_workdir_with_index(const tree_wrapper& old_tree, git_diff_options* diffopts);
     diff_wrapper diff_index_to_workdir(std::optional<index_wrapper> index, git_diff_options* diffopts);
 
-    //Tags
-    // git_strarray_wrapper tag_list_match(std::string pattern);
+    // Tags
+    //  git_strarray_wrapper tag_list_match(std::string pattern);
     std::vector<std::string> tag_list_match(std::string pattern);
 
 private:

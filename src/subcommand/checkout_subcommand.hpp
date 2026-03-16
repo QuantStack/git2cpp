@@ -17,23 +17,17 @@ public:
 
 private:
 
-    annotated_commit_wrapper create_local_branch
-    (
-        repository_wrapper& repo,
-        const std::string_view target_name,
-        bool force
-    );
+    annotated_commit_wrapper
+    create_local_branch(repository_wrapper& repo, const std::string_view target_name, bool force);
 
-    void checkout_tree
-    (
+    void checkout_tree(
         const repository_wrapper& repo,
         const annotated_commit_wrapper& target_annotated_commit,
         const std::string_view target_name,
         const git_checkout_options& options
     );
 
-    void update_head
-    (
+    void update_head(
         repository_wrapper& repo,
         const annotated_commit_wrapper& target_annotated_commit,
         const std::string_view target_name

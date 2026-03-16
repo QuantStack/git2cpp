@@ -1,4 +1,5 @@
 #include "../wrapper/config_wrapper.hpp"
+
 #include "../utils/git_exception.hpp"
 
 config_wrapper::config_wrapper(git_config* cfg)
@@ -9,7 +10,7 @@ config_wrapper::config_wrapper(git_config* cfg)
 config_wrapper::~config_wrapper()
 {
     git_config_free(p_resource);
-    p_resource=nullptr;
+    p_resource = nullptr;
 }
 
 git_config_entry* config_wrapper::get_entry(std::string name)
@@ -26,5 +27,5 @@ void config_wrapper::set_entry(std::string name, std::string value)
 
 void config_wrapper::delete_entry(std::string name)
 {
-     throw_if_error(git_config_delete_entry(*this, name.c_str()));
+    throw_if_error(git_config_delete_entry(*this, name.c_str()));
 }

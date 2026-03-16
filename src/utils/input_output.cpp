@@ -1,5 +1,6 @@
-#include "ansi_code.hpp"
 #include "input_output.hpp"
+
+#include "ansi_code.hpp"
 
 // OS-specific libraries.
 #include <sys/ioctl.h>
@@ -12,9 +13,8 @@ cursor_hider::cursor_hider(bool hide /* = true */)
 
 cursor_hider::~cursor_hider()
 {
-    std::cout << (m_hide ? ansi_code::show_cursor :  ansi_code::hide_cursor);
+    std::cout << (m_hide ? ansi_code::show_cursor : ansi_code::hide_cursor);
 }
-
 
 alternative_buffer::alternative_buffer()
 {
@@ -38,7 +38,8 @@ alternative_buffer::~alternative_buffer()
 echo_control::echo_control(bool echo)
     : m_echo(echo)
 {
-    if (!m_echo) {
+    if (!m_echo)
+    {
         tcgetattr(fileno(stdin), &m_previous_termios);
         auto new_termios = m_previous_termios;
         new_termios.c_lflag &= ~ECHO;
@@ -48,12 +49,12 @@ echo_control::echo_control(bool echo)
 
 echo_control::~echo_control()
 {
-    if (!m_echo) {
+    if (!m_echo)
+    {
         // Restore previous termios settings.
         tcsetattr(fileno(stdin), TCSANOW, &m_previous_termios);
     }
 }
-
 
 std::string prompt_input(const std::string_view prompt, bool echo /* = true */)
 {
@@ -65,7 +66,8 @@ std::string prompt_input(const std::string_view prompt, bool echo /* = true */)
     cursor_hider ch(false);  // Re-enable cursor if currently hidden.
     std::getline(std::cin, input);
 
-    if (!echo) {
+    if (!echo)
+    {
         std::cout << std::endl;
     }
 

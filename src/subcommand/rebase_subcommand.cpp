@@ -1,16 +1,18 @@
+#include "rebase_subcommand.hpp"
+
 #include <iostream>
+
 #include <git2.h>
 #include <termcolor/termcolor.hpp>
 
-#include "rebase_subcommand.hpp"
 #include "../utils/git_exception.hpp"
+#include "../wrapper/index_wrapper.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 #include "../wrapper/signature_wrapper.hpp"
-#include "../wrapper/index_wrapper.hpp"
 
 rebase_subcommand::rebase_subcommand(const libgit2_object&, CLI::App& app)
 {
-    auto *sub = app.add_subcommand("rebase", "Reapply commits on top of another base tip");
+    auto* sub = app.add_subcommand("rebase", "Reapply commits on top of another base tip");
 
     sub->add_option("upstream", m_upstream, "Upstream branch to rebase onto");
     sub->add_option("branch", m_branch, "Working branch; defaults to HEAD");
@@ -21,13 +23,17 @@ rebase_subcommand::rebase_subcommand(const libgit2_object&, CLI::App& app)
     sub->add_flag("--skip", m_skip, "Restart the rebasing process by skipping the current patch");
     sub->add_flag("--quit", m_quit, "Abort the rebase operation but HEAD is not reset back to the original branch");
 
-    sub->callback([this]() { this->run(); });
+    sub->callback(
+        [this]()
+        {
+            this->run();
+        }
+    );
 }
 
 void ensure_rebase_in_progress(git_repository_state_t state)
 {
-    if (state != GIT_REPOSITORY_STATE_REBASE_INTERACTIVE && 
-        state != GIT_REPOSITORY_STATE_REBASE_MERGE)
+    if (state != GIT_REPOSITORY_STATE_REBASE_INTERACTIVE && state != GIT_REPOSITORY_STATE_REBASE_MERGE)
     {
         throw std::runtime_error("No rebase in progress");
     }
@@ -68,8 +74,7 @@ void rebase_subcommand::run()
         return;
     }
 
-    if (state == GIT_REPOSITORY_STATE_REBASE_INTERACTIVE || 
-        state == GIT_REPOSITORY_STATE_REBASE_MERGE)
+    if (state == GIT_REPOSITORY_STATE_REBASE_INTERACTIVE || state == GIT_REPOSITORY_STATE_REBASE_MERGE)
     {
         throw std::runtime_error("A rebase is already in progress");
     }
@@ -82,9 +87,8 @@ void rebase_subcommand::run()
     run_rebase(repo);
 }
 
-annotated_commit_wrapper rebase_subcommand::resolve_ref(
-    const repository_wrapper& repo, 
-    const std::string& ref_name) const
+annotated_commit_wrapper
+rebase_subcommand::resolve_ref(const repository_wrapper& repo, const std::string& ref_name) const
 {
     if (!ref_name.empty())
     {
@@ -117,18 +121,18 @@ void rebase_subcommand::perform_rebase(repository_wrapper& repo, rebase_wrapper&
         commit_wrapper original_commit = repo.find_commit(rebase.current_operation_id());
         std::string commit_summary = original_commit.summary();
 
-        std::cout << "Applying:  " << commit_summary << " (" 
-                    << (current_idx + 1) << "/" << total_operations << ")" << std::endl;
+        std::cout << "Applying:  " << commit_summary << " (" << (current_idx + 1) << "/" << total_operations
+                  << ")" << std::endl;
 
         index_wrapper index = repo.make_index();
         if (index.has_conflict())
         {
-            std:: cout << termcolor::red << "Conflicts detected!" << termcolor::reset << std::endl;
+            std::cout << termcolor::red << "Conflicts detected!" << termcolor::reset << std::endl;
             std::cout << "Resolve conflicts and run:" << std::endl;
             std::cout << "  git2cpp rebase --continue" << std::endl;
             std::cout << "or skip this commit with:" << std::endl;
-            std::cout << "  git2cpp rebase --skip" << std:: endl;
-            std::cout << "or abort the rebase with:" << std:: endl;
+            std::cout << "  git2cpp rebase --skip" << std::endl;
+            std::cout << "or abort the rebase with:" << std::endl;
             std::cout << "  git2cpp rebase --abort" << std::endl;
             return;
         }
@@ -137,8 +141,8 @@ void rebase_subcommand::perform_rebase(repository_wrapper& repo, rebase_wrapper&
 
         if (commit_result == GIT_EAPPLIED)
         {
-            std::cout << termcolor::yellow << "Skipping commit (already applied)" 
-                        << termcolor::reset << std::endl;
+            std::cout << termcolor::yellow << "Skipping commit (already applied)" << termcolor::reset
+                      << std::endl;
         }
         else
         {
@@ -148,8 +152,7 @@ void rebase_subcommand::perform_rebase(repository_wrapper& repo, rebase_wrapper&
 
     rebase.finish(signatures.second);
 
-    std::cout << termcolor::green << "Successfully rebased and updated HEAD." 
-                << termcolor::reset << std::endl;
+    std::cout << termcolor::green << "Successfully rebased and updated HEAD." << termcolor::reset << std::endl;
 }
 
 void rebase_subcommand::run_rebase(repository_wrapper& repo)
@@ -171,7 +174,7 @@ void rebase_subcommand::run_rebase(repository_wrapper& repo)
     {
         onto_ptr = std::make_unique<annotated_commit_wrapper>(resolve_ref(repo, m_onto));
     }
-    git_rebase_options rebase_opts ;
+    git_rebase_options rebase_opts;
     throw_if_error(git_rebase_options_init(&rebase_opts, GIT_REBASE_OPTIONS_VERSION));
 
     auto rebase = rebase_wrapper::init(repo, branch, upstream.value(), onto_ptr.get(), rebase_opts);
@@ -206,8 +209,7 @@ void rebase_subcommand::run_continue(repository_wrapper& repo)
 
     if (commit_result == GIT_EAPPLIED)
     {
-        std::cout << termcolor::yellow << "Skipping commit (already applied)" 
-                    << termcolor::reset << std::endl;
+        std::cout << termcolor::yellow << "Skipping commit (already applied)" << termcolor::reset << std::endl;
     }
     else
     {
@@ -228,9 +230,8 @@ void rebase_subcommand::run_skip(repository_wrapper& repo)
     perform_rebase(repo, rebase);
 }
 
-void rebase_subcommand:: run_quit(repository_wrapper& repo)
+void rebase_subcommand::run_quit(repository_wrapper& repo)
 {
     repo.state_cleanup();
     std::cout << "Rebase state cleaned up (HEAD not reset)" << std::endl;
 }
-

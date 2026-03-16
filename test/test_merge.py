@@ -5,15 +5,11 @@ import pytest
 
 # TODO: Have a different "person" for the commit and for the merge
 # TODO: Test "unborn" case, but how ?
-def test_merge_fast_forward(
-    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path
-):
+def test_merge_fast_forward(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path):
     assert (tmp_path / "initial.txt").exists()
 
     checkout_cmd = [git2cpp_path, "checkout", "-b", "foregone"]
-    p_checkout = subprocess.run(
-        checkout_cmd, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_checkout = subprocess.run(checkout_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_checkout.returncode == 0
 
     file_path = tmp_path / "mook_file.txt"
@@ -28,9 +24,7 @@ def test_merge_fast_forward(
     assert p_commit.returncode == 0
 
     checkout_cmd_2 = [git2cpp_path, "checkout", "main"]
-    p_checkout_2 = subprocess.run(
-        checkout_cmd_2, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_checkout_2 = subprocess.run(checkout_cmd_2, capture_output=True, cwd=tmp_path, text=True)
     assert p_checkout_2.returncode == 0
 
     merge_cmd = [git2cpp_path, "merge", "foregone"]
@@ -46,9 +40,7 @@ def test_merge_fast_forward(
     assert (tmp_path / "mook_file.txt").exists()
 
     merge_cmd_2 = [git2cpp_path, "merge", "foregone"]
-    p_merge_2 = subprocess.run(
-        merge_cmd_2, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_merge_2 = subprocess.run(merge_cmd_2, capture_output=True, cwd=tmp_path, text=True)
     assert p_merge_2.returncode == 0
     assert p_merge_2.stdout == "Already up-to-date\n"
 
@@ -57,9 +49,7 @@ def test_merge_commit(repo_init_with_commit, commit_env_config, git2cpp_path, tm
     assert (tmp_path / "initial.txt").exists()
 
     checkout_cmd = [git2cpp_path, "checkout", "-b", "foregone"]
-    p_checkout = subprocess.run(
-        checkout_cmd, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_checkout = subprocess.run(checkout_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_checkout.returncode == 0
 
     file_path = tmp_path / "mook_file.txt"
@@ -74,9 +64,7 @@ def test_merge_commit(repo_init_with_commit, commit_env_config, git2cpp_path, tm
     assert p_commit.returncode == 0
 
     checkout_cmd_2 = [git2cpp_path, "checkout", "main"]
-    p_checkout_2 = subprocess.run(
-        checkout_cmd_2, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_checkout_2 = subprocess.run(checkout_cmd_2, capture_output=True, cwd=tmp_path, text=True)
     assert p_checkout_2.returncode == 0
 
     file_path_2 = tmp_path / "mook_file_2.txt"
@@ -87,9 +75,7 @@ def test_merge_commit(repo_init_with_commit, commit_env_config, git2cpp_path, tm
     assert p_add_2.returncode == 0
 
     commit_cmd_2 = [git2cpp_path, "commit", "-m", "test commit master"]
-    p_commit_2 = subprocess.run(
-        commit_cmd_2, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_commit_2 = subprocess.run(commit_cmd_2, capture_output=True, cwd=tmp_path, text=True)
     assert p_commit_2.returncode == 0
 
     merge_cmd = [git2cpp_path, "merge", "foregone"]
@@ -106,23 +92,17 @@ def test_merge_commit(repo_init_with_commit, commit_env_config, git2cpp_path, tm
     assert (tmp_path / "mook_file_2.txt").exists()
 
     merge_cmd_2 = [git2cpp_path, "merge", "foregone"]
-    p_merge_2 = subprocess.run(
-        merge_cmd_2, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_merge_2 = subprocess.run(merge_cmd_2, capture_output=True, cwd=tmp_path, text=True)
     assert p_merge_2.returncode == 0
     assert p_merge_2.stdout == "Already up-to-date\n"
 
 
 @pytest.mark.parametrize("flag", ["--abort", "--quit", "--continue"])
-def test_merge_conflict(
-    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path, flag
-):
+def test_merge_conflict(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path, flag):
     assert (tmp_path / "initial.txt").exists()
 
     checkout_cmd = [git2cpp_path, "checkout", "-b", "foregone"]
-    p_checkout = subprocess.run(
-        checkout_cmd, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_checkout = subprocess.run(checkout_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_checkout.returncode == 0
 
     file_path = tmp_path / "mook_file.txt"
@@ -140,9 +120,7 @@ def test_merge_conflict(
     assert p_commit.returncode == 0
 
     checkout_cmd_2 = [git2cpp_path, "checkout", "main"]
-    p_checkout_2 = subprocess.run(
-        checkout_cmd_2, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_checkout_2 = subprocess.run(checkout_cmd_2, capture_output=True, cwd=tmp_path, text=True)
     assert p_checkout_2.returncode == 0
 
     file_path.write_text("BLABLABLA")
@@ -152,9 +130,7 @@ def test_merge_conflict(
     assert p_add_2.returncode == 0
 
     commit_cmd_2 = [git2cpp_path, "commit", "-m", "test commit master"]
-    p_commit_2 = subprocess.run(
-        commit_cmd_2, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_commit_2 = subprocess.run(commit_cmd_2, capture_output=True, cwd=tmp_path, text=True)
     assert p_commit_2.returncode == 0
 
     merge_cmd = [git2cpp_path, "merge", "foregone"]
@@ -209,9 +185,7 @@ def test_merge_conflict(
         p_add = subprocess.run(cmd_add, cwd=tmp_path, text=True)
         assert p_add.returncode == 0
 
-        p_continue = subprocess.run(
-            flag_cmd, capture_output=True, cwd=tmp_path, text=True
-        )
+        p_continue = subprocess.run(flag_cmd, capture_output=True, cwd=tmp_path, text=True)
         assert p_continue.returncode == 0
 
         log_cmd = [git2cpp_path, "log", "--format=full", "--max-count", "2"]
@@ -224,8 +198,6 @@ def test_merge_conflict(
         assert (tmp_path / "mook_file_2.txt").exists()
 
         merge_cmd_2 = [git2cpp_path, "merge", "foregone"]
-        p_merge_2 = subprocess.run(
-            merge_cmd_2, capture_output=True, cwd=tmp_path, text=True
-        )
+        p_merge_2 = subprocess.run(merge_cmd_2, capture_output=True, cwd=tmp_path, text=True)
         assert p_merge_2.returncode == 0
         assert p_merge_2.stdout == "Already up-to-date\n"

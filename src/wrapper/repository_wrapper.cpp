@@ -1,20 +1,21 @@
+#include "../wrapper/repository_wrapper.hpp"
+
 #include <algorithm>
 #include <fstream>
 #include <iostream>
 
 #include "../utils/git_exception.hpp"
+#include "../wrapper/commit_wrapper.hpp"
 #include "../wrapper/index_wrapper.hpp"
 #include "../wrapper/object_wrapper.hpp"
-#include "../wrapper/commit_wrapper.hpp"
 #include "../wrapper/remote_wrapper.hpp"
-#include "../wrapper/repository_wrapper.hpp"
 #include "config_wrapper.hpp"
 #include "diff_wrapper.hpp"
 
 repository_wrapper::~repository_wrapper()
 {
     git_repository_free(p_resource);
-    p_resource=nullptr;
+    p_resource = nullptr;
 }
 
 repository_wrapper repository_wrapper::open(std::string_view directory)
@@ -38,7 +39,8 @@ repository_wrapper repository_wrapper::init_ext(std::string_view directory, git_
     return rw;
 }
 
-repository_wrapper repository_wrapper::clone(std::string_view url, std::string_view path, const git_clone_options& opts)
+repository_wrapper
+repository_wrapper::clone(std::string_view url, std::string_view path, const git_clone_options& opts)
 {
     repository_wrapper rw;
     throw_if_error(git_clone(&(rw.p_resource), url.data(), path.data(), &opts));
@@ -105,7 +107,7 @@ std::string repository_wrapper::head_short_name() const
     throw_if_error(git_reference_lookup(&ref, *this, "HEAD"));
     if (git_reference_type(ref) == GIT_REFERENCE_DIRECT)
     {
-         name = git_reference_shorthand(ref);
+        name = git_reference_shorthand(ref);
     }
     else
     {
@@ -147,14 +149,16 @@ branch_wrapper repository_wrapper::create_branch(std::string_view name, bool for
     return create_branch(name, find_commit(), force);
 }
 
-branch_wrapper repository_wrapper::create_branch(std::string_view name, const commit_wrapper& commit, bool force)
+branch_wrapper
+repository_wrapper::create_branch(std::string_view name, const commit_wrapper& commit, bool force)
 {
     git_reference* branch = nullptr;
     throw_if_error(git_branch_create(&branch, *this, name.data(), commit, force));
     return branch_wrapper(branch);
 }
 
-branch_wrapper repository_wrapper::create_branch(std::string_view name, const annotated_commit_wrapper& commit, bool force)
+branch_wrapper
+repository_wrapper::create_branch(std::string_view name, const annotated_commit_wrapper& commit, bool force)
 {
     git_reference* branch = nullptr;
     throw_if_error(git_branch_create_from_annotated(&branch, *this, name.data(), commit, force));
@@ -238,8 +242,11 @@ commit_wrapper repository_wrapper::find_commit(const git_oid& id) const
     return commit_wrapper(commit);
 }
 
-void repository_wrapper::create_commit(const signature_wrapper::author_committer_signatures& author_committer_signatures,
-    const std::string_view message, const std::optional<commit_list_wrapper>& parents_list)
+void repository_wrapper::create_commit(
+    const signature_wrapper::author_committer_signatures& author_committer_signatures,
+    const std::string_view message,
+    const std::optional<commit_list_wrapper>& parents_list
+)
 {
     const char* message_encoding = "UTF-8";
     git_oid commit_id;
@@ -276,14 +283,22 @@ void repository_wrapper::create_commit(const signature_wrapper::author_committer
 
     auto tree = this->tree_lookup(&tree_id);
 
-    throw_if_error(git_commit_create(&commit_id, *this, update_ref.c_str(), author_committer_signatures.first, author_committer_signatures.second,
-        message_encoding, message.data(), tree, parents_count, parents));
+    throw_if_error(git_commit_create(
+        &commit_id,
+        *this,
+        update_ref.c_str(),
+        author_committer_signatures.first,
+        author_committer_signatures.second,
+        message_encoding,
+        message.data(),
+        tree,
+        parents_count,
+        parents
+    ));
 }
 
-std::optional<annotated_commit_wrapper> repository_wrapper::resolve_local_ref
-(
-    const std::string_view target_name
-) const
+std::optional<annotated_commit_wrapper>
+repository_wrapper::resolve_local_ref(const std::string_view target_name) const
 {
     if (auto ref = this->find_reference_dwim(target_name))
     {
@@ -336,7 +351,11 @@ void repository_wrapper::set_head_detached(const annotated_commit_wrapper& commi
     throw_if_error(git_repository_set_head_detached_from_annotated(*this, commit));
 }
 
-void repository_wrapper::reset(const object_wrapper& target, git_reset_t reset_type, const git_checkout_options& checkout_options)
+void repository_wrapper::reset(
+    const object_wrapper& target,
+    git_reset_t reset_type,
+    const git_checkout_options& checkout_options
+)
 {
     // TODO: gerer l'index
 
@@ -388,7 +407,15 @@ size_t repository_wrapper::shallow_depth_from_head() const
             const commit_wrapper& commit = commits_list[i];
             size_t depth = depth_list[i];
             const git_oid& oid = commit.oid();
-            bool is_boundary = std::find_if(boundaries_list.cbegin(), boundaries_list.cend(), [oid](const git_oid& val) {return git_oid_equal(&oid, &val);}) != boundaries_list.cend();
+            bool is_boundary = std::find_if(
+                                   boundaries_list.cbegin(),
+                                   boundaries_list.cend(),
+                                   [oid](const git_oid& val)
+                                   {
+                                       return git_oid_equal(&oid, &val);
+                                   }
+                               )
+                               != boundaries_list.cend();
             if (is_boundary)
             {
                 final_depths.push_back(depth + 1u);
@@ -502,7 +529,6 @@ std::vector<std::string> repository_wrapper::list_remotes() const
     return result;
 }
 
-
 // Config
 
 config_wrapper repository_wrapper::get_config()
@@ -514,7 +540,11 @@ config_wrapper repository_wrapper::get_config()
 
 // Diff
 
-diff_wrapper repository_wrapper::diff_tree_to_index(const tree_wrapper& old_tree, std::optional<index_wrapper> index, git_diff_options* diffopts)
+diff_wrapper repository_wrapper::diff_tree_to_index(
+    const tree_wrapper& old_tree,
+    std::optional<index_wrapper> index,
+    git_diff_options* diffopts
+)
 {
     git_diff* diff;
     git_index* idx = nullptr;
@@ -526,7 +556,11 @@ diff_wrapper repository_wrapper::diff_tree_to_index(const tree_wrapper& old_tree
     return diff_wrapper(diff);
 }
 
-diff_wrapper repository_wrapper::diff_tree_to_tree(const tree_wrapper& old_tree, const tree_wrapper& new_tree, git_diff_options* diffopts)
+diff_wrapper repository_wrapper::diff_tree_to_tree(
+    const tree_wrapper& old_tree,
+    const tree_wrapper& new_tree,
+    git_diff_options* diffopts
+)
 {
     git_diff* diff;
     throw_if_error(git_diff_tree_to_tree(&diff, *this, old_tree, new_tree, diffopts));
@@ -540,14 +574,16 @@ diff_wrapper repository_wrapper::diff_tree_to_workdir(const tree_wrapper& old_tr
     return diff_wrapper(diff);
 }
 
-diff_wrapper repository_wrapper::diff_tree_to_workdir_with_index(const tree_wrapper& old_tree, git_diff_options* diffopts)
+diff_wrapper
+repository_wrapper::diff_tree_to_workdir_with_index(const tree_wrapper& old_tree, git_diff_options* diffopts)
 {
     git_diff* diff;
     throw_if_error(git_diff_tree_to_workdir_with_index(&diff, *this, old_tree, diffopts));
     return diff_wrapper(diff);
 }
 
-diff_wrapper repository_wrapper::diff_index_to_workdir(std::optional<index_wrapper> index, git_diff_options* diffopts)
+diff_wrapper
+repository_wrapper::diff_index_to_workdir(std::optional<index_wrapper> index, git_diff_options* diffopts)
 {
     git_diff* diff;
     git_index* idx = nullptr;

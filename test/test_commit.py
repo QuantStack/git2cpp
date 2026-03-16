@@ -28,9 +28,7 @@ def test_commit(commit_env_config, git2cpp_path, tmp_path, all_flag):
     assert p_commit.returncode == 0
 
     cmd_status_2 = [git2cpp_path, "status", "--long"]
-    p_status_2 = subprocess.run(
-        cmd_status_2, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_status_2 = subprocess.run(cmd_status_2, capture_output=True, cwd=tmp_path, text=True)
     assert p_status_2.returncode == 0
     assert "mook_file" not in p_status_2.stdout
 
@@ -50,9 +48,7 @@ def test_commit_message_via_stdin(
     assert p_add.returncode == 0
 
     cmd_commit = [git2cpp_path, "commit"]
-    p_commit = subprocess.run(
-        cmd_commit, text=True, capture_output=True, input=commit_msg
-    )
+    p_commit = subprocess.run(cmd_commit, text=True, capture_output=True, input=commit_msg)
 
     if commit_msg == "":
         # No commit message

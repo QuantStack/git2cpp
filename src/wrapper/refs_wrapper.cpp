@@ -1,8 +1,10 @@
-#include "../utils/git_exception.hpp"
-#include "object_wrapper.hpp"
+#include "../wrapper/refs_wrapper.hpp"
+
 #include <git2/refs.h>
 #include <git2/types.h>
-#include "../wrapper/refs_wrapper.hpp"
+
+#include "../utils/git_exception.hpp"
+#include "object_wrapper.hpp"
 
 reference_wrapper::reference_wrapper(git_reference* ref)
     : base_type(ref)
@@ -12,7 +14,7 @@ reference_wrapper::reference_wrapper(git_reference* ref)
 reference_wrapper::~reference_wrapper()
 {
     git_reference_free(p_resource);
-    p_resource=nullptr;
+    p_resource = nullptr;
 }
 
 std::string reference_wrapper::short_name() const

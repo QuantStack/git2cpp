@@ -1,8 +1,9 @@
+#include "../subcommand/push_subcommand.hpp"
+
 #include <iostream>
 
 #include <git2/remote.h>
 
-#include "../subcommand/push_subcommand.hpp"
 #include "../utils/credentials.hpp"
 #include "../utils/progress.hpp"
 #include "../wrapper/repository_wrapper.hpp"
@@ -11,12 +12,16 @@ push_subcommand::push_subcommand(const libgit2_object&, CLI::App& app)
 {
     auto* sub = app.add_subcommand("push", "Update remote refs along with associated objects");
 
-    sub->add_option("<remote>", m_remote_name, "The remote to push to")
-        ->default_val("origin");
+    sub->add_option("<remote>", m_remote_name, "The remote to push to")->default_val("origin");
 
     sub->add_option("<refspec>", m_refspecs, "The refspec(s) to push");
 
-    sub->callback([this]() { this->run(); });
+    sub->callback(
+        [this]()
+        {
+            this->run();
+        }
+    );
 }
 
 void push_subcommand::run()

@@ -1,8 +1,8 @@
+#include "../utils/progress.hpp"
+
 #include <iomanip>
 #include <iostream>
 #include <string_view>
-
-#include "../utils/progress.hpp"
 
 int sideband_progress(const char* str, int len, void*)
 {
@@ -26,19 +26,17 @@ int fetch_progress(const git_indexer_progress* stats, void* payload)
         return 0;
     }
 
-    int network_percent = pr->total_objects > 0 ?
-        (100 * pr->received_objects / pr->total_objects)
-        : 0;
+    int network_percent = pr->total_objects > 0 ? (100 * pr->received_objects / pr->total_objects) : 0;
     size_t kbytes = pr->received_bytes / 1024;
     size_t mbytes = kbytes / 1024;
 
-    std::cout << "Receiving objects: " << std::setw(4) << network_percent
-        << "% (" << pr->received_objects << "/" << pr->total_objects << "), ";
+    std::cout << "Receiving objects: " << std::setw(4) << network_percent << "% (" << pr->received_objects
+              << "/" << pr->total_objects << "), ";
     if (mbytes != 0)
     {
         std::cout << mbytes << " MiB";
     }
-    else if  (kbytes != 0)
+    else if (kbytes != 0)
     {
         std::cout << kbytes << " KiB";
     }
@@ -68,12 +66,10 @@ void checkout_progress(const char* path, size_t cur, size_t tot, void* payload)
         return;
     }
     auto* pr = reinterpret_cast<git_indexer_progress*>(payload);
-    int deltas_percent = pr->total_deltas > 0 ?
-        (100 * pr->indexed_deltas / pr->total_deltas)
-        : 0;
+    int deltas_percent = pr->total_deltas > 0 ? (100 * pr->indexed_deltas / pr->total_deltas) : 0;
 
-    std::cout << "Resolving deltas: " << std::setw(4) << deltas_percent
-        << "% (" << pr->indexed_deltas << "/" << pr->total_deltas << ")";
+    std::cout << "Resolving deltas: " << std::setw(4) << deltas_percent << "% (" << pr->indexed_deltas << "/"
+              << pr->total_deltas << ")";
     if (pr->indexed_deltas == pr->total_deltas)
     {
         std::cout << ", done." << std::endl;
@@ -87,7 +83,7 @@ void checkout_progress(const char* path, size_t cur, size_t tot, void* payload)
 
 int update_refs(const char* refname, const git_oid* a, const git_oid* b, git_refspec*, void*)
 {
-    char a_str[GIT_OID_SHA1_HEXSIZE+1], b_str[GIT_OID_SHA1_HEXSIZE+1];
+    char a_str[GIT_OID_SHA1_HEXSIZE + 1], b_str[GIT_OID_SHA1_HEXSIZE + 1];
 
     git_oid_fmt(b_str, b);
     b_str[GIT_OID_SHA1_HEXSIZE] = '\0';
@@ -97,10 +93,11 @@ int update_refs(const char* refname, const git_oid* a, const git_oid* b, git_ref
         std::string n, name, ref;
         const size_t last_slash_idx = std::string_view(refname).find_last_of('/');
         name = std::string_view(refname).substr(last_slash_idx + 1, -1);
-        if (std::string_view(refname).find("remote") != std::string::npos)   // maybe will string_view need the size of the string
+        if (std::string_view(refname).find("remote") != std::string::npos)  // maybe will string_view need the
+                                                                            // size of the string
         {
             n = " * [new branch]      ";
-            auto new_refname =  std::string_view(refname).substr(0, last_slash_idx - 1);
+            auto new_refname = std::string_view(refname).substr(0, last_slash_idx - 1);
             const size_t second_to_last_slash_idx = std::string_view(new_refname).find_last_of('/');
             ref = std::string_view(refname).substr(second_to_last_slash_idx + 1, -1);
         }
@@ -120,11 +117,8 @@ int update_refs(const char* refname, const git_oid* a, const git_oid* b, git_ref
         git_oid_fmt(a_str, a);
         a_str[GIT_OID_SHA1_HEXSIZE] = '\0';
 
-        std::cout << "[updated] "
-                  << std::string(a_str, 10)
-                  << ".."
-                  << std::string(b_str, 10)
-                  << " " << refname << std::endl;
+        std::cout << "[updated] " << std::string(a_str, 10) << ".." << std::string(b_str, 10) << " "
+                  << refname << std::endl;
     }
 
     return 0;
@@ -135,8 +129,8 @@ int push_transfer_progress(unsigned int current, unsigned int total, size_t byte
     if (total > 0)
     {
         int percent = (100 * current) / total;
-        std::cout << "Writing objects: " << percent << "% (" << current
-            << "/" << total << "), " << bytes << " bytes\r";
+        std::cout << "Writing objects: " << percent << "% (" << current << "/" << total << "), " << bytes
+                  << " bytes\r";
     }
     return 0;
 }

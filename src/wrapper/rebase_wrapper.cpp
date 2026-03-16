@@ -1,7 +1,8 @@
 #include "rebase_wrapper.hpp"
-#include "../utils/git_exception.hpp"
 
 #include <iostream>
+
+#include "../utils/git_exception.hpp"
 
 rebase_wrapper::~rebase_wrapper()
 {
@@ -19,6 +20,7 @@ git_oid rebase_wrapper::current_operation_id() const
 {
     return p_operation->id;
 }
+
 std::size_t rebase_wrapper::current_operation_index() const
 {
     return git_rebase_operation_current(p_resource);
@@ -38,7 +40,8 @@ int rebase_wrapper::commit(const signature_wrapper& author, const signature_wrap
         author,
         committer,
         nullptr,  // message encoding (NULL for default)
-        nullptr); // message (NULL to use original)
+        nullptr
+    );  // message (NULL to use original)
     return res;
 }
 
@@ -53,10 +56,9 @@ void rebase_wrapper::abort()
     throw_if_error(git_rebase_abort(p_resource));
 }
 
-rebase_wrapper rebase_wrapper::init
-(
+rebase_wrapper rebase_wrapper::init(
     repository_wrapper& repo,
-    const annotated_commit_wrapper& branch, 
+    const annotated_commit_wrapper& branch,
     const annotated_commit_wrapper& upstream,
     const annotated_commit_wrapper* onto,
     const git_rebase_options& opts

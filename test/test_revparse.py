@@ -1,7 +1,5 @@
 import subprocess
 
-import pytest
-
 
 def test_revparse_bare(git2cpp_path, tmp_path, run_in_tmp_path):
     # tmp_path exists and is empty.

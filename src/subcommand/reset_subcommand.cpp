@@ -1,7 +1,8 @@
 #include "reset_subcommand.hpp"
 // #include "../wrapper/index_wrapper.hpp"
-#include "../wrapper/repository_wrapper.hpp"
 #include <stdexcept>
+
+#include "../wrapper/repository_wrapper.hpp"
 
 enum class reset_type
 {
@@ -12,7 +13,7 @@ enum class reset_type
 
 reset_subcommand::reset_subcommand(const libgit2_object&, CLI::App& app)
 {
-    auto *sub = app.add_subcommand("reset", "Reset current HEAD to the specified state");
+    auto* sub = app.add_subcommand("reset", "Reset current HEAD to the specified state");
 
     sub->add_option("<commit>", m_commit, "The ID of the commit that will become HEAD");
 
@@ -20,9 +21,13 @@ reset_subcommand::reset_subcommand(const libgit2_object&, CLI::App& app)
     sub->add_flag("--mixed", m_mixed_flag, "");
     sub->add_flag("--hard", m_hard_flag, "");
 
-    sub->callback([this]() { this->run(); });
+    sub->callback(
+        [this]()
+        {
+            this->run();
+        }
+    );
 };
-
 
 void reset_subcommand::run()
 {

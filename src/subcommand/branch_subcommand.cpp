@@ -1,6 +1,7 @@
+#include "../subcommand/branch_subcommand.hpp"
+
 #include <iostream>
 
-#include "../subcommand/branch_subcommand.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 
 branch_subcommand::branch_subcommand(const libgit2_object&, CLI::App& app)
@@ -14,9 +15,18 @@ branch_subcommand::branch_subcommand(const libgit2_object&, CLI::App& app)
     sub->add_flag("-r,--remotes", m_remote_flag, "List or delete (if used with -d) the remote-tracking branches");
     sub->add_flag("-l,--list", m_list_flag, "List branches");
     sub->add_flag("-f,--force", m_force_flag, "Skips confirmation");
-    sub->add_flag("--show-current", m_show_current_flag, "Print the name of the current branch. In detached HEAD state, nothing is printed.");
+    sub->add_flag(
+        "--show-current",
+        m_show_current_flag,
+        "Print the name of the current branch. In detached HEAD state, nothing is printed."
+    );
 
-    sub->callback([this]() { this->run(); });
+    sub->callback(
+        [this]()
+        {
+            this->run();
+        }
+    );
 }
 
 void branch_subcommand::run()

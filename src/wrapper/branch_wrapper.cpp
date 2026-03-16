@@ -1,13 +1,14 @@
-#include "../utils/git_exception.hpp"
 #include "../wrapper/branch_wrapper.hpp"
-#include "../wrapper/commit_wrapper.hpp"
-#include "../wrapper/repository_wrapper.hpp"
 
 #include <iostream>
 
+#include "../utils/git_exception.hpp"
+#include "../wrapper/commit_wrapper.hpp"
+#include "../wrapper/repository_wrapper.hpp"
+
 branch_wrapper::branch_wrapper(git_reference* ref)
     : base_type(ref)
-{    
+{
 }
 
 branch_wrapper::~branch_wrapper()
@@ -44,7 +45,6 @@ branch_iterator::~branch_iterator()
     git_branch_iterator_free(p_resource);
     p_resource = nullptr;
 }
-
 
 std::optional<branch_wrapper> branch_iterator::next()
 {

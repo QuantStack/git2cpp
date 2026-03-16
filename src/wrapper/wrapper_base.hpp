@@ -7,6 +7,7 @@ template <class T>
 class wrapper_base
 {
 public:
+
     using resource_type = T;
 
     wrapper_base(const wrapper_base&) = delete;
@@ -17,6 +18,7 @@ public:
     {
         rhs.p_resource = nullptr;
     }
+
     wrapper_base& operator=(wrapper_base&& rhs) noexcept
     {
         std::swap(p_resource, rhs.p_resource);
@@ -29,6 +31,7 @@ public:
     }
 
 protected:
+
     // Allocation and deletion of p_resource must be handled by inheriting class.
     explicit wrapper_base(resource_type* resource = nullptr)
         : p_resource(resource)
@@ -51,7 +54,7 @@ public:
         : m_list(std::move(list))
     {
         this->p_resource = new base_type::resource_type[m_list.size()];
-        for (size_t i=0; i< m_list.size(); ++i)
+        for (size_t i = 0; i < m_list.size(); ++i)
         {
             this->p_resource[i] = m_list[i];
         }

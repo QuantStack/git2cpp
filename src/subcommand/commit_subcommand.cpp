@@ -1,21 +1,25 @@
+#include "../subcommand/commit_subcommand.hpp"
+
 #include <git2.h>
 #include <unistd.h>
 
-#include "../subcommand/commit_subcommand.hpp"
 #include "../utils/input_output.hpp"
 #include "../wrapper/index_wrapper.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 
-
 commit_subcommand::commit_subcommand(const libgit2_object&, CLI::App& app)
 {
-    auto *sub = app.add_subcommand("commit", "Record changes to the repository");
+    auto* sub = app.add_subcommand("commit", "Record changes to the repository");
 
     sub->add_option("-m,--message", m_commit_message, "Commit message");
 
-    sub->callback([this]() { this->run(); });
+    sub->callback(
+        [this]()
+        {
+            this->run();
+        }
+    );
 };
-
 
 void commit_subcommand::run()
 {

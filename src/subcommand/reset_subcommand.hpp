@@ -12,6 +12,7 @@ public:
     void run();
 
 private:
+
     std::string m_commit;
     bool m_soft_flag = false;
     bool m_mixed_flag = false;

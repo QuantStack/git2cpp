@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+
 #include "common.hpp"
 
 // OS-specific libraries.
@@ -14,11 +15,13 @@
 class cursor_hider : noncopyable_nonmovable
 {
 public:
+
     cursor_hider(bool hide = true);
 
     ~cursor_hider();
 
 private:
+
     bool m_hide;
 };
 
@@ -27,11 +30,13 @@ private:
 class alternative_buffer : noncopyable_nonmovable
 {
 public:
+
     alternative_buffer();
 
     ~alternative_buffer();
 
 private:
+
     struct termios m_previous_termios;
 };
 
@@ -40,11 +45,13 @@ private:
 class echo_control : noncopyable_nonmovable
 {
 public:
+
     echo_control(bool echo);
 
     ~echo_control();
 
 private:
+
     bool m_echo;
     struct termios m_previous_termios;
 };

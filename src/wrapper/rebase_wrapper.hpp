@@ -1,12 +1,12 @@
 #pragma once
 
-#include <git2.h>
-
 #include <optional>
 
+#include <git2.h>
+
 #include "../wrapper/annotated_commit_wrapper.hpp"
-#include "../wrapper/signature_wrapper.hpp"
 #include "../wrapper/repository_wrapper.hpp"
+#include "../wrapper/signature_wrapper.hpp"
 #include "../wrapper/wrapper_base.hpp"
 
 class rebase_wrapper : public wrapper_base<git_rebase>
@@ -29,10 +29,9 @@ public:
     void finish(const signature_wrapper& committer);
     void abort();
 
-    static rebase_wrapper init
-    (
+    static rebase_wrapper init(
         repository_wrapper& repo,
-        const annotated_commit_wrapper& branch, 
+        const annotated_commit_wrapper& branch,
         const annotated_commit_wrapper& upstream,
         const annotated_commit_wrapper* onto,
         const git_rebase_options& opts
@@ -45,4 +44,3 @@ private:
 
     git_rebase_operation* p_operation = nullptr;
 };
-

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <CLI/CLI.hpp>
 #include <string>
+
+#include <CLI/CLI.hpp>
 
 #include "../utils/common.hpp"
 #include "../wrapper/diff_wrapper.hpp"
@@ -53,4 +54,11 @@ private:
     bool m_no_colour_flag = false;
 };
 
-void print_stats(const diff_wrapper& diff, bool use_colour, bool stat_flag, bool shortstat_flag, bool numstat_flag, bool summary_flag);
+void print_stats(
+    const diff_wrapper& diff,
+    bool use_colour,
+    bool stat_flag,
+    bool shortstat_flag,
+    bool numstat_flag,
+    bool summary_flag
+);

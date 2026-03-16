@@ -59,9 +59,7 @@ def test_max_count(
     subprocess.run(cmd_add2, capture_output=True, cwd=tmp_path, text=True, check=True)
 
     cmd_commit2 = [git2cpp_path, "commit", "-m", "Second commit"]
-    subprocess.run(
-        cmd_commit2, capture_output=True, cwd=tmp_path, text=True, check=True
-    )
+    subprocess.run(cmd_commit2, capture_output=True, cwd=tmp_path, text=True, check=True)
 
     p3 = tmp_path / "third.txt"
     p3.write_text("third file")
@@ -70,9 +68,7 @@ def test_max_count(
     subprocess.run(cmd_add3, capture_output=True, cwd=tmp_path, text=True, check=True)
 
     cmd_commit3 = [git2cpp_path, "commit", "-m", "Third commit"]
-    subprocess.run(
-        cmd_commit3, capture_output=True, cwd=tmp_path, text=True, check=True
-    )
+    subprocess.run(cmd_commit3, capture_output=True, cwd=tmp_path, text=True, check=True)
 
     cmd_log = [git2cpp_path, "log"]
     if max_count_flag != "":
@@ -87,9 +83,7 @@ def test_max_count(
         assert p_log.stdout.count("Author") == 2
 
 
-def test_log_with_head_reference(
-    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path
-):
+def test_log_with_head_reference(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path):
     """Test that HEAD reference is shown on the latest commit."""
     assert (tmp_path / "initial.txt").exists()
 
@@ -98,9 +92,7 @@ def test_log_with_head_reference(
     p.write_text("test content")
 
     subprocess.run([git2cpp_path, "add", "test_file.txt"], cwd=tmp_path, check=True)
-    subprocess.run(
-        [git2cpp_path, "commit", "-m", "test commit"], cwd=tmp_path, check=True
-    )
+    subprocess.run([git2cpp_path, "commit", "-m", "test commit"], cwd=tmp_path, check=True)
 
     # Run log with max count 1 to get only the latest commit
     p_log = subprocess.run(
@@ -124,9 +116,7 @@ def test_log_with_tag(commit_env_config, git2cpp_path, tmp_path):
     p.write_text("tagged content")
 
     subprocess.run([git2cpp_path, "add", "tagged_file.txt"], cwd=tmp_path, check=True)
-    subprocess.run(
-        [git2cpp_path, "commit", "-m", "tagged commit"], cwd=tmp_path, check=True
-    )
+    subprocess.run([git2cpp_path, "commit", "-m", "tagged commit"], cwd=tmp_path, check=True)
 
     # Create a tag (using git command since git2cpp might not have tag creation yet)
     subprocess.run([git2cpp_path, "tag", "v1.0.0"], cwd=tmp_path, check=True)
@@ -151,12 +141,8 @@ def test_log_with_multiple_tags(commit_env_config, git2cpp_path, tmp_path):
     p = tmp_path / "multi_tag_file.txt"
     p.write_text("content")
 
-    subprocess.run(
-        [git2cpp_path, "add", "multi_tag_file.txt"], cwd=tmp_path, check=True
-    )
-    subprocess.run(
-        [git2cpp_path, "commit", "-m", "multi tag commit"], cwd=tmp_path, check=True
-    )
+    subprocess.run([git2cpp_path, "add", "multi_tag_file.txt"], cwd=tmp_path, check=True)
+    subprocess.run([git2cpp_path, "commit", "-m", "multi tag commit"], cwd=tmp_path, check=True)
 
     # Create multiple tags
     subprocess.run([git2cpp_path, "tag", "v1.0.0"], cwd=tmp_path, check=True)
@@ -185,12 +171,8 @@ def test_log_with_annotated_tag(commit_env_config, git2cpp_path, tmp_path):
     p = tmp_path / "annotated_tag_file.txt"
     p.write_text("content")
 
-    subprocess.run(
-        [git2cpp_path, "add", "annotated_tag_file.txt"], cwd=tmp_path, check=True
-    )
-    subprocess.run(
-        [git2cpp_path, "commit", "-m", "annotated tag commit"], cwd=tmp_path, check=True
-    )
+    subprocess.run([git2cpp_path, "add", "annotated_tag_file.txt"], cwd=tmp_path, check=True)
+    subprocess.run([git2cpp_path, "commit", "-m", "annotated tag commit"], cwd=tmp_path, check=True)
 
     # Create an annotated tag
     subprocess.run(
@@ -220,9 +202,7 @@ def test_log_with_branch(commit_env_config, git2cpp_path, tmp_path):
     p.write_text("content")
 
     subprocess.run([git2cpp_path, "add", "branch_file.txt"], cwd=tmp_path, check=True)
-    subprocess.run(
-        [git2cpp_path, "commit", "-m", "branch commit"], cwd=tmp_path, check=True
-    )
+    subprocess.run([git2cpp_path, "commit", "-m", "branch commit"], cwd=tmp_path, check=True)
 
     # Create a new branch pointing to HEAD
     subprocess.run([git2cpp_path, "branch", "feature-branch"], cwd=tmp_path, check=True)
@@ -264,9 +244,7 @@ def test_log_commit_without_references(commit_env_config, git2cpp_path, tmp_path
         p = tmp_path / f"file_{i}.txt"
         p.write_text(f"content {i}")
         subprocess.run([git2cpp_path, "add", f"file_{i}.txt"], cwd=tmp_path, check=True)
-        subprocess.run(
-            [git2cpp_path, "commit", "-m", f"commit {i}"], cwd=tmp_path, check=True
-        )
+        subprocess.run([git2cpp_path, "commit", "-m", f"commit {i}"], cwd=tmp_path, check=True)
 
     # Run log with 2 commits
     p_log = subprocess.run(
@@ -287,9 +265,7 @@ def test_log_commit_without_references(commit_env_config, git2cpp_path, tmp_path
         assert "()" not in second_commit_line
 
 
-@pytest.mark.parametrize(
-    "abbrev_commit_flag", ["", "--abbrev-commit", "--no-abbrev-commit"]
-)
+@pytest.mark.parametrize("abbrev_commit_flag", ["", "--abbrev-commit", "--no-abbrev-commit"])
 @pytest.mark.parametrize("abbrev_flag", ["", "--abbrev=10"])
 def test_log_abbrev_commit_flags(
     repo_init_with_commit,
@@ -360,9 +336,7 @@ def test_log_oneline(repo_init_with_commit, git2cpp_path, tmp_path):
     full_sha = str(p.stdout.strip())
     abbrev7 = full_sha[:7]
 
-    subprocess.run(
-        [git2cpp_path, "tag", "v1"], capture_output=True, cwd=tmp_path, check=True
-    )
+    subprocess.run([git2cpp_path, "tag", "v1"], capture_output=True, cwd=tmp_path, check=True)
 
     p = subprocess.run(
         [git2cpp_path, "log", "--oneline", "-n", "1"],

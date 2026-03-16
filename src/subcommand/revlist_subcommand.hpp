@@ -1,7 +1,8 @@
 #pragma once
 
-#include <CLI/CLI.hpp>
 #include <string>
+
+#include <CLI/CLI.hpp>
 
 #include "../utils/common.hpp"
 
@@ -15,6 +16,5 @@ public:
 private:
 
     std::string m_commit;
-    int m_max_count_flag=std::numeric_limits<int>::max();
-
+    int m_max_count_flag = std::numeric_limits<int>::max();
 };

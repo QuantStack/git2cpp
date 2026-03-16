@@ -3,8 +3,8 @@
 #include <git2.h>
 #include <git2/types.h>
 
-#include "../wrapper/wrapper_base.hpp"
 #include "../wrapper/commit_wrapper.hpp"
+#include "../wrapper/wrapper_base.hpp"
 
 class revwalk_wrapper : public wrapper_base<git_revwalk>
 {

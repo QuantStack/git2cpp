@@ -1,10 +1,9 @@
-#include <CLI/CLI.hpp>
 #include <cmath>
-#include <git2.h>  // For version number only
 #include <iostream>
 
-#include "utils/git_exception.hpp"
-#include "version.hpp"
+#include <CLI/CLI.hpp>
+#include <git2.h>  // For version number only
+
 #include "subcommand/add_subcommand.hpp"
 #include "subcommand/branch_subcommand.hpp"
 #include "subcommand/checkout_subcommand.hpp"
@@ -21,12 +20,14 @@
 #include "subcommand/rebase_subcommand.hpp"
 #include "subcommand/remote_subcommand.hpp"
 #include "subcommand/reset_subcommand.hpp"
+#include "subcommand/revlist_subcommand.hpp"
+#include "subcommand/revparse_subcommand.hpp"
+#include "subcommand/rm_subcommand.hpp"
 #include "subcommand/stash_subcommand.hpp"
 #include "subcommand/status_subcommand.hpp"
 #include "subcommand/tag_subcommand.hpp"
-#include "subcommand/revparse_subcommand.hpp"
-#include "subcommand/revlist_subcommand.hpp"
-#include "subcommand/rm_subcommand.hpp"
+#include "utils/git_exception.hpp"
+#include "version.hpp"
 
 int main(int argc, char** argv)
 {
@@ -69,7 +70,8 @@ int main(int argc, char** argv)
 
         if (version->count())
         {
-            std::cout << "git2cpp version " << GIT2CPP_VERSION_STRING << " (libgit2 " << LIBGIT2_VERSION << ")" << std::endl;
+            std::cout << "git2cpp version " << GIT2CPP_VERSION_STRING << " (libgit2 " << LIBGIT2_VERSION
+                      << ")" << std::endl;
         }
         else if (app.get_subcommands().size() == 0)
         {
@@ -86,7 +88,8 @@ int main(int argc, char** argv)
         std::cerr << e.what() << std::endl;
         exit_code = e.error_code();
     }
-    catch (std::exception& e) {
+    catch (std::exception& e)
+    {
         std::cerr << e.what() << std::endl;
         exit_code = 1;
     }

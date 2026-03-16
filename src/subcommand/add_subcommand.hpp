@@ -12,6 +12,7 @@ public:
     void run();
 
 private:
+
     bool m_all_flag = false;
     std::vector<std::string> m_add_files;
 };

@@ -6,8 +6,8 @@
 #include <git2.h>
 
 #include "../utils/git_exception.hpp"
-#include "../wrapper/wrapper_base.hpp"
 #include "../wrapper/object_wrapper.hpp"
+#include "../wrapper/wrapper_base.hpp"
 
 class reference_wrapper : public wrapper_base<git_reference>
 {
@@ -49,7 +49,7 @@ W reference_wrapper::peel() const
         {
             return GIT_OBJECT_COMMIT;
         }
-        else // Default case
+        else  // Default case
         {
             return GIT_OBJECT_ANY;
         }

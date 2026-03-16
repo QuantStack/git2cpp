@@ -6,8 +6,8 @@
 // (username and password) to authenticate remote https access.
 int user_credentials(
     git_credential** out,
-	const char* url,
-	const char* username_from_url,
-	unsigned int allowed_types,
-	void* payload
+    const char* url,
+    const char* username_from_url,
+    unsigned int allowed_types,
+    void* payload
 );

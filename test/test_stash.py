@@ -47,9 +47,7 @@ def test_stash_list(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_
 
 
 @pytest.mark.parametrize("index_flag", ["", "--index"])
-def test_stash_pop(
-    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path, index_flag
-):
+def test_stash_pop(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path, index_flag):
     assert (tmp_path / "initial.txt").exists()
 
     index = 0 if index_flag == "" else 1
@@ -63,15 +61,11 @@ def test_stash_pop(
         assert p_add.returncode == 0
 
         cmd_stash = [git2cpp_path, "stash"]
-        p_stash = subprocess.run(
-            cmd_stash, capture_output=True, cwd=tmp_path, text=True
-        )
+        p_stash = subprocess.run(cmd_stash, capture_output=True, cwd=tmp_path, text=True)
         assert p_stash.returncode == 0
 
         cmd_status = [git2cpp_path, "status"]
-        p_status = subprocess.run(
-            cmd_status, capture_output=True, cwd=tmp_path, text=True
-        )
+        p_status = subprocess.run(cmd_status, capture_output=True, cwd=tmp_path, text=True)
         assert p_status.returncode == 0
         assert "mook_file" not in p_status.stdout
 
@@ -95,9 +89,7 @@ def test_stash_pop(
 
 
 @pytest.mark.parametrize("index_flag", ["", "--index"])
-def test_stash_apply(
-    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path, index_flag
-):
+def test_stash_apply(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path, index_flag):
     assert (tmp_path / "initial.txt").exists()
 
     index = 0 if index_flag == "" else 1
@@ -111,15 +103,11 @@ def test_stash_apply(
         assert p_add.returncode == 0
 
         cmd_stash = [git2cpp_path, "stash"]
-        p_stash = subprocess.run(
-            cmd_stash, capture_output=True, cwd=tmp_path, text=True
-        )
+        p_stash = subprocess.run(cmd_stash, capture_output=True, cwd=tmp_path, text=True)
         assert p_stash.returncode == 0
 
         cmd_status = [git2cpp_path, "status"]
-        p_status = subprocess.run(
-            cmd_status, capture_output=True, cwd=tmp_path, text=True
-        )
+        p_status = subprocess.run(cmd_status, capture_output=True, cwd=tmp_path, text=True)
         assert p_status.returncode == 0
         assert "mook_file" not in p_status.stdout
 

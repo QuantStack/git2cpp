@@ -11,6 +11,7 @@
 class status_list_wrapper : public wrapper_base<git_status_list>
 {
 public:
+
     using status_entry_list = std::vector<const git_status_entry*>;
 
     ~status_list_wrapper();

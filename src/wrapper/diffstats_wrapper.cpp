@@ -1,5 +1,6 @@
-#include "../utils/git_exception.hpp"
 #include "../wrapper/diffstats_wrapper.hpp"
+
+#include "../utils/git_exception.hpp"
 
 diffstats_wrapper::diffstats_wrapper(git_diff_stats* stats)
     : base_type(stats)

@@ -213,9 +213,7 @@ def test_mv_and_commit(commit_env_config, git2cpp_path, tmp_path):
 
     # Commit the move
     commit_cmd2 = [git2cpp_path, "commit", "-m", "Move file"]
-    p_commit2 = subprocess.run(
-        commit_cmd2, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_commit2 = subprocess.run(commit_cmd2, capture_output=True, cwd=tmp_path, text=True)
     assert p_commit2.returncode == 0
 
     # Verify the file is in the new location

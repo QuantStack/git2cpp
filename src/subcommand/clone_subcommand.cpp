@@ -1,6 +1,7 @@
+#include "../subcommand/clone_subcommand.hpp"
+
 #include <iostream>
 
-#include "../subcommand/clone_subcommand.hpp"
 #include "../utils/credentials.hpp"
 #include "../utils/input_output.hpp"
 #include "../utils/progress.hpp"
@@ -13,11 +14,17 @@ clone_subcommand::clone_subcommand(const libgit2_object&, CLI::App& app)
     sub->add_option("<repository>", m_repository, "The (possibly remote) repository to clone from.")->required();
     sub->add_option("<directory>", m_directory, "The name of a new directory to clone into.");
     sub->add_option("--depth", m_depth, "Create a shallow clone of that depth.");
-    // sub->add_option("--shallow-since", m_shallow_since, "<time>\ndeepen history of shallow repository based on time.");
-    // sub->add_option("--shallow-exclude", m_shallow_exclude, "<ref>\ndeepen history of shallow clone, excluding ref");
+    // sub->add_option("--shallow-since", m_shallow_since, "<time>\ndeepen history of shallow repository based
+    // on time."); sub->add_option("--shallow-exclude", m_shallow_exclude, "<ref>\ndeepen history of shallow
+    // clone, excluding ref");
     sub->add_flag("--bare", m_bare, "Create a bare Git repository.");
 
-    sub->callback([this]() { this->run(); });
+    sub->callback(
+        [this]()
+        {
+            this->run();
+        }
+    );
 }
 
 void clone_subcommand::run()

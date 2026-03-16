@@ -20,6 +20,7 @@ public:
     void run();
 
 private:
+
     status_subcommand_options m_options;
 };
 

@@ -1,13 +1,13 @@
+#include "add_subcommand.hpp"
+
 #include <git2.h>
 
-#include "add_subcommand.hpp"
 #include "../wrapper/index_wrapper.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 
-
 add_subcommand::add_subcommand(const libgit2_object&, CLI::App& app)
 {
-    auto *sub = app.add_subcommand("add", "Add file contents to the index");
+    auto* sub = app.add_subcommand("add", "Add file contents to the index");
 
     sub->add_option("<files>", m_add_files, "Files to add");
 
@@ -16,9 +16,13 @@ add_subcommand::add_subcommand(const libgit2_object&, CLI::App& app)
     // sub->add_flag("-u,--update", update_flag, "");
     // sub->add_flag("-v,--verbose", verbose_flag, "");
 
-    sub->callback([this]() { this->run(); });
+    sub->callback(
+        [this]()
+        {
+            this->run();
+        }
+    );
 };
-
 
 void add_subcommand::run()
 {

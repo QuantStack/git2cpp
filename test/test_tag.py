@@ -13,9 +13,7 @@ def test_tag_list_empty(repo_init_with_commit, git2cpp_path, tmp_path):
     assert p.stdout == ""
 
 
-def test_tag_create_lightweight(
-    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path
-):
+def test_tag_create_lightweight(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path):
     """Test creating a lightweight tag."""
     assert (tmp_path / "initial.txt").exists()
 
@@ -30,9 +28,7 @@ def test_tag_create_lightweight(
     assert "v1.0.0" in p_list.stdout
 
 
-def test_tag_create_annotated(
-    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path
-):
+def test_tag_create_annotated(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path):
     """Test creating an annotated tag."""
     assert (tmp_path / "initial.txt").exists()
 
@@ -56,9 +52,7 @@ def test_tag_create_on_specific_commit(
 
     # Get the commit SHA before creating new commit
     old_head_cmd = [git2cpp_path, "rev-parse", "HEAD"]
-    p_old_head = subprocess.run(
-        old_head_cmd, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_old_head = subprocess.run(old_head_cmd, capture_output=True, cwd=tmp_path, text=True)
     old_head_sha = p_old_head.stdout.strip()
 
     # Create a commit first
@@ -73,9 +67,7 @@ def test_tag_create_on_specific_commit(
 
     # Get new HEAD commit SHA
     new_head_cmd = [git2cpp_path, "rev-parse", "HEAD"]
-    p_new_head = subprocess.run(
-        new_head_cmd, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_new_head = subprocess.run(new_head_cmd, capture_output=True, cwd=tmp_path, text=True)
     new_head_sha = p_new_head.stdout.strip()
 
     # Verify we actually created a new commit
@@ -93,9 +85,7 @@ def test_tag_create_on_specific_commit(
 
     # Get commit SHA that the tag points to
     tag_sha_cmd = [git2cpp_path, "rev-parse", "v1.0.0^{commit}"]
-    p_tag_sha = subprocess.run(
-        tag_sha_cmd, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_tag_sha = subprocess.run(tag_sha_cmd, capture_output=True, cwd=tmp_path, text=True)
     tag_sha = p_tag_sha.stdout.strip()
 
     # Verify tag points to new HEAD, not old HEAD
@@ -136,9 +126,7 @@ def test_tag_delete_nonexistent(repo_init_with_commit, git2cpp_path, tmp_path):
 
 
 @pytest.mark.parametrize("list_flag", ["", "-l", "--list"])
-def test_tag_list(
-    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path, list_flag
-):
+def test_tag_list(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path, list_flag):
     """Test listing tags with -l or --list flag."""
     assert (tmp_path / "initial.txt").exists()
 
@@ -153,9 +141,7 @@ def test_tag_list(
     assert "v1.0.0" in p_list.stdout
 
 
-def test_tag_list_with_pattern(
-    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path
-):
+def test_tag_list_with_pattern(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path):
     """Test listing tags with a pattern."""
     assert (tmp_path / "initial.txt").exists()
 
@@ -215,9 +201,7 @@ def test_tag_force_replace(
 
     # Create initial tag
     create_cmd_1 = [git2cpp_path, "tag", "v1.0.0"]
-    subprocess.run(
-        create_cmd_1, capture_output=True, cwd=tmp_path, text=True, check=True
-    )
+    subprocess.run(create_cmd_1, capture_output=True, cwd=tmp_path, text=True, check=True)
 
     # Try to create same tag without force (should fail)
     create_cmd_2 = [git2cpp_path, "tag", "v1.0.0"]
@@ -226,9 +210,7 @@ def test_tag_force_replace(
 
     # Create same tag with force (should succeed)
     create_cmd_3 = [git2cpp_path, "tag", force_flag, "v1.0.0"]
-    p_create_3 = subprocess.run(
-        create_cmd_3, capture_output=True, cwd=tmp_path, text=True
-    )
+    p_create_3 = subprocess.run(create_cmd_3, capture_output=True, cwd=tmp_path, text=True)
     assert p_create_3.returncode == 0
 
 
@@ -239,9 +221,7 @@ def test_tag_nogit(git2cpp_path, tmp_path):
     assert p.returncode != 0
 
 
-def test_tag_annotated_no_message(
-    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path
-):
+def test_tag_annotated_no_message(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path):
     """Test creating an annotated tag without a message should fail."""
     assert (tmp_path / "initial.txt").exists()
 
@@ -290,9 +270,7 @@ def test_tag_multiple_create_and_list(
         assert tag in p_list.stdout
 
 
-def test_tag_on_new_commit(
-    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path
-):
+def test_tag_on_new_commit(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path):
     """Test creating tags on new commits."""
     assert (tmp_path / "initial.txt").exists()
 

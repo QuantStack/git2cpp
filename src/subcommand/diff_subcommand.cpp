@@ -1,10 +1,12 @@
-#include <git2.h>
+#include "../subcommand/diff_subcommand.hpp"
+
 #include <optional>
+
+#include <git2.h>
 #include <termcolor/termcolor.hpp>
 
 #include "../utils/common.hpp"
 #include "../utils/git_exception.hpp"
-#include "../subcommand/diff_subcommand.hpp"
 #include "../wrapper/patch_wrapper.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 
@@ -12,8 +14,7 @@ diff_subcommand::diff_subcommand(const libgit2_object&, CLI::App& app)
 {
     auto* sub = app.add_subcommand("diff", "Show changes between commits, commit and working tree, etc");
 
-    sub->add_option("<files>", m_files, "tree-ish objects to compare")
-        ->expected(0, 2);
+    sub->add_option("<files>", m_files, "tree-ish objects to compare")->expected(0, 2);
 
     sub->add_flag("--stat", m_stat_flag, "Generate a diffstat");
     sub->add_flag("--shortstat", m_shortstat_flag, "Output only the last line of --stat");
@@ -35,35 +36,59 @@ diff_subcommand::diff_subcommand(const libgit2_object&, CLI::App& app)
     sub->add_flag("--minimal", m_minimal_flag, "Spend extra time to find smallest diff");
 
     sub->add_option("-M,--find-renames", m_rename_threshold, "Detect renames")
-        ->expected(0,1)
+        ->expected(0, 1)
         ->default_val(50)
-        ->each([this](const std::string&) { m_find_renames_flag = true; });
+        ->each(
+            [this](const std::string&)
+            {
+                m_find_renames_flag = true;
+            }
+        );
     sub->add_option("-C,--find-copies", m_copy_threshold, "Detect copies")
-        ->expected(0,1)
+        ->expected(0, 1)
         ->default_val(50)
-        ->each([this](const std::string&) { m_find_copies_flag = true; });
+        ->each(
+            [this](const std::string&)
+            {
+                m_find_copies_flag = true;
+            }
+        );
     sub->add_flag("--find-copies-harder", m_find_copies_harder_flag, "Detect copies from unmodified files");
     sub->add_flag("-B,--break-rewrites", m_break_rewrites_flag, "Detect file rewrites");
 
     sub->add_option("-U,--unified", m_context_lines, "Lines of context");
     sub->add_option("--inter-hunk-context", m_interhunk_lines, "Context between hunks");
-    sub->add_option("--abbrev", m_abbrev, "Abbreviation length for object names")
-        ->expected(0,1);
+    sub->add_option("--abbrev", m_abbrev, "Abbreviation length for object names")->expected(0, 1);
 
     sub->add_flag("--color", m_colour_flag, "Show colored diff");
     sub->add_flag("--no-color", m_no_colour_flag, "Turn off colored diff");
 
-    sub->callback([this]() { this->run(); });
+    sub->callback(
+        [this]()
+        {
+            this->run();
+        }
+    );
 }
 
-void print_stats(const diff_wrapper& diff, bool use_colour, bool stat_flag, bool shortstat_flag, bool numstat_flag, bool summary_flag)
+void print_stats(
+    const diff_wrapper& diff,
+    bool use_colour,
+    bool stat_flag,
+    bool shortstat_flag,
+    bool numstat_flag,
+    bool summary_flag
+)
 {
     git_diff_stats_format_t format;
     if (stat_flag)
     {
         if (shortstat_flag || numstat_flag || summary_flag)
         {
-            throw git_exception("Only one of --stat, --shortstat, --numstat and --summary should be provided.", git2cpp_error_code::BAD_ARGUMENT);
+            throw git_exception(
+                "Only one of --stat, --shortstat, --numstat and --summary should be provided.",
+                git2cpp_error_code::BAD_ARGUMENT
+            );
         }
         else
         {
@@ -74,7 +99,10 @@ void print_stats(const diff_wrapper& diff, bool use_colour, bool stat_flag, bool
     {
         if (numstat_flag || summary_flag)
         {
-            throw git_exception("Only one of --stat, --shortstat, --numstat and --summary should be provided.", git2cpp_error_code::BAD_ARGUMENT);
+            throw git_exception(
+                "Only one of --stat, --shortstat, --numstat and --summary should be provided.",
+                git2cpp_error_code::BAD_ARGUMENT
+            );
         }
         else
         {
@@ -85,7 +113,10 @@ void print_stats(const diff_wrapper& diff, bool use_colour, bool stat_flag, bool
     {
         if (summary_flag)
         {
-            throw git_exception("Only one of --stat, --shortstat, --numstat and --summary should be provided.", git2cpp_error_code::BAD_ARGUMENT);
+            throw git_exception(
+                "Only one of --stat, --shortstat, --numstat and --summary should be provided.",
+                git2cpp_error_code::BAD_ARGUMENT
+            );
         }
         else
         {
@@ -139,74 +170,91 @@ void print_stats(const diff_wrapper& diff, bool use_colour, bool stat_flag, bool
     git_buf_dispose(&buf);
 }
 
-static int colour_printer([[maybe_unused]] const git_diff_delta* delta, [[maybe_unused]] const git_diff_hunk* hunk, const git_diff_line* line, void* payload)
+static int colour_printer(
+    [[maybe_unused]] const git_diff_delta* delta,
+    [[maybe_unused]] const git_diff_hunk* hunk,
+    const git_diff_line* line,
+    void* payload
+)
 {
-	bool use_colour = *reinterpret_cast<bool*>(payload);
+    bool use_colour = *reinterpret_cast<bool*>(payload);
 
-	// Only print origin for context/addition/deletion lines
-    bool print_origin = (line->origin == GIT_DIFF_LINE_CONTEXT ||
-                        line->origin == GIT_DIFF_LINE_ADDITION ||
-                        line->origin == GIT_DIFF_LINE_DELETION);
+    // Only print origin for context/addition/deletion lines
+    bool print_origin = (line->origin == GIT_DIFF_LINE_CONTEXT || line->origin == GIT_DIFF_LINE_ADDITION || line->origin == GIT_DIFF_LINE_DELETION);
 
-	if (use_colour)
-	{
-		switch (line->origin) {
-		case GIT_DIFF_LINE_ADDITION:  std::cout << termcolor::green; break;
-		case GIT_DIFF_LINE_DELETION:  std::cout << termcolor::red; break;
-		case GIT_DIFF_LINE_ADD_EOFNL: std::cout << termcolor::green; break;
-		case GIT_DIFF_LINE_DEL_EOFNL: std::cout << termcolor::red; break;
-		case GIT_DIFF_LINE_FILE_HDR:  std::cout << termcolor::bold; break;
-		case GIT_DIFF_LINE_HUNK_HDR:  std::cout << termcolor::cyan; break;
-		default: break;
-		}
-	}
+    if (use_colour)
+    {
+        switch (line->origin)
+        {
+            case GIT_DIFF_LINE_ADDITION:
+                std::cout << termcolor::green;
+                break;
+            case GIT_DIFF_LINE_DELETION:
+                std::cout << termcolor::red;
+                break;
+            case GIT_DIFF_LINE_ADD_EOFNL:
+                std::cout << termcolor::green;
+                break;
+            case GIT_DIFF_LINE_DEL_EOFNL:
+                std::cout << termcolor::red;
+                break;
+            case GIT_DIFF_LINE_FILE_HDR:
+                std::cout << termcolor::bold;
+                break;
+            case GIT_DIFF_LINE_HUNK_HDR:
+                std::cout << termcolor::cyan;
+                break;
+            default:
+                break;
+        }
+    }
 
-	if (print_origin)
-	{
-	    std::cout << line->origin;
-	}
+    if (print_origin)
+    {
+        std::cout << line->origin;
+    }
 
-	std::cout << std::string_view(line->content, line->content_len);
+    std::cout << std::string_view(line->content, line->content_len);
 
-	if (use_colour)
-	{
-	    std::cout << termcolor::reset;
-	}
+    if (use_colour)
+    {
+        std::cout << termcolor::reset;
+    }
 
-	// Print copy/rename headers ONLY after the "diff --git" line
+    // Print copy/rename headers ONLY after the "diff --git" line
     if (line->origin == GIT_DIFF_LINE_FILE_HDR)
     {
         if (delta->status == GIT_DELTA_COPIED)
         {
             if (use_colour)
             {
-                 std::cout << termcolor::bold;
+                std::cout << termcolor::bold;
             }
             std::cout << "similarity index " << delta->similarity << "%\n";
             std::cout << "copy from " << delta->old_file.path << "\n";
             std::cout << "copy to " << delta->new_file.path << "\n";
             if (use_colour)
             {
-                    std::cout << termcolor::reset;
+                std::cout << termcolor::reset;
             }
         }
         else if (delta->status == GIT_DELTA_RENAMED)
         {
             if (use_colour)
             {
-                    std::cout << termcolor::bold;
+                std::cout << termcolor::bold;
             }
             std::cout << "similarity index " << delta->similarity << "%\n";
             std::cout << "rename from " << delta->old_file.path << "\n";
             std::cout << "rename to " << delta->new_file.path << "\n";
             if (use_colour)
             {
-                 std::cout << termcolor::reset;
+                std::cout << termcolor::reset;
             }
         }
     }
 
-	return 0;
+    return 0;
 }
 
 void diff_subcommand::print_diff(diff_wrapper& diff, bool use_colour)
@@ -261,9 +309,12 @@ void diff_subcommand::print_diff(diff_wrapper& diff, bool use_colour)
 
 diff_wrapper compute_diff_no_index(std::vector<std::string> files, git_diff_options& diffopts)
 {
-	if (files.size() != 2)
+    if (files.size() != 2)
     {
-        throw git_exception("usage: git diff --no-index [<options>] <path> <path> [<pathspec>...]", git2cpp_error_code::BAD_ARGUMENT);
+        throw git_exception(
+            "usage: git diff --no-index [<options>] <path> <path> [<pathspec>...]",
+            git2cpp_error_code::BAD_ARGUMENT
+        );
     }
 
     git_diff_options_init(&diffopts, GIT_DIFF_OPTIONS_VERSION);
@@ -281,12 +332,12 @@ diff_wrapper compute_diff_no_index(std::vector<std::string> files, git_diff_opti
     }
 
     auto patch = patch_wrapper::patch_from_files(files[0], file1_str, files[1], file2_str, &diffopts);
-	auto buf = patch.to_buf();
-	auto diff = diff_wrapper::diff_from_buffer(buf);
+    auto buf = patch.to_buf();
+    auto diff = diff_wrapper::diff_from_buffer(buf);
 
-	git_buf_dispose(&buf);
+    git_buf_dispose(&buf);
 
-	return diff;
+    return diff;
 }
 
 void diff_subcommand::run()
@@ -299,7 +350,10 @@ void diff_subcommand::run()
     {
         if (m_colour_flag)
         {
-            throw git_exception("Only one of --color and --no-color should be provided.", git2cpp_error_code::BAD_ARGUMENT);
+            throw git_exception(
+                "Only one of --color and --no-color should be provided.",
+                git2cpp_error_code::BAD_ARGUMENT
+            );
         }
         else
         {
@@ -311,7 +365,7 @@ void diff_subcommand::run()
         use_colour = true;
     }
 
-    if (m_cached_flag  && m_no_index_flag)
+    if (m_cached_flag && m_no_index_flag)
     {
         throw git_exception("--cached and --no-index are incompatible", git2cpp_error_code::BAD_ARGUMENT);
     }
@@ -330,18 +384,42 @@ void diff_subcommand::run()
         diffopts.interhunk_lines = m_interhunk_lines;
         diffopts.id_abbrev = m_abbrev;
 
-        if (m_reverse_flag) { diffopts.flags |= GIT_DIFF_REVERSE; }
-        if (m_text_flag) { diffopts.flags |= GIT_DIFF_FORCE_TEXT; }
-        if (m_ignore_space_at_eol_flag) { diffopts.flags |= GIT_DIFF_IGNORE_WHITESPACE_EOL; }
-        if (m_ignore_space_change_flag) { diffopts.flags |= GIT_DIFF_IGNORE_WHITESPACE_CHANGE; }
-        if (m_ignore_all_space_flag) { diffopts.flags |= GIT_DIFF_IGNORE_WHITESPACE; }
-        if (m_untracked_flag) { diffopts.flags |= GIT_DIFF_INCLUDE_UNTRACKED; }
-        if (m_patience_flag) { diffopts.flags |= GIT_DIFF_PATIENCE; }
-        if (m_minimal_flag) { diffopts.flags |= GIT_DIFF_MINIMAL; }
+        if (m_reverse_flag)
+        {
+            diffopts.flags |= GIT_DIFF_REVERSE;
+        }
+        if (m_text_flag)
+        {
+            diffopts.flags |= GIT_DIFF_FORCE_TEXT;
+        }
+        if (m_ignore_space_at_eol_flag)
+        {
+            diffopts.flags |= GIT_DIFF_IGNORE_WHITESPACE_EOL;
+        }
+        if (m_ignore_space_change_flag)
+        {
+            diffopts.flags |= GIT_DIFF_IGNORE_WHITESPACE_CHANGE;
+        }
+        if (m_ignore_all_space_flag)
+        {
+            diffopts.flags |= GIT_DIFF_IGNORE_WHITESPACE;
+        }
+        if (m_untracked_flag)
+        {
+            diffopts.flags |= GIT_DIFF_INCLUDE_UNTRACKED;
+        }
+        if (m_patience_flag)
+        {
+            diffopts.flags |= GIT_DIFF_PATIENCE;
+        }
+        if (m_minimal_flag)
+        {
+            diffopts.flags |= GIT_DIFF_MINIMAL;
+        }
         if (m_find_copies_flag || m_find_copies_harder_flag || m_find_renames_flag)
-                {
-                    diffopts.flags |= GIT_DIFF_INCLUDE_UNMODIFIED;
-                }
+        {
+            diffopts.flags |= GIT_DIFF_INCLUDE_UNMODIFIED;
+        }
 
         std::optional<tree_wrapper> tree1;
         std::optional<tree_wrapper> tree2;
@@ -350,7 +428,7 @@ void diff_subcommand::run()
         {
             tree1 = repo.treeish_to_tree(m_files[0]);
         }
-        if (m_files.size() ==2)
+        if (m_files.size() == 2)
         {
             tree2 = repo.treeish_to_tree(m_files[1]);
         }

@@ -1,5 +1,6 @@
-#include "../utils/git_exception.hpp"
 #include "../wrapper/patch_wrapper.hpp"
+
+#include "../utils/git_exception.hpp"
 
 patch_wrapper::patch_wrapper(git_patch* patch)
     : base_type(patch)
@@ -19,9 +20,24 @@ git_buf patch_wrapper::to_buf()
     return buf;
 }
 
-patch_wrapper patch_wrapper::patch_from_files(const std::string& path1, const std::string& file1_str, const std::string& path2, const std::string& file2_str, git_diff_options* diffopts)
+patch_wrapper patch_wrapper::patch_from_files(
+    const std::string& path1,
+    const std::string& file1_str,
+    const std::string& path2,
+    const std::string& file2_str,
+    git_diff_options* diffopts
+)
 {
     git_patch* patch;
-    throw_if_error(git_patch_from_buffers(&patch, file1_str.c_str(), file1_str.length(), path1.c_str(), file2_str.c_str(), file2_str.length(), path2.c_str(), diffopts));
+    throw_if_error(git_patch_from_buffers(
+        &patch,
+        file1_str.c_str(),
+        file1_str.length(),
+        path1.c_str(),
+        file2_str.c_str(),
+        file2_str.length(),
+        path2.c_str(),
+        diffopts
+    ));
     return patch_wrapper(patch);
 }

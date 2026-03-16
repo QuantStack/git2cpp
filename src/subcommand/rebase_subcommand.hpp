@@ -10,7 +10,7 @@
 
 class rebase_subcommand
 {
-public: 
+public:
 
     explicit rebase_subcommand(const libgit2_object&, CLI::App& app);
     void run();
@@ -23,7 +23,7 @@ private:
     void run_skip(repository_wrapper& repo);
     void run_quit(repository_wrapper& repo);
 
-    annotated_commit_wrapper resolve_ref(const repository_wrapper& repo, const std:: string& ref_name) const;
+    annotated_commit_wrapper resolve_ref(const repository_wrapper& repo, const std::string& ref_name) const;
 
     void perform_rebase(repository_wrapper& repo, rebase_wrapper& rebase);
 

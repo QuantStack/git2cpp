@@ -1,14 +1,15 @@
+#include "common.hpp"
+
 #include <filesystem>
-#include <iostream>
 #include <fstream>
-#include <sstream>
-#include <unistd.h>
+#include <iostream>
 #include <map>
 #include <ranges>
+#include <sstream>
 
 #include <git2.h>
+#include <unistd.h>
 
-#include "common.hpp"
 #include "git_exception.hpp"
 
 libgit2_object::libgit2_object()
@@ -33,23 +34,23 @@ std::string get_current_git_path()
 
 const std::map<git_status_t, status_messages>& get_status_msg_map()
 {
-    static std::map<git_status_t, status_messages> status_msg_map =   //TODO : check spaces in short_mod
-    {
-        { GIT_STATUS_CURRENT, {"", ""} },
-        { GIT_STATUS_INDEX_NEW, {"A  ", "\tnew file:   "} },
-        { GIT_STATUS_INDEX_MODIFIED, {"M  ", "\tmodified:   "} },
-        { GIT_STATUS_INDEX_DELETED, {"D  ", "\tdeleted:   "} },
-        { GIT_STATUS_INDEX_RENAMED, {"R  ", "\trenamed:   "} },
-        { GIT_STATUS_INDEX_TYPECHANGE, {"T  ", "\ttypechange:   "} },
-        { GIT_STATUS_WT_NEW, {"?? ", "\t"} },
-        { GIT_STATUS_WT_MODIFIED, {" M " , "\tmodified:   "} },
-        { GIT_STATUS_WT_DELETED, {" D ", "\tdeleted:   "} },
-        { GIT_STATUS_WT_TYPECHANGE, {" T ", "\ttypechange:   "} },
-        { GIT_STATUS_WT_RENAMED, {" R ", "\trenamed:   "} },
-        { GIT_STATUS_WT_UNREADABLE, {"", ""} },
-        { GIT_STATUS_IGNORED, {"!! ", ""} },
-        { GIT_STATUS_CONFLICTED, {"AA ", "\tboth added:   "} },
-    };
+    static std::map<git_status_t, status_messages> status_msg_map =  // TODO : check spaces in short_mod
+        {
+            {GIT_STATUS_CURRENT, {"", ""}},
+            {GIT_STATUS_INDEX_NEW, {"A  ", "\tnew file:   "}},
+            {GIT_STATUS_INDEX_MODIFIED, {"M  ", "\tmodified:   "}},
+            {GIT_STATUS_INDEX_DELETED, {"D  ", "\tdeleted:   "}},
+            {GIT_STATUS_INDEX_RENAMED, {"R  ", "\trenamed:   "}},
+            {GIT_STATUS_INDEX_TYPECHANGE, {"T  ", "\ttypechange:   "}},
+            {GIT_STATUS_WT_NEW, {"?? ", "\t"}},
+            {GIT_STATUS_WT_MODIFIED, {" M ", "\tmodified:   "}},
+            {GIT_STATUS_WT_DELETED, {" D ", "\tdeleted:   "}},
+            {GIT_STATUS_WT_TYPECHANGE, {" T ", "\ttypechange:   "}},
+            {GIT_STATUS_WT_RENAMED, {" R ", "\trenamed:   "}},
+            {GIT_STATUS_WT_UNREADABLE, {"", ""}},
+            {GIT_STATUS_IGNORED, {"!! ", ""}},
+            {GIT_STATUS_CONFLICTED, {"AA ", "\tboth added:   "}},
+        };
     return status_msg_map;
 }
 
@@ -93,14 +94,14 @@ git_strarray_wrapper::operator git_strarray*()
 void git_strarray_wrapper::reset_str_array()
 {
     delete[] m_array.strings;
-    m_array={nullptr, 0};
+    m_array = {nullptr, 0};
 }
 
 void git_strarray_wrapper::init_str_array()
 {
     m_array.strings = new char*[m_patterns.size()];
     m_array.count = m_patterns.size();
-    for (size_t i=0; i<m_patterns.size(); ++i)
+    for (size_t i = 0; i < m_patterns.size(); ++i)
     {
         m_array.strings[i] = const_cast<char*>(m_patterns[i].c_str());
     }
@@ -126,8 +127,11 @@ std::string read_file(const std::string& path)
 std::vector<std::string> split_input_at_newlines(std::string_view str)
 {
     auto split = str | std::ranges::views::split('\n')
-                     | std::ranges::views::transform([](auto&& range) {
+                 | std::ranges::views::transform(
+                     [](auto&& range)
+                     {
                          return std::string(range.begin(), range.end());
-                     });
+                     }
+                 );
     return std::vector<std::string>{split.begin(), split.end()};
 }

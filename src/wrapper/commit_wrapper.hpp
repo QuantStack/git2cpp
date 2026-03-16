@@ -1,10 +1,11 @@
 #pragma once
 
-#include <git2.h>
 #include <string>
 
-#include "../wrapper/wrapper_base.hpp"
+#include <git2.h>
+
 #include "../wrapper/tree_wrapper.hpp"
+#include "../wrapper/wrapper_base.hpp"
 
 class commit_wrapper;
 using commit_list_wrapper = list_wrapper<commit_wrapper>;

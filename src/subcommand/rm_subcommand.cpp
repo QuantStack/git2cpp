@@ -1,6 +1,8 @@
+#include "rm_subcommand.hpp"
+
 #include <filesystem>
 #include <ranges>
-#include "rm_subcommand.hpp"
+
 #include "../utils/common.hpp"
 #include "../utils/git_exception.hpp"
 #include "../wrapper/index_wrapper.hpp"
@@ -14,7 +16,12 @@ rm_subcommand::rm_subcommand(const libgit2_object&, CLI::App& app)
     rm->add_option("<pathspec>", m_pathspec, "Files to remove");
     rm->add_flag("-r", m_recursive, "Allow recursive removal when a leading directory name is given");
 
-    rm->callback([this]() { this->run(); });
+    rm->callback(
+        [this]()
+        {
+            this->run();
+        }
+    );
 }
 
 void rm_subcommand::run()
@@ -27,27 +34,30 @@ void rm_subcommand::run()
     std::vector<std::string> files;
     std::vector<std::string> directories;
 
-    std::ranges::for_each(m_pathspec, [&](const std::string& path)
-    {
-        if (!fs::exists(path))
+    std::ranges::for_each(
+        m_pathspec,
+        [&](const std::string& path)
         {
-            std::string msg = "fatal: pathspec '" + path + "' did not math any file";
-            throw git_exception(msg, git2cpp_error_code::FILESYSTEM_ERROR);
-        }
-        if (fs::is_directory(path))
-        {
-            directories.push_back(path);
-        }
-        else
-        {
-            if (!repo.does_track(path))
+            if (!fs::exists(path))
             {
-                std::string msg = "fatal: pathsspec '" + path + "'is not tracked";
+                std::string msg = "fatal: pathspec '" + path + "' did not math any file";
                 throw git_exception(msg, git2cpp_error_code::FILESYSTEM_ERROR);
             }
-            files.push_back(path);
+            if (fs::is_directory(path))
+            {
+                directories.push_back(path);
+            }
+            else
+            {
+                if (!repo.does_track(path))
+                {
+                    std::string msg = "fatal: pathsspec '" + path + "'is not tracked";
+                    throw git_exception(msg, git2cpp_error_code::FILESYSTEM_ERROR);
+                }
+                files.push_back(path);
+            }
         }
-    });
+    );
 
     if (!directories.empty() && !m_recursive)
     {
@@ -59,6 +69,18 @@ void rm_subcommand::run()
     index.remove_directories(directories);
     index.write();
 
-    std::ranges::for_each(files, [](const std::string& path) { fs::remove(path); });
-    std::ranges::for_each(directories, [](const std::string& path) { fs::remove_all(path); });
+    std::ranges::for_each(
+        files,
+        [](const std::string& path)
+        {
+            fs::remove(path);
+        }
+    );
+    std::ranges::for_each(
+        directories,
+        [](const std::string& path)
+        {
+            fs::remove_all(path);
+        }
+    );
 }

@@ -1,10 +1,11 @@
-#include <vector>
+#include "../wrapper/remote_wrapper.hpp"
+
 #include <string>
+#include <vector>
 
 #include <git2/remote.h>
 
 #include "../utils/git_exception.hpp"
-#include "../wrapper/remote_wrapper.hpp"
 
 remote_wrapper::remote_wrapper(git_remote* remote)
     : base_type(remote)

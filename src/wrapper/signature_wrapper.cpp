@@ -1,7 +1,9 @@
-#include "../wrapper/repository_wrapper.hpp"
 #include "../wrapper/signature_wrapper.hpp"
-#include "../utils/git_exception.hpp"
+
 #include <git2/types.h>
+
+#include "../utils/git_exception.hpp"
+#include "../wrapper/repository_wrapper.hpp"
 
 signature_wrapper::~signature_wrapper()
 {
@@ -9,7 +11,7 @@ signature_wrapper::~signature_wrapper()
     {
         git_signature_free(p_resource);
     }
-    p_resource=nullptr;
+    p_resource = nullptr;
 }
 
 std::string_view signature_wrapper::name() const
@@ -27,7 +29,8 @@ git_time signature_wrapper::when() const
     return p_resource->when;
 }
 
-signature_wrapper::author_committer_signatures signature_wrapper::get_default_signature_from_env(repository_wrapper& rw)
+signature_wrapper::author_committer_signatures
+signature_wrapper::get_default_signature_from_env(repository_wrapper& rw)
 {
     signature_wrapper author;
     signature_wrapper committer;
@@ -62,7 +65,11 @@ signature_wrapper signature_wrapper::signature_now(std::string_view name, std::s
 }
 
 signature_wrapper::author_committer_signatures signature_wrapper::signature_now(
-    std::string_view author_name, std::string_view author_email, std::string_view committer_name, std::string_view committer_email)
+    std::string_view author_name,
+    std::string_view author_email,
+    std::string_view committer_name,
+    std::string_view committer_email
+)
 {
     signature_wrapper author_sig = signature_now(author_name.data(), author_email.data());
     signature_wrapper cmt_sig = signature_now(committer_name.data(), committer_email.data());

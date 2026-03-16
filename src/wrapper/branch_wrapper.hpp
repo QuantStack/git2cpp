@@ -24,7 +24,7 @@ public:
     std::string_view reference_name() const;
 
 private:
-    
+
     explicit branch_wrapper(git_reference* ref);
 
     friend class repository_wrapper;

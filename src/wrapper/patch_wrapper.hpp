@@ -1,7 +1,8 @@
 #pragma once
 
-#include <git2.h>
 #include <string>
+
+#include <git2.h>
 
 #include "../wrapper/wrapper_base.hpp"
 
@@ -17,7 +18,13 @@ public:
     patch_wrapper& operator=(patch_wrapper&&) noexcept = default;
 
     git_buf to_buf();
-    static patch_wrapper patch_from_files(const std::string& path1, const std::string& file1_str, const std::string& path2, const std::string& file2_str, git_diff_options* diffopts);
+    static patch_wrapper patch_from_files(
+        const std::string& path1,
+        const std::string& file1_str,
+        const std::string& path2,
+        const std::string& file2_str,
+        git_diff_options* diffopts
+    );
 
 private:
 
