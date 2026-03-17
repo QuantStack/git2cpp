@@ -2,6 +2,8 @@ import subprocess
 
 import pytest
 
+from .conftest import GIT2CPP_TEST_WASM
+
 
 def test_tag_list_empty(repo_init_with_commit, git2cpp_path, tmp_path):
     """Test listing tags when there are no tags."""
@@ -234,6 +236,9 @@ def test_tag_annotated_no_message(repo_init_with_commit, commit_env_config, git2
 
     commit_cmd = [git2cpp_path, "commit", "-m", "my specific commit message"]
     subprocess.run(commit_cmd, cwd=tmp_path, check=True)
+
+    if GIT2CPP_TEST_WASM:
+        pytest.skip("Not possible to pass empty argument to wasm")
 
     # Create tag with empty message (should create lightweight tag)
     create_cmd = [git2cpp_path, "tag", "-m", "", "v1.0.0"]

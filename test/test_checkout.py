@@ -2,6 +2,8 @@ import subprocess
 
 import pytest
 
+from .conftest import strip_ansi_colours
+
 
 def test_checkout(repo_init_with_commit, git2cpp_path, tmp_path):
     assert (tmp_path / "initial.txt").exists()
@@ -103,6 +105,7 @@ def test_checkout_with_unstaged_changes(repo_init_with_commit, git2cpp_path, tmp
 
     # Should succeed and show status
     assert p_checkout.returncode == 0
+    p_checkout.stdout = strip_ansi_colours(p_checkout.stdout)
     assert " M initial.txt" in p_checkout.stdout
     assert "Switched to branch 'newbranch'" in p_checkout.stdout
 

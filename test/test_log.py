@@ -3,6 +3,8 @@ import subprocess
 
 import pytest
 
+from .conftest import strip_ansi_colours
+
 
 @pytest.mark.parametrize("format_flag", ["", "--format=full", "--format=fuller"])
 def test_log(commit_env_config, git2cpp_path, tmp_path, format_flag):
@@ -101,7 +103,7 @@ def test_log_with_head_reference(repo_init_with_commit, commit_env_config, git2c
     assert p_log.returncode == 0
 
     # Check that HEAD reference is shown
-    assert "HEAD ->" in p_log.stdout
+    assert "HEAD ->" in strip_ansi_colours(p_log.stdout)
     assert "master" in p_log.stdout or "main" in p_log.stdout
 
 
@@ -253,7 +255,7 @@ def test_log_commit_without_references(commit_env_config, git2cpp_path, tmp_path
     assert p_log.returncode == 0
 
     # First commit line should have references
-    lines = p_log.stdout.split("\n")
+    lines = strip_ansi_colours(p_log.stdout).split("\n")
     first_commit_line = [line for line in lines if line.startswith("commit")][0]
     assert "(" in first_commit_line  # Has references
 
@@ -286,7 +288,7 @@ def test_log_abbrev_commit_flags(
     p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p.returncode == 0
 
-    m = re.search(r"^commit\s+([0-9a-fA-F]+)", p.stdout, flags=re.MULTILINE)
+    m = re.search(r"^commit\s+([0-9a-fA-F]+)", strip_ansi_colours(p.stdout), flags=re.MULTILINE)
     if abbrev_commit_flag in ["", "--no-abbrev-commit"]:
         assert len(m.group(1)) == 40
     else:

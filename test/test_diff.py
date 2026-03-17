@@ -3,6 +3,8 @@ import subprocess
 
 import pytest
 
+from .conftest import strip_ansi_colours
+
 
 def test_diff_nogit(git2cpp_path, tmp_path):
     cmd = [git2cpp_path, "diff"]
@@ -84,6 +86,8 @@ def test_diff_stat(repo_init_with_commit, git2cpp_path, tmp_path):
     cmd = [git2cpp_path, "diff", "--stat"]
     p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p.returncode == 0
+
+    p.stdout = strip_ansi_colours(p.stdout)
     assert "initial.txt" in p.stdout
     assert "1 file changed, 1 insertion(+)" in p.stdout
     assert "Modified content" not in p.stdout
@@ -132,6 +136,7 @@ def test_diff_summary(repo_init_with_commit, git2cpp_path, tmp_path):
     cmd = [git2cpp_path, "diff", "--cached", "--summary"]
     p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p.returncode == 0
+    p.stdout = strip_ansi_colours(p.stdout)
     assert "newfile.txt" in p.stdout
     assert "+" not in p.stdout
 
@@ -146,6 +151,7 @@ def test_diff_name_only(repo_init_with_commit, git2cpp_path, tmp_path):
     p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
 
     assert p.returncode == 0
+    p.stdout = strip_ansi_colours(p.stdout)
     assert p.stdout == "initial.txt\n"
     assert "+" not in p.stdout
 
@@ -159,6 +165,7 @@ def test_diff_name_status(repo_init_with_commit, git2cpp_path, tmp_path):
     cmd = [git2cpp_path, "diff", "--name-status"]
     p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p.returncode == 0
+    p.stdout = strip_ansi_colours(p.stdout)
     assert p.stdout == "M\tinitial.txt\n"
 
 
@@ -172,6 +179,7 @@ def test_diff_raw(repo_init_with_commit, git2cpp_path, tmp_path):
     cmd = [git2cpp_path, "diff", "--raw"]
     p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p.returncode == 0
+    p.stdout = strip_ansi_colours(p.stdout)
     assert "M\tinitial.txt" in p.stdout
     assert bool(re.search(":[0-9]*", p.stdout))
 
@@ -635,7 +643,6 @@ def test_diff_find_copies_harder(
         [git2cpp_path, "commit", "-m", "add original file"],
         cwd=tmp_path,
         check=True,
-        env=commit_env_config,
     )
 
     # Create identical copy
@@ -669,7 +676,6 @@ def test_diff_find_copies_with_threshold(
         [git2cpp_path, "commit", "-m", "add original file"],
         cwd=tmp_path,
         check=True,
-        env=commit_env_config,
     )
 
     # Create a partial copy (60% similar)

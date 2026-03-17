@@ -19,12 +19,15 @@ def pytest_ignore_collect(collection_path: pathlib.Path) -> bool:
         "test_clone.py",
         "test_commit.py",
         "test_config.py",
+        "test_diff.py",
+        "test_fetch.py",
         "test_fixtures.py",
         "test_git.py",
         "test_init.py",
         "test_log.py",
         "test_merge.py",
         "test_mv.py",
+        "test_push.py",
         "test_rebase.py",
         "test_remote.py",
         "test_reset.py",
@@ -33,6 +36,7 @@ def pytest_ignore_collect(collection_path: pathlib.Path) -> bool:
         "test_rm.py",
         "test_stash.py",
         "test_status.py",
+        "test_tag.py",
     ]
 
 
@@ -52,18 +56,6 @@ def load_page(page: Page):
     # Load web page at start of every test.
     page.goto("http://localhost:8000")
     page.locator("#loaded").wait_for()
-
-
-def os_chdir(dir: str):
-    subprocess.run(["cd", str(dir)], capture_output=True, check=True, text=True)
-
-
-def os_getcwd():
-    return subprocess.run(["pwd"], capture_output=True, check=True, text=True).stdout.strip()
-
-
-def os_remove(file: str):
-    return subprocess.run(["rm", str(file)], capture_output=True, check=True, text=True)
 
 
 class MockPath(pathlib.Path):
@@ -95,6 +87,9 @@ class MockPath(pathlib.Path):
             args.append("-p")
         subprocess.run(["mkdir"] + args, capture_output=True, text=True, check=True)
 
+    def read_bytes(self) -> bytes:
+        raise RuntimeError("Not implemented")
+
     def read_text(self) -> str:
         p = subprocess.run(["cat", str(self)], capture_output=True, text=True, check=True)
         text = p.stdout
@@ -102,17 +97,50 @@ class MockPath(pathlib.Path):
             text = text[:-1]
         return text
 
+    def write_bytes(self, data: bytes):
+        # Convert binary data to a string where each element is backslash-escaped so that we can
+        # write to file in cockle using `echo -e <backslash-escaped data>`.
+        encoded_string = "".join(map(lambda d: f"\\x{d:02x}", data))
+        cmd = ["echo", "-e", encoded_string, ">", str(self)]
+        subprocess.run(cmd, capture_output=True, text=True, check=True)
+        return len(data)
+
     def write_text(self, data: str):
         # Note that in general it is not valid to direct output of a subprocess.run call to a file,
         # but we get away with it here as the command arguments are passed straight through to
         # cockle without being checked.
-        p = subprocess.run(["echo", data, ">", str(self)], capture_output=True, text=True)
-        assert p.returncode == 0
+        if data.endswith("\n"):
+            data = data[:-1]
+        cmd = ["echo", data, ">", str(self)]
+        subprocess.run(cmd, capture_output=True, text=True, check=True)
+        return len(data)
 
     def __truediv__(self, other):
         if isinstance(other, str):
             return MockPath(f"{self}/{other}")
         raise RuntimeError("MockPath.__truediv__ only supports strings")
+
+
+def os_chdir(dir: str):
+    subprocess.run(["cd", str(dir)], capture_output=True, check=True, text=True)
+
+
+def os_getcwd():
+    return subprocess.run(["pwd"], capture_output=True, check=True, text=True).stdout.strip()
+
+
+def os_remove(file: str):
+    return subprocess.run(["rm", str(file)], capture_output=True, check=True, text=True)
+
+
+def os_rename(src: str | MockPath, dst: str | MockPath):
+    return subprocess.run(["mv", str(src), str(dst)], capture_output=True, check=True, text=True)
+
+
+def os_symlink(src: str | MockPath, dst: str | MockPath):
+    return subprocess.run(
+        ["ln", "-s", str(src), str(dst)], capture_output=True, check=True, text=True
+    )
 
 
 def subprocess_run(
@@ -192,3 +220,5 @@ def mock_subprocess_run(page: Page, monkeypatch):
     monkeypatch.setattr(os, "chdir", os_chdir)
     monkeypatch.setattr(os, "getcwd", os_getcwd)
     monkeypatch.setattr(os, "remove", os_remove)
+    monkeypatch.setattr(os, "rename", os_rename)
+    monkeypatch.setattr(os, "symlink", os_symlink)

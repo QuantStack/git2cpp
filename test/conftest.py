@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -73,6 +74,10 @@ def private_test_repo():
     # Fixture containing everything needed to access private github repo.
     # GIT2CPP_TEST_PRIVATE_TOKEN is the fine-grained Personal Access Token for private test repo.
     # If this is not available as an environment variable, tests that use this fixture are skipped.
+
+    if GIT2CPP_TEST_WASM:
+        pytest.skip("Use of credentials in wasm not yet implemented")
+
     token = os.getenv("GIT2CPP_TEST_PRIVATE_TOKEN")
     if token is None or len(token) == 0:
         pytest.skip("No token for private test repo GIT2CPP_TEST_PRIVATE_TOKEN")
@@ -84,3 +89,11 @@ def private_test_repo():
         "https_url": f"https://github.com/{org_name}/{repo_name}",
         "token": token,
     }
+
+
+# Functions not fixtures below here.
+
+
+def strip_ansi_colours(text):
+    # Strip ansi colour code sequences from a string.
+    return re.sub(r"\x1b\[[^m]*m", "", text)

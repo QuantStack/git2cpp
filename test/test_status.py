@@ -4,6 +4,8 @@ import subprocess
 
 import pytest
 
+from .conftest import strip_ansi_colours
+
 
 @pytest.mark.parametrize("short_flag", ["", "-s", "--short"])
 @pytest.mark.parametrize("long_flag", ["", "--long"])
@@ -185,6 +187,8 @@ def test_status_mixed_changes(repo_init_with_commit, git2cpp_path, tmp_path, sho
     p = subprocess.run(cmd_status, capture_output=True, cwd=tmp_path, text=True)
 
     assert p.returncode == 0
+
+    p.stdout = strip_ansi_colours(p.stdout)
     if short_flag == "-s":
         assert "A  staged.txt" in p.stdout
         assert "D  to_delete.txt" in p.stdout
