@@ -12,7 +12,7 @@ def test_push_private_repo(
     # that to the remote.
     username = "abc"  # Can be any non-empty string.
     password = private_test_repo["token"]
-    input = f"{username}\n{password}"
+    input = f"{username}\n{password}\n"
     repo_path = tmp_path / private_test_repo["repo_name"]
     url = private_test_repo["https_url"]
 
@@ -55,7 +55,7 @@ def test_push_private_repo(
     assert p_log.stdout.count("This is my commit message") == 1
 
     # push with incorrect credentials to check it fails, then with correct to check it works.
-    input = f"${username}\ndef\n{username}\n{password}"
+    input = f"${username}\ndef\n{username}\n{password}\n"
     push_cmd = [git2cpp_path, "push", "origin"]
     p_push = subprocess.run(push_cmd, cwd=repo_path, capture_output=True, text=True, input=input)
     assert p_push.returncode == 0

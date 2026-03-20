@@ -154,7 +154,6 @@ def test_branch_show_current(repo_init_with_commit, git2cpp_path, tmp_path):
     cmd = [git2cpp_path, "branch", "--show-current"]
     p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p.returncode == 0
-    print(p.stdout)
     # Default branch after init is "main" or "master" depending on git config
     assert p.stdout.strip() == "main"
 

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <map>
 #include <ranges>
+#include <regex>
 #include <sstream>
 
 #include <git2.h>
@@ -134,4 +135,10 @@ std::vector<std::string> split_input_at_newlines(std::string_view str)
                      }
                  );
     return std::vector<std::string>{split.begin(), split.end()};
+}
+
+std::string trim(const std::string& str)
+{
+    auto s = std::regex_replace(str, std::regex("^\\s+"), "");
+    return std::regex_replace(s, std::regex("\\s+$"), "");
 }

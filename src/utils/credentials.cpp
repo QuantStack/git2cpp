@@ -25,7 +25,7 @@ int user_credentials(
         std::string username = username_from_url ? username_from_url : "";
         if (username.empty())
         {
-            username = prompt_input("Username: ");
+            username = trim(prompt_input("Username: "));
         }
         if (username.empty())
         {
@@ -33,7 +33,7 @@ int user_credentials(
             return GIT_EAUTH;
         }
 
-        std::string password = prompt_input("Password: ", false);
+        std::string password = trim(prompt_input("Password: ", false));
         if (password.empty())
         {
             giterr_set_str(GIT_ERROR_HTTP, "No password specified");

@@ -48,5 +48,7 @@ jobs:
       - name: Run WebAssembly tests
         shell: bash -l {0}
         working-directory: wasm
+        env:
+          GIT2CPP_TEST_PRIVATE_TOKEN: ${{ secrets.GIT2CPP_TEST_PRIVATE_TOKEN }}
         run: |
           make test

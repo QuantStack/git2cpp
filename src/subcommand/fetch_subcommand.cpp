@@ -7,6 +7,7 @@
 #include "../utils/credentials.hpp"
 #include "../utils/input_output.hpp"
 #include "../utils/progress.hpp"
+#include "../wasm/scope.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 
 fetch_subcommand::fetch_subcommand(const libgit2_object&, CLI::App& app)
@@ -32,6 +33,8 @@ fetch_subcommand::fetch_subcommand(const libgit2_object&, CLI::App& app)
 
 void fetch_subcommand::run()
 {
+    wasm_http_transport_scope transport;  // Enables wasm http(s) transport.
+
     auto directory = get_current_git_path();
     auto repo = repository_wrapper::open(directory);
 
