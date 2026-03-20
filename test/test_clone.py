@@ -125,3 +125,22 @@ def test_clone_private_repo_fails_on_no_password(
     assert not repo_path.exists()
     assert p_clone.stdout.count("Username:") == 1
     assert p_clone.stdout.count("Password:") == 1
+
+
+@pytest.mark.parametrize("protocol", ["http", "https"])
+def test_clone_gitlab(git2cpp_path, tmp_path, run_in_tmp_path, protocol):
+    repo_url = f"{protocol}://gitlab.quantstack.net/ianthomas23_group/cockle-playground"
+
+    clone_cmd = [git2cpp_path, "clone", repo_url]
+    p_clone = subprocess.run(clone_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_clone.returncode == 0
+
+    repo_path = tmp_path / "cockle-playground"
+    assert repo_path.is_dir()
+    assert (repo_path / "src").is_dir()
+
+    status_cmd = [git2cpp_path, "status"]
+    p_status = subprocess.run(status_cmd, capture_output=True, cwd=repo_path, text=True)
+    assert p_status.returncode == 0
+    assert "On branch main" in p_status.stdout
+    assert "Your branch is up to date with 'origin/main'" in p_status.stdout
