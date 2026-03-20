@@ -91,13 +91,19 @@ To test the WebAssembly build use from the `wasm` directory:
 make test
 ```
 
-This runs (some of) the tests in the top-level `test` directory with various monkey patching so that
+This runs the tests in the top-level `test` directory with various monkey patching so that
 `git2cpp` commands are executed in the browser.
 The tests that are run are defined in the function `pytest_ignore_collect` in `conftest_wasm.py`.
 If there are problems running the tests then ensure you have the latest `playwright` browser installed:
 
 ```bash
 playwright install chromium
+```
+
+To run all of the tests including those that require the `GIT2CPP_TEST_PRIVATE_TOKEN`:
+
+```bash
+GIT2CPP_TEST_PRIVATE_TOKEN=<this-is-the-personal-access-token> make test
 ```
 
 You can run a specific test from the top-level `test` directory (not the `wasm/test` directory)

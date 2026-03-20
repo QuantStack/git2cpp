@@ -18,7 +18,7 @@ def test_fetch_private_repo(git2cpp_path, tmp_path, run_in_tmp_path, private_tes
     # First fetch with wrong password which fails, then correct password which succeeds.
     username = "abc"  # Can be any non-empty string.
     password = private_test_repo["token"]
-    input = f"{username}\nwrong_password\n{username}\n{password}"
+    input = f"{username}\nwrong_password\n{username}\n{password}\n"
     fetch_cmd = [git2cpp_path, "fetch", "origin"]
     p_fetch = subprocess.run(fetch_cmd, capture_output=True, text=True, input=input)
     assert p_fetch.returncode == 0

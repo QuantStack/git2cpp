@@ -5,6 +5,7 @@
 #include "../utils/credentials.hpp"
 #include "../utils/input_output.hpp"
 #include "../utils/progress.hpp"
+#include "../wasm/scope.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 
 clone_subcommand::clone_subcommand(const libgit2_object&, CLI::App& app)
@@ -29,6 +30,8 @@ clone_subcommand::clone_subcommand(const libgit2_object&, CLI::App& app)
 
 void clone_subcommand::run()
 {
+    wasm_http_transport_scope transport;  // Enables wasm http(s) transport.
+
     // m_depth = 0 means no shallow clone in libgit2, while
     // it is forbidden with git. Therefore we use another
     // sentinel value to detect full clone.

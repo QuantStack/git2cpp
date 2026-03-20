@@ -68,7 +68,6 @@ def test_revparse_multiple_revs(repo_init_with_commit, git2cpp_path, tmp_path):
     assert p.returncode == 0
 
     lines = p.stdout.splitlines()
-    print()
     assert len(lines) == 2
     assert all(len(x) == 40 for x in lines)
     assert lines[0] != lines[1]

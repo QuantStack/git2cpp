@@ -11,6 +11,10 @@ used on any POSIX-compliant system.
 
 See `overview.md` for further details.
 
+## Development workflow
+
+### Build
+
 Developer's workflow using `micromamba` to manage the dependencies:
 
 ```bash
@@ -23,11 +27,23 @@ make -j8
 
 The `git2cpp` executable can then be run, e.g. `./git2cpp -v`.
 
+### Test
+
 The CLI is tested using `python`. From the top-level directory:
 
 ```bash
 pytest -v
 ```
+
+Some tests access the private repository at https://github.com/QuantStack/git2cpp-test-private using
+a fine-grained github Personal Access Token (PAT). These tests are skipped by default. To run them
+you will need to obtain the PAT from one of the maintainers, and run the tests as follows:
+
+```bash
+GIT2CPP_TEST_PRIVATE_TOKEN=<this-is-the-personal-access-token> pytest -v
+```
+
+### pre-commit
 
 `pre-commit` runs automatically on `git commit`. To run it manually use:
 
@@ -35,7 +51,7 @@ pytest -v
 pre-commit run --all-files
 ```
 
-# WebAssembly build and deployment
+## WebAssembly build and deployment
 
 The `wasm` directory contains everything needed to build the local `git2cpp` source code as an
 WebAssembly [Emscripten-forge](https://emscripten-forge.org/) package, create local
@@ -48,7 +64,7 @@ See the `README.md` in the `wasm` directory for further details.
 The latest `cockle` and JupyterLite `terminal` deployments using `git2cpp` are available at
 [https://quantstack.net/git2cpp](https://quantstack.net/git2cpp)
 
-# Documentation
+## Documentation
 
 The project documentation is generated from the `git2cpp` help pages. To build the documentation
 locally first build `git2cpp` as usual as described above, then install the documentation

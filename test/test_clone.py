@@ -51,7 +51,7 @@ def test_clone_private_repo(git2cpp_path, tmp_path, run_in_tmp_path, private_tes
     # Note that http succeeds by redirecting to https.
     username = "abc"  # Can be any non-empty string.
     password = private_test_repo["token"]
-    input = f"{username}\n{password}"
+    input = f"{username}\n{password}\n"
     repo_path = tmp_path / private_test_repo["repo_name"]
     url = private_test_repo["https_url" if protocol == "https" else "http_url"]
 
@@ -76,7 +76,7 @@ def test_clone_private_repo_fails_then_succeeds(
     # Fails with wrong credentials, then succeeds with correct ones.
     username = "xyz"  # Can be any non-empty string.
     password = private_test_repo["token"]
-    input = "\n".join(["wrong1", "wrong2", username, password])
+    input = "\n".join(["wrong1", "wrong2", username, password]) + "\n"
     repo_path = tmp_path / private_test_repo["repo_name"]
 
     clone_cmd = [git2cpp_path, "clone", private_test_repo["https_url"]]
@@ -97,7 +97,7 @@ def test_clone_private_repo_fails_then_succeeds(
 def test_clone_private_repo_fails_on_no_username(
     git2cpp_path, tmp_path, run_in_tmp_path, private_test_repo
 ):
-    input = ""
+    input = "\n"
     repo_path = tmp_path / private_test_repo["repo_name"]
 
     clone_cmd = [git2cpp_path, "clone", private_test_repo["https_url"]]
@@ -113,7 +113,8 @@ def test_clone_private_repo_fails_on_no_username(
 def test_clone_private_repo_fails_on_no_password(
     git2cpp_path, tmp_path, run_in_tmp_path, private_test_repo
 ):
-    input = "username\n"  # Note no password after the \n
+    input = "username\n\n"  # Note no password between the \n
+
     repo_path = tmp_path / private_test_repo["repo_name"]
 
     clone_cmd = [git2cpp_path, "clone", private_test_repo["https_url"]]

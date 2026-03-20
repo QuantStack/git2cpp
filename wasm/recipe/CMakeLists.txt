@@ -33,7 +33,7 @@ add_custom_target(modify-recipe
 add_custom_command(
     OUTPUT ${EM_FORGE_RECIPES_DIR}/${BUILT_PACKAGE_SUBDIR}
     DEPENDS modify-recipe
-    COMMAND bash -c "rattler-build build ${RATTLER_ARGS} --recipe ${GIT2CPP_RECIPE_DIR}"
+    COMMAND bash -c "rattler-build build ${RATTLER_ARGS} --recipe ${GIT2CPP_RECIPE_DIR} --keep-build"
     WORKING_DIRECTORY ${EM_FORGE_RECIPES_DIR}
 )
 
