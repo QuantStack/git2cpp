@@ -9,6 +9,7 @@
 
 #include "../subcommand/diff_subcommand.hpp"
 #include "../subcommand/status_subcommand.hpp"
+#include "../utils/ansi_code.hpp"
 
 bool has_subcommand(CLI::App* cmd)
 {
@@ -25,20 +26,20 @@ bool has_subcommand(CLI::App* cmd)
 
 stash_subcommand::stash_subcommand(const libgit2_object&, CLI::App& app)
 {
-    auto* stash = app.add_subcommand("stash", "Stash the changes in a dirty working directory away");
-    auto* push = stash->add_subcommand("push", "");
-    auto* list = stash->add_subcommand("list", "");
-    auto* pop = stash->add_subcommand("pop", "");
-    auto* apply = stash->add_subcommand("apply", "");
-    auto* show = stash->add_subcommand("show", "Show the changes recorded in the stash as a diff");
+    auto* stash = app.add_subcommand("stash", "Stash the changes in a dirty working directory away\n");
+    auto* push = stash->add_subcommand("push", "Save your local modifications to a new stash entry and roll them back to " + ansi_code::bold + "HEAD " + ansi_code::reset + "(in the working tree and in the index). The <message> part is optional and gives the description along with the stashed state.\n");
+    auto* list = stash->add_subcommand("list", "List the stash entries that you currently have. Each stash entry is listed with its name (e.g. " + ansi_code::bold + "stash@" + ansi_code::reset + "{0} is the latest entry, " + ansi_code::bold + "stash@" + ansi_code::reset + "{1} is the one before, etc.), the name of the branch that was current when the entry was made, and a short description of the commit the entry was based on.\n");  //TODO: check if shows all of that
+    auto* pop = stash->add_subcommand("pop", "Remove a single stashed state from the stash list and apply it on top of the current working tree state, i.e., do the inverse operation of " + ansi_code::bold + "git stash push.\n" + ansi_code::reset);
+    auto* apply = stash->add_subcommand("apply", "Like " + ansi_code::bold + "pop" + ansi_code::reset + ", but do not remove the state from the stash list. Unlike " + ansi_code::bold + "pop" + ansi_code::reset + ", <stash> may be any commit that looks like a commit created by " + ansi_code::bold + "stash push" + ansi_code::reset + " or " + ".\n");  //TODO: add when "create" is implemented: ansi_code::bold + "stash create" + ansi_code::reset +
+    auto* show = stash->add_subcommand("show", "Show the changes recorded in the stash entry as a diff between the stashed contents and the commit back when the stash entry was first created.\n");
 
     push->add_option("-m,--message", m_message, "");
-    pop->add_option("--index", m_index, "");
-    apply->add_option("--index", m_index, "");
-    show->add_flag("--stat", m_stat_flag, "Generate a diffstat");
-    show->add_flag("--shortstat", m_shortstat_flag, "Output only the last line of --stat");
-    show->add_flag("--numstat", m_numstat_flag, "Machine-friendly --stat");
-    show->add_flag("--summary", m_summary_flag, "Output a condensed summary");
+    pop->add_option("--index", m_index, "This option is only valid for " + ansi_code::bold + "pop" + ansi_code::reset + " and " + ansi_code::bold + "apply" + ansi_code::reset + " commands.\n");
+    apply->add_option("--index", m_index, "This option is only valid for " + ansi_code::bold + "pop" + ansi_code::reset + " and " + ansi_code::bold + "apply" + ansi_code::reset + " commands.\n");
+    show->add_flag("--stat", m_stat_flag, "Generate a diffstat\n");
+    show->add_flag("--shortstat", m_shortstat_flag, "Output only the last line of --stat\n");
+    show->add_flag("--numstat", m_numstat_flag, "Machine-friendly --stat\n");
+    show->add_flag("--summary", m_summary_flag, "Output a condensed summary\n");
 
     stash->callback(
         [this, stash]()

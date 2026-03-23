@@ -9,9 +9,9 @@ add_subcommand::add_subcommand(const libgit2_object&, CLI::App& app)
 {
     auto* sub = app.add_subcommand("add", "Add file contents to the index");
 
-    sub->add_option("<files>", m_add_files, "Files to add");
+    sub->add_option("<files>", m_add_files, "Files to add content from.");
 
-    sub->add_flag("-A,--all,--no-ignore-removal", m_all_flag, "");
+    sub->add_flag("-A,--all,--no-ignore-removal", m_all_flag, "Update the index not only where the working tree has a file matching <pathspec> but also where the index already has an entry. This adds, modifies, and removes index entries to match the working tree.\n\nIf no <pathspec> is given when -A option is used, all files in the entire working tree are updated (old versions of Git used to limit the update to the current directory and its subdirectories).");
     // sub->add_flag("-n,--dryrun", dryrun_flag, "");
     // sub->add_flag("-u,--update", update_flag, "");
     // sub->add_flag("-v,--verbose", verbose_flag, "");
