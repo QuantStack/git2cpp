@@ -6,7 +6,6 @@
 
 #include <git2.h>
 
-#include "../utils/common.hpp"
 #include "../utils/git_exception.hpp"
 #include "../wrapper/annotated_commit_wrapper.hpp"
 #include "../wrapper/branch_wrapper.hpp"
@@ -63,6 +62,8 @@ public:
     // References
     reference_wrapper find_reference(std::string_view ref_name) const;
     std::optional<reference_wrapper> find_reference_dwim(std::string_view ref_name) const;
+    std::vector<std::string> reference_list() const;
+    const git_oid ref_name_to_id(std::string ref_name) const;
 
     // Index
     index_wrapper make_index();
@@ -74,6 +75,7 @@ public:
     branch_wrapper find_branch(std::string_view name) const;
     branch_iterator iterate_branches(git_branch_t type) const;
     std::optional<reference_wrapper> upstream() const;
+    std::optional<std::string> branch_upstream_name(std::string local_branch) const;
     branch_tracking_info get_tracking_info() const;
 
     // Commits

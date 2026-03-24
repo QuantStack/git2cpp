@@ -79,3 +79,5 @@ std::vector<std::string> split_input_at_newlines(std::string_view str);
 
 // Remove whitespace from start and end of a string.
 std::string trim(const std::string& str);
+
+std::string oid_to_hex(const git_oid& oid);

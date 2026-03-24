@@ -18,4 +18,5 @@ private:
 
     std::string m_remote_name;
     std::vector<std::string> m_refspecs;
+    bool m_branches_flag = false;
 };

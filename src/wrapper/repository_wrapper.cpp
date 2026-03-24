@@ -134,6 +134,26 @@ std::optional<reference_wrapper> repository_wrapper::find_reference_dwim(std::st
     return rc == 0 ? std::make_optional(reference_wrapper(ref)) : std::nullopt;
 }
 
+std::vector<std::string> repository_wrapper::reference_list() const
+{
+    git_strarray refs = {0};
+    throw_if_error(git_reference_list(&refs, *this));
+    std::vector<std::string> result;
+    for (size_t i = 0; i < refs.count; ++i)
+    {
+        result.push_back(refs.strings[i]);
+    }
+    git_strarray_free(&refs);
+    return result;
+}
+
+const git_oid repository_wrapper::ref_name_to_id(std::string ref_name) const
+{
+    git_oid ref_id;
+    throw_if_error(git_reference_name_to_id(&ref_id, *this, ref_name.c_str()));
+    return ref_id;
+}
+
 // Index
 
 index_wrapper repository_wrapper::make_index()
@@ -192,6 +212,21 @@ std::optional<reference_wrapper> repository_wrapper::upstream() const
     {
         return std::nullopt;
     }
+}
+
+std::optional<std::string> repository_wrapper::branch_upstream_name(std::string local_branch) const
+{
+    git_buf buf = GIT_BUF_INIT;
+    int error = git_branch_upstream_name(&buf, *this, local_branch.c_str());
+    if (error != 0)
+    {
+        git_buf_dispose(&buf);
+        return std::nullopt;
+    }
+
+    std::string result(buf.ptr ? buf.ptr : "");
+    git_buf_dispose(&buf);
+    return result;
 }
 
 branch_tracking_info repository_wrapper::get_tracking_info() const

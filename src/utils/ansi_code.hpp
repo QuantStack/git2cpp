@@ -19,6 +19,9 @@ namespace ansi_code
     const std::string hide_cursor = "\e[?25l";
     const std::string show_cursor = "\e[?25h";
 
+    const std::string bold = "\033[1m";
+    const std::string reset = "\033[0m";
+
     // Functions.
     std::string cursor_to_row(size_t row);
 

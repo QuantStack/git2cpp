@@ -3,8 +3,6 @@
 #include <string>
 #include <vector>
 
-#include <git2/remote.h>
-
 #include "../utils/git_exception.hpp"
 
 remote_wrapper::remote_wrapper(git_remote* remote)

@@ -42,12 +42,9 @@ void revlist_subcommand::run()
 
     std::size_t i = 0;
     git_oid commit_oid;
-    char buf[GIT_OID_SHA1_HEXSIZE + 1];
     while (!walker.next(commit_oid) && i < m_max_count_flag)
     {
-        git_oid_fmt(buf, &commit_oid);
-        buf[GIT_OID_SHA1_HEXSIZE] = '\0';
-        std::cout << buf << std::endl;
+        std::cout << oid_to_hex(commit_oid) << std::endl;
         ++i;
     }
 }

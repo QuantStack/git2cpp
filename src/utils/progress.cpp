@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string_view>
 
+#include "../utils/common.hpp"
+
 int sideband_progress(const char* str, int len, void*)
 {
     printf("remote: %.*s", len, str);
@@ -83,10 +85,7 @@ void checkout_progress(const char* path, size_t cur, size_t tot, void* payload)
 
 int update_refs(const char* refname, const git_oid* a, const git_oid* b, git_refspec*, void*)
 {
-    char a_str[GIT_OID_SHA1_HEXSIZE + 1], b_str[GIT_OID_SHA1_HEXSIZE + 1];
-
-    git_oid_fmt(b_str, b);
-    b_str[GIT_OID_SHA1_HEXSIZE] = '\0';
+    std::string b_str = oid_to_hex(*b);
 
     if (git_oid_is_zero(a))
     {
@@ -114,8 +113,7 @@ int update_refs(const char* refname, const git_oid* a, const git_oid* b, git_ref
     }
     else
     {
-        git_oid_fmt(a_str, a);
-        a_str[GIT_OID_SHA1_HEXSIZE] = '\0';
+        std::string a_str = oid_to_hex(*a);
 
         std::cout << "[updated] " << std::string(a_str, 10) << ".." << std::string(b_str, 10) << " "
                   << refname << std::endl;
@@ -139,11 +137,9 @@ int push_update_reference(const char* refname, const char* status, void*)
 {
     if (status)
     {
-        std::cout << "  " << refname << " " << status << std::endl;
+        std::cout << " ! [remote rejected] " << refname << " (" << status << ")" << std::endl;
+        return -1;
     }
-    else
-    {
-        std::cout << "  " << refname << std::endl;
-    }
+
     return 0;
 }
