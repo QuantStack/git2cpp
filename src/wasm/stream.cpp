@@ -51,6 +51,7 @@ EM_JS(
      const char* method,
      const char* content_type_header,
      const char* authorization_header,
+     unsigned long request_timeout_ms,
      size_t buffer_size),
     {
         const url_js = UTF8ToString(url);
@@ -76,6 +77,7 @@ EM_JS(
             {
                 xhr.setRequestHeader("x-runtime-token", "{#{RUNTIME_TOKEN}#}");
             }
+            xhr.timeout = request_timeout_ms;
 
             // Cache request info on JavaScript side so that it is available in subsequent calls
             // without having to pass it back and forth to/from C++.
@@ -285,6 +287,7 @@ static int create_request(wasm_http_stream* stream, std::string_view content_hea
         name_for_method(stream->m_service.m_method).c_str(),
         content_header.data(),
         stream->m_subtransport->m_authorization_header.c_str(),
+        stream->m_subtransport->m_request_timeout_ms,
         EMFORGE_BUFSIZE
     );
     return stream->m_request_index;
