@@ -426,7 +426,7 @@ size_t repository_wrapper::shallow_depth_from_head() const
                 if (parent_list.size() > 0u)
                 {
                     has_parent = true;
-                    for (size_t j = 0u; parent_list.size(); j++)
+                    for (size_t j = 0u; j < parent_list.size(); ++j)
                     {
                         const commit_wrapper& c = parent_list[j];
                         temp_commits_list.push_back(std::move(const_cast<commit_wrapper&>(c)));
