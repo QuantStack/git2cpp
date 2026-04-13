@@ -134,7 +134,7 @@ std::optional<reference_wrapper> repository_wrapper::find_reference_dwim(std::st
     return rc == 0 ? std::make_optional(reference_wrapper(ref)) : std::nullopt;
 }
 
-std::vector<std::string> repository_wrapper::reference_list() const
+std::vector<std::string> repository_wrapper::refs_list() const
 {
     git_strarray refs = {0};
     throw_if_error(git_reference_list(&refs, *this));

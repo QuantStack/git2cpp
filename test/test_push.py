@@ -234,5 +234,5 @@ def test_push_branches_flag_private_repo(
     push_cmd = [git2cpp_path, "push", "origin", "--branches"]
     p_push = subprocess.run(push_cmd, cwd=repo_path, capture_output=True, text=True, input=input)
     assert p_push.returncode == 0
-    assert " * [new branch]      test-" in p_push.stdout
+    assert p_push.stdout.count(" * [new branch]      test-") == 2
     assert "main" not in p_push.stdout
