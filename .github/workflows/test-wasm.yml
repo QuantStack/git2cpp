@@ -41,7 +41,7 @@ jobs:
           npx playwright install chromium
 
       - name: Upload artifact containing emscripten-forge package
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./wasm/recipe/em-forge-recipes/output/
 
