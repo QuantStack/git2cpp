@@ -17,7 +17,7 @@ push_subcommand::push_subcommand(const libgit2_object&, CLI::App& app)
     auto* sub = app.add_subcommand("push", "Update remote refs along with associated objects");
 
     sub->add_option("<remote>", m_remote_name, "The remote to push to")->default_val("origin");
-    sub->add_option("<refspec>", m_refspecs, "The refspec(s) to push")->expected(0,-1);
+    sub->add_option("<refspec>", m_refspecs, "The refspec(s) to push")->expected(0, -1);
     sub->add_flag(
         "--all,--branches",
         m_branches_flag,
@@ -97,7 +97,10 @@ std::unordered_map<std::string, git_oid> get_remotes(repository_wrapper& repo, s
     return remotes_oids;
 }
 
-std::unordered_map<std::string, git_oid> diff_branches(std::unordered_map<std::string, git_oid> remotes_before_push, std::unordered_map<std::string, git_oid> remotes_after_push)
+std::unordered_map<std::string, git_oid> diff_branches(
+    std::unordered_map<std::string, git_oid> remotes_before_push,
+    std::unordered_map<std::string, git_oid> remotes_after_push
+)
 {
     std::unordered_map<std::string, git_oid> new_branches;
     for (const auto& br : remotes_after_push)
@@ -112,7 +115,8 @@ std::unordered_map<std::string, git_oid> diff_branches(std::unordered_map<std::s
     return new_branches;
 }
 
-std::pair<std::vector<std::string>, std::vector<std::string>> split_refspecs(std::vector<std::string> refspecs, std::unordered_map<std::string, git_oid> new_branches)
+std::pair<std::vector<std::string>, std::vector<std::string>>
+split_refspecs(std::vector<std::string> refspecs, std::unordered_map<std::string, git_oid> new_branches)
 {
     std::vector<std::string> new_pushed_refspecs;
     std::vector<std::string> existing_refspecs;
@@ -132,7 +136,8 @@ std::pair<std::vector<std::string>, std::vector<std::string>> split_refspecs(std
     return std::make_pair(new_pushed_refspecs, existing_refspecs);
 }
 
-std::pair<std::string, std::string> get_branch_names(repository_wrapper& repo, std::string remote_name, std::string refspec)
+std::pair<std::string, std::string>
+get_branch_names(repository_wrapper& repo, std::string remote_name, std::string refspec)
 {
     std::optional<std::string> upstream_opt = repo.branch_upstream_name(refspec);
     std::string remote_branch = refspec;
@@ -170,7 +175,7 @@ void push_subcommand::run()
 
     fill_refspec(repo);
     std::vector<std::string> refspecs_push;
-    for (auto refspec:m_refspecs)
+    for (auto refspec : m_refspecs)
     {
         refspecs_push.push_back("refs/heads/" + refspec);
     }
