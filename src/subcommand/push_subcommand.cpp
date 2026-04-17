@@ -107,7 +107,7 @@ std::unordered_map<std::string, git_oid> diff_branches(
     {
         const std::string name = br.first;
         const git_oid& oid = br.second;
-        if (remotes_before_push.find(name) == remotes_before_push.end())
+        if (!remotes_before_push.contains(name))
         {
             new_branches.emplace(name, oid);
         }
@@ -123,7 +123,7 @@ split_refspecs(std::vector<std::string> refspecs, std::unordered_map<std::string
 
     for (const auto refspec : refspecs)
     {
-        if (new_branches.find(refspec) == new_branches.end())
+        if (!new_branches.contains(refspec))
         {
             existing_refspecs.push_back(refspec);
         }
