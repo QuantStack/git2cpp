@@ -142,3 +142,11 @@ std::string trim(const std::string& str)
     auto s = std::regex_replace(str, std::regex("^\\s+"), "");
     return std::regex_replace(s, std::regex("\\s+$"), "");
 }
+
+std::string oid_to_hex(const git_oid& oid)
+{
+    char oid_str[GIT_OID_SHA1_HEXSIZE + 1];
+    git_oid_fmt(oid_str, &oid);
+    oid_str[GIT_OID_SHA1_HEXSIZE] = '\0';
+    return std::string(oid_str);
+}
