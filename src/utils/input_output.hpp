@@ -1,7 +1,5 @@
 #pragma once
 
-#include <stack>
-
 #include "common.hpp"
 
 // OS-specific libraries.
