@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-
 #include "common.hpp"
 
 // OS-specific libraries.
@@ -22,7 +20,11 @@ public:
 
 private:
 
+    void write_ansi_code(bool hide);
+
     bool m_hide;
+
+    static unsigned int s_scope_count;
 };
 
 // Scope object to use alternative output buffer for

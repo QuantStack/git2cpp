@@ -1,19 +1,39 @@
 #include "input_output.hpp"
 
+#include <iostream>
+
 #include "ansi_code.hpp"
 
 // OS-specific libraries.
 #include <sys/ioctl.h>
 
+unsigned int cursor_hider::s_scope_count = 0;
+
 cursor_hider::cursor_hider(bool hide /* = true */)
     : m_hide(hide)
 {
-    std::cout << (m_hide ? ansi_code::hide_cursor : ansi_code::show_cursor);
+    s_scope_count++;
+    write_ansi_code(m_hide);
 }
 
 cursor_hider::~cursor_hider()
 {
-    std::cout << (m_hide ? ansi_code::show_cursor : ansi_code::hide_cursor);
+    s_scope_count--;
+
+    if (s_scope_count == 0)
+    {
+        // Ensure cursor is visible when git2cpp exits.
+        write_ansi_code(false);
+    }
+    else
+    {
+        write_ansi_code(!m_hide);
+    }
+}
+
+void cursor_hider::write_ansi_code(bool hide)
+{
+    std::cout << (hide ? ansi_code::hide_cursor : ansi_code::show_cursor);
 }
 
 alternative_buffer::alternative_buffer()
