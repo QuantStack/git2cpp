@@ -31,10 +31,17 @@ EM_JS(void, js_delete_request, (int request_index), {
 
 // Return the latest error string set in JS.  Caller must delete the returned const char*.
 EM_JS(const char*, js_get_error, (void), {
-    // clang-format off
-    const err = Module["git2cpp_js_error"] ?? "";
-    // clang-format on
-    return stringToNewUTF8(err);
+    const err = Module["git2cpp_js_error"];
+    if (!err)
+    {
+        return stringToNewUTF8("unknown error");
+    }
+    let msg = err.message;
+    if (err.name)
+    {
+        msg = err.name + ": " + msg;
+    }
+    return stringToNewUTF8(msg);
 });
 
 EM_JS(
@@ -90,7 +97,9 @@ EM_JS(
         catch (err)
         {
             // Store error for later retrieval
-            Module["git2cpp_js_error"] = String(err);
+            // clang-format off
+            Module["git2cpp_js_error"] = { name: err.name ?? "", message : err.message ?? "" };
+            // clang-format on
             console.error(err);
             return -1;
         }
@@ -190,7 +199,9 @@ EM_JS(
         catch (err)
         {
             // Store error for later retrieval
-            Module["git2cpp_js_error"] = String(err);
+            // clang-format off
+            Module["git2cpp_js_error"] = { name: err.name ?? "", message : err.message ?? "" };
+            // clang-format on
             console.error(err);
             return -1;
         }
@@ -225,7 +236,9 @@ EM_JS(size_t, js_write, (int request_index, const char* buffer, size_t buffer_si
     catch (err)
     {
         // Store error for later retrieval
-        Module["git2cpp_js_error"] = String(err);
+        // clang-format off
+        Module["git2cpp_js_error"] = { name: err.name ?? "", message : err.message ?? "" };
+        // clang-format on
         console.error(err);
         return -1;
     }
@@ -242,11 +255,22 @@ static std::string base64_encode(std::string_view str)
     return ret;
 }
 
-static void convert_js_to_git_error(void)
+static void convert_js_to_git_error(wasm_http_stream* stream)
 {
     // Convert error on JS side to git error.
     const char* error_str = js_get_error();
-    git_error_set(GIT_ERROR_HTTP, "%s", error_str);
+    if (std::string_view(error_str).starts_with("NetworkError:"))
+    {
+        git_error_set(
+            GIT_ERROR_HTTP,
+            "network error sending request to %s, see the browser console and/or network tab for more details",
+            stream->m_unconverted_url.c_str()
+        );
+    }
+    else
+    {
+        git_error_set(GIT_ERROR_HTTP, "%s", error_str);
+    }
     delete error_str;  // Delete const char* allocated in JavaScript.
 }
 
@@ -278,7 +302,11 @@ static int read(wasm_http_stream* stream, wasm_http_response& response, bool is_
         // Response from a write.
         if (stream->m_request_index == -1)
         {
-            git_error_set(GIT_ERROR_HTTP, "read_response called without pending request");
+            git_error_set(
+                GIT_ERROR_HTTP,
+                "read_response called without pending request to %s",
+                stream->m_unconverted_url.c_str()
+            );
             return -1;
         }
     }
@@ -286,13 +314,17 @@ static int read(wasm_http_stream* stream, wasm_http_response& response, bool is_
     {
         if (stream->m_request_index != -1)
         {
-            git_error_set(GIT_ERROR_HTTP, "read called with pending request");
+            git_error_set(
+                GIT_ERROR_HTTP,
+                "read called with pending request to %s",
+                stream->m_unconverted_url.c_str()
+            );
             return -1;
         }
 
         if (create_request(stream, stream->m_service.m_response_type.c_str()) < 0)
         {
-            convert_js_to_git_error();
+            convert_js_to_git_error(stream);
             return -1;
         }
     }
@@ -311,7 +343,7 @@ static int read(wasm_http_stream* stream, wasm_http_response& response, bool is_
     );
     if (bytes_read < 0)
     {
-        convert_js_to_git_error();
+        convert_js_to_git_error(stream);
         // Delete const char* allocated in JavaScript.
         delete status_text;
         delete response_headers;
@@ -346,8 +378,9 @@ static int read(wasm_http_stream* stream, wasm_http_response& response, bool is_
             // with it.
             git_error_set(
                 GIT_ERROR_HTTP,
-                "expected response content-type header '%s'",
-                expected_response_type.c_str()
+                "expected response content-type header '%s' to request %s",
+                expected_response_type.c_str(),
+                stream->m_unconverted_url.c_str()
             );
             return -1;
         }
@@ -364,7 +397,7 @@ static int write(wasm_http_stream* stream, const char* buffer, size_t buffer_siz
         // If there is not already a request opened, do so now.
         if (create_request(stream, stream->m_service.m_request_type.c_str()) < 0)
         {
-            convert_js_to_git_error();
+            convert_js_to_git_error(stream);
             return -1;
         }
     }
@@ -372,7 +405,7 @@ static int write(wasm_http_stream* stream, const char* buffer, size_t buffer_siz
     int error = js_write(stream->m_request_index, buffer, buffer_size);
     if (error < 0)
     {
-        convert_js_to_git_error();
+        convert_js_to_git_error(stream);
         return -1;
     }
 
@@ -396,7 +429,11 @@ static int create_credential(wasm_http_stream* stream, const wasm_http_response&
     // Check that response headers show support for 'www-authenticate: Basic'.
     if (!response.has_header_starts_with("www-authenticate", "Basic"))
     {
-        git_error_set(GIT_ERROR_HTTP, "remote host does not support Basic authentication");
+        git_error_set(
+            GIT_ERROR_HTTP,
+            "remote host for request %s does not support Basic authentication",
+            stream->m_unconverted_url.c_str()
+        );
         return -1;
     }
 
@@ -536,12 +573,7 @@ int wasm_http_stream_read(git_smart_subtransport_stream* s, char* buffer, size_t
 
     if (response.m_status != GIT_HTTP_STATUS_OK)
     {
-        git_error_set(
-            GIT_ERROR_HTTP,
-            "unexpected HTTP response: %d %s",
-            response.m_status,
-            response.m_status_text.c_str()
-        );
+        response.set_git_error(stream->m_unconverted_url);
         return -1;
     }
 
@@ -560,12 +592,7 @@ int wasm_http_stream_read_response(git_smart_subtransport_stream* s, char* buffe
 
     if (error == 0 && response.m_status != GIT_HTTP_STATUS_OK)
     {
-        git_error_set(
-            GIT_ERROR_HTTP,
-            "unexpected HTTP response: %d %s",
-            response.m_status,
-            response.m_status_text.c_str()
-        );
+        response.set_git_error(stream->m_unconverted_url);
         error = -1;
     }
 

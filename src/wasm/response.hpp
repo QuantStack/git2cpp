@@ -27,6 +27,8 @@ public:
 
     bool has_header_starts_with(const std::string& key, std::string_view start) const;
 
+    void set_git_error(std::string_view url) const;
+
     char* m_buffer;  // Not owned.
     size_t m_buffer_size;
     size_t* m_bytes_read;  // Not owned.
