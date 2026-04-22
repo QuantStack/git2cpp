@@ -71,4 +71,16 @@ bool wasm_http_response::has_header_starts_with(const std::string& key, std::str
     return false;
 }
 
+void wasm_http_response::set_git_error(std::string_view url) const
+{
+    std::string extra = m_status_text.empty() ? "" : " (" + m_status_text + ")";
+    git_error_set(
+        GIT_ERROR_HTTP,
+        "unexpected HTTP response %d%s to request %s, see the browser console and/or network tab for more details",
+        m_status,
+        extra.c_str(),
+        url.data()
+    );
+}
+
 #endif  // EMSCRIPTEN
