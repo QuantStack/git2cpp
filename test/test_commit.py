@@ -2,6 +2,8 @@ import subprocess
 
 import pytest
 
+from .conftest import GIT2CPP_TEST_WASM
+
 
 @pytest.mark.parametrize("all_flag", ["", "-A", "--all", "--no-ignore-removal"])
 def test_commit(commit_env_config, git2cpp_path, tmp_path, all_flag):
@@ -33,10 +35,20 @@ def test_commit(commit_env_config, git2cpp_path, tmp_path, all_flag):
     assert "mook_file" not in p_status_2.stdout
 
 
-@pytest.mark.parametrize("commit_msg", ["Added file", ""])
+@pytest.mark.parametrize(
+    "commit_msg_in,commit_msg_out",
+    [
+        ("Added file", "Added file"),
+        ("", ""),
+        ("ab\x7fc", "ac"),  # Check deletes previous character to prove using stdin line buffering
+    ],
+)
 def test_commit_message_via_stdin(
-    commit_env_config, git2cpp_path, tmp_path, run_in_tmp_path, commit_msg
+    commit_env_config, git2cpp_path, tmp_path, run_in_tmp_path, commit_msg_in, commit_msg_out
 ):
+    if not GIT2CPP_TEST_WASM and commit_msg_in != commit_msg_out:
+        pytest.skip("Skip stdin delete test if not using webassembly")
+
     cmd = [git2cpp_path, "init", "."]
     p_init = subprocess.run(cmd)
     assert p_init.returncode == 0
@@ -48,9 +60,11 @@ def test_commit_message_via_stdin(
     assert p_add.returncode == 0
 
     cmd_commit = [git2cpp_path, "commit"]
-    p_commit = subprocess.run(cmd_commit, text=True, capture_output=True, input=commit_msg)
+    p_commit = subprocess.run(
+        cmd_commit, text=True, capture_output=True, input=commit_msg_in + "\n"
+    )
 
-    if commit_msg == "":
+    if commit_msg_out == "":
         # No commit message
         assert p_commit.returncode != 0
         assert "Aborting, no commit message specified" in p_commit.stderr
@@ -66,4 +80,4 @@ def test_commit_message_via_stdin(
         assert "commit" in lines[0]
         assert "Author:" in lines[1]
         assert "Date" in lines[2]
-        assert commit_msg in lines[4]
+        assert commit_msg_out in lines[4]
