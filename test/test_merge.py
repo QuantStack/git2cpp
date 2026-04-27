@@ -97,8 +97,21 @@ def test_merge_commit(repo_init_with_commit, commit_env_config, git2cpp_path, tm
     assert p_merge_2.stdout == "Already up-to-date\n"
 
 
-@pytest.mark.parametrize("flag", ["--abort", "--quit", "--continue"])
-def test_merge_conflict(repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path, flag):
+@pytest.mark.parametrize(
+    "flag, abort_input",
+    [
+        ("--abort", "y"),
+        ("--abort", "Y"),
+        ("--abort", "n"),
+        ("--abort", "N"),
+        ("--abort", ""),
+        ("--quit", None),
+        ("--continue", None),
+    ],
+)
+def test_merge_conflict(
+    repo_init_with_commit, commit_env_config, git2cpp_path, tmp_path, flag, abort_input
+):
     assert (tmp_path / "initial.txt").exists()
 
     checkout_cmd = [git2cpp_path, "checkout", "-b", "foregone"]
@@ -140,18 +153,18 @@ def test_merge_conflict(repo_init_with_commit, commit_env_config, git2cpp_path, 
 
     flag_cmd = [git2cpp_path, "merge", flag]
     if flag == "--abort":
-        for answer in {"y", ""}:
-            p_abort = subprocess.run(
-                flag_cmd, input=answer, capture_output=True, cwd=tmp_path, text=True
-            )
-            assert p_abort.returncode == 0
-            assert (tmp_path / "mook_file.txt").exists()
-            text = (tmp_path / "mook_file.txt").read_text()
-            if answer == "y":
-                assert "BLA" in text
-                assert "bla" not in text
-            else:
-                assert "Abort." in p_abort.stdout
+        p_abort = subprocess.run(
+            flag_cmd, input=abort_input, capture_output=True, cwd=tmp_path, text=True
+        )
+
+        assert p_abort.returncode == 0
+        assert (tmp_path / "mook_file.txt").exists()
+        text = (tmp_path / "mook_file.txt").read_text()
+        if abort_input.lower() == "y":
+            assert "BLA" in text
+            assert "bla" not in text
+        else:
+            assert "Abort." in p_abort.stdout
 
     elif flag == "--quit":
         pass

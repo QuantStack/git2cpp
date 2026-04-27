@@ -52,7 +52,7 @@ def commit_env_config(monkeypatch):
 
 
 @pytest.fixture
-def repo_init_with_commit(commit_env_config, git2cpp_path, tmp_path, run_in_tmp_path):
+def repo_init_with_commit(commit_env_config, git2cpp_path, tmp_path):
     cmd_init = [git2cpp_path, "init", ".", "-b", "main"]
     p_init = subprocess.run(cmd_init, capture_output=True, cwd=tmp_path, text=True)
     assert p_init.returncode == 0

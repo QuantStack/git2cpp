@@ -62,3 +62,9 @@ private:
 // stdin from the user.  The `echo` argument controls whether stdin is echoed
 // to stdout, use `false` for passwords.
 std::string prompt_input(const std::string_view prompt, bool echo = true);
+
+// Display a prompt on stdout and accept a yes or no answer on stdin.
+// Return true if the first character on stdin is 'y' or 'Y', false if it is
+// 'n' or 'N', or default_return if the input is empty which occurs if the user
+// presses enter only. Otherwise the input is ambiguous so repeat the prompt.
+bool prompt_yes_or_no(const std::string_view prompt, bool default_return);

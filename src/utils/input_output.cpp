@@ -94,3 +94,25 @@ std::string prompt_input(const std::string_view prompt, bool echo /* = true */)
     // Maybe sanitise input, removing escape codes?
     return input;
 }
+
+bool prompt_yes_or_no(const std::string_view prompt, bool default_return)
+{
+    while (true)
+    {
+        auto input = prompt_input(prompt);
+        if (input.empty())
+        {
+            return default_return;
+        }
+        auto first_char = std::tolower(input.front());
+        if (first_char == 'y')
+        {
+            return true;
+        }
+        else if (first_char == 'n')
+        {
+            return false;
+        }
+        // Repeat prompt.
+    }
+}
