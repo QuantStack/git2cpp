@@ -98,7 +98,7 @@ def test_merge_commit(repo_init_with_commit, commit_env_config, git2cpp_path, tm
 
 
 @pytest.mark.parametrize(
-    "flag, abort_input",
+    "flag,abort_input",
     [
         ("--abort", "y"),
         ("--abort", "Y"),
