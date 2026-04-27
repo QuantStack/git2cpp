@@ -46,7 +46,7 @@ def run_web_server():
         cwd = pathlib.Path(__file__).parent.parent / "wasm/test"
         proc = subprocess.Popen(["npm", "run", "serve"], stdout=f, stderr=f, cwd=cwd)
         # Wait a bit until server ready to receive connections.
-        time.sleep(0.3)
+        time.sleep(0.5)
         yield
         proc.terminate()
 
