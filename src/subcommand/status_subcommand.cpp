@@ -138,45 +138,43 @@ static std::unordered_map<std::string, combined_entry> build_combined_status_map
 {
     std::unordered_map<std::string, combined_entry> combined;
 
+    auto update_status_map = [&sl, &tracked_dir_set, &combined](const git_status_t(&status_array)[5] , bool index)
+    {
+        for (git_status_t status : status_array)
+        {
+            const auto& list = sl.get_entry_list(status);
+            for (auto* entry : list)
+            {
+                git_diff_delta* dd = index ? entry->head_to_index : entry->index_to_workdir;
+                const char* old_path = dd->old_file.path;
+                const char* new_path = dd->new_file.path;
+                update_tracked_dir_set(old_path, &tracked_dir_set);
+                std::string item = get_print_item(old_path, new_path);
+                auto& ce = combined[item];
+                ce.item = item;
+                if (index)
+                {
+                    ce.index_status = status;
+                }
+                else
+                {
+                    ce.workdir_status = status;
+                }
+            }
+        }
+    };
+
     const git_status_t index_statuses[] = {
         GIT_STATUS_INDEX_NEW, GIT_STATUS_INDEX_MODIFIED, GIT_STATUS_INDEX_DELETED,
         GIT_STATUS_INDEX_RENAMED, GIT_STATUS_INDEX_TYPECHANGE
     };
-    for (git_status_t status : index_statuses)
-    {
-        const auto& list = sl.get_entry_list(status);
-        for (auto* entry : list)
-        {
-            git_diff_delta* dd = entry->head_to_index;
-            const char* old_path = dd->old_file.path;
-            const char* new_path = dd->new_file.path;
-            update_tracked_dir_set(old_path, &tracked_dir_set);
-            std::string item = get_print_item(old_path, new_path);
-            auto& ce = combined[item];
-            ce.item = item;
-            ce.index_status = status;
-        }
-    }
+    update_status_map(index_statuses, true);
 
     const git_status_t worktree_statuses[] = {
         GIT_STATUS_WT_NEW, GIT_STATUS_WT_MODIFIED, GIT_STATUS_WT_DELETED,
         GIT_STATUS_WT_TYPECHANGE, GIT_STATUS_WT_RENAMED
     };
-    for (git_status_t status : worktree_statuses)
-    {
-        const auto& list = sl.get_entry_list(status);
-        for (auto* entry : list)
-        {
-            git_diff_delta* dd = entry->index_to_workdir;
-            const char* old_path = dd->old_file.path;
-            const char* new_path = dd->new_file.path;
-            update_tracked_dir_set(old_path, &tracked_dir_set);
-            std::string item = get_print_item(old_path, new_path);
-            auto& ce = combined[item];
-            ce.item = item;
-            ce.workdir_status = status;
-        }
-    }
+    update_status_map(worktree_statuses, false);
 
     return combined;
 }
@@ -185,7 +183,10 @@ static void print_combined_short(const std::unordered_map<std::string, combined_
 {
     std::vector<std::string> keys;
     keys.reserve(map.size());
-    for (auto const& kv : map) keys.push_back(kv.first);
+    for (auto const& kv : map)
+    {
+        keys.push_back(kv.first);
+    }
     std::sort(keys.begin(), keys.end());
 
     struct normal_row {char idx; char wt; std::string item;};
@@ -234,7 +235,7 @@ static void print_combined_short(const std::unordered_map<std::string, combined_
     {
         if (is_coloured)
         {
-            std::cout << termcolor::red << "??" << termcolor::reset << " " << it << std::endl;
+            std::cout << termcolor::red << "?? " << termcolor::reset << it << std::endl;
         }
         else
         {
@@ -247,7 +248,7 @@ static void print_combined_short(const std::unordered_map<std::string, combined_
     {
         if (is_coloured)
         {
-            std::cout << termcolor::red << "!!" << termcolor::reset << " " << it << std::endl;
+            std::cout << termcolor::red << "!! " << termcolor::reset << it << std::endl;
         }
         else
         {
