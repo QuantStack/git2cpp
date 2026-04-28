@@ -1,11 +1,11 @@
 #include "status_subcommand.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <ostream>
 #include <set>
 #include <string>
 #include <unordered_map>
-#include <algorithm>
 
 #include <git2.h>
 #include <termcolor/termcolor.hpp>
@@ -43,8 +43,8 @@ namespace
         ignored_header = "Ignored files:\n  (use \"git add -f <file>...\" to include in what will be committed)\n";
     const std::string
         notstagged_header = "Changes not staged for commit:\n  (use \"git add <file>...\" to update what will be committed)\n";
-    // TODO: add the following ot notstagged_header after "checkout <file>" is implemented: (use \"git checkout --
-    // <file>...\" to discard changes in working directory)\n";
+    // TODO: add the following ot notstagged_header after "checkout <file>" is implemented: (use \"git
+    // checkout -- <file>...\" to discard changes in working directory)\n";
     const std::string unmerged_header = "Unmerged paths:\n  (use \"git add <file>...\" to mark resolution)\n";
     const std::string nothingtocommit_message = "no changes added to commit  (use \"git add\" and/or \"git commit -a\")";
     const std::string treeclean_message = "Nothing to commit, working tree clean";
@@ -87,23 +87,23 @@ namespace
     {
         switch (status)
         {
-        case GIT_STATUS_INDEX_NEW:
-        case GIT_STATUS_WT_NEW:
-            return 'A';
-        case GIT_STATUS_INDEX_MODIFIED:
-        case GIT_STATUS_WT_MODIFIED:
-            return 'M';
-        case GIT_STATUS_INDEX_DELETED:
-        case GIT_STATUS_WT_DELETED:
-            return 'D';
-        case GIT_STATUS_INDEX_RENAMED:
-        case GIT_STATUS_WT_RENAMED:
-            return 'R';
-        case GIT_STATUS_INDEX_TYPECHANGE:
-        case GIT_STATUS_WT_TYPECHANGE:
-            return 'T';
-        default:
-            return ' ';
+            case GIT_STATUS_INDEX_NEW:
+            case GIT_STATUS_WT_NEW:
+                return 'A';
+            case GIT_STATUS_INDEX_MODIFIED:
+            case GIT_STATUS_WT_MODIFIED:
+                return 'M';
+            case GIT_STATUS_INDEX_DELETED:
+            case GIT_STATUS_WT_DELETED:
+                return 'D';
+            case GIT_STATUS_INDEX_RENAMED:
+            case GIT_STATUS_WT_RENAMED:
+                return 'R';
+            case GIT_STATUS_INDEX_TYPECHANGE:
+            case GIT_STATUS_WT_TYPECHANGE:
+                return 'T';
+            default:
+                return ' ';
         }
     }
 
@@ -134,13 +134,13 @@ namespace
         return entry_item;
     }
 
-    std::unordered_map<std::string, combined_entry> build_combined_status_map(
-        status_list_wrapper& sl,
-        std::set<std::string>& tracked_dir_set)
+    std::unordered_map<std::string, combined_entry>
+    build_combined_status_map(status_list_wrapper& sl, std::set<std::string>& tracked_dir_set)
     {
         std::unordered_map<std::string, combined_entry> combined;
 
-        auto update_status_map = [&sl, &tracked_dir_set, &combined](const git_status_t(&status_array)[5] , bool index)
+        auto update_status_map =
+            [&sl, &tracked_dir_set, &combined](const git_status_t(&status_array)[5], bool index)
         {
             for (git_status_t status : status_array)
             {
@@ -167,14 +167,20 @@ namespace
         };
 
         const git_status_t index_statuses[] = {
-            GIT_STATUS_INDEX_NEW, GIT_STATUS_INDEX_MODIFIED, GIT_STATUS_INDEX_DELETED,
-            GIT_STATUS_INDEX_RENAMED, GIT_STATUS_INDEX_TYPECHANGE
+            GIT_STATUS_INDEX_NEW,
+            GIT_STATUS_INDEX_MODIFIED,
+            GIT_STATUS_INDEX_DELETED,
+            GIT_STATUS_INDEX_RENAMED,
+            GIT_STATUS_INDEX_TYPECHANGE
         };
         update_status_map(index_statuses, true);
 
         const git_status_t worktree_statuses[] = {
-            GIT_STATUS_WT_NEW, GIT_STATUS_WT_MODIFIED, GIT_STATUS_WT_DELETED,
-            GIT_STATUS_WT_TYPECHANGE, GIT_STATUS_WT_RENAMED
+            GIT_STATUS_WT_NEW,
+            GIT_STATUS_WT_MODIFIED,
+            GIT_STATUS_WT_DELETED,
+            GIT_STATUS_WT_TYPECHANGE,
+            GIT_STATUS_WT_RENAMED
         };
         update_status_map(worktree_statuses, false);
 
@@ -185,18 +191,24 @@ namespace
     {
         std::vector<std::string> keys;
         keys.reserve(map.size());
-        for (auto const& kv : map)
+        for (const auto& kv : map)
         {
             keys.push_back(kv.first);
         }
         std::sort(keys.begin(), keys.end());
 
-        struct normal_row {char idx; char wt; std::string item;};
+        struct normal_row
+        {
+            char idx;
+            char wt;
+            std::string item;
+        };
+
         std::vector<normal_row> normal_rows;
         std::vector<std::string> untracked_items;
         std::vector<std::string> ignored_items;
 
-        for (auto const& k : keys)
+        for (const auto& k : keys)
         {
             const auto& ce = map.at(k);
 
@@ -206,7 +218,8 @@ namespace
                 untracked_items.push_back(ce.item);
                 continue;
             }
-            if ((ce.workdir_status & GIT_STATUS_IGNORED || ce.index_status & GIT_STATUS_IGNORED) && ce.index_status == 0)
+            if ((ce.workdir_status & GIT_STATUS_IGNORED || ce.index_status & GIT_STATUS_IGNORED)
+                && ce.index_status == 0)
             {
                 ignored_items.push_back(ce.item);
                 continue;
@@ -218,7 +231,7 @@ namespace
             normal_rows.push_back({idx, wt, ce.item});
         }
 
-        for (auto const& r : normal_rows)
+        for (const auto& r : normal_rows)
         {
             if (is_coloured)
             {
@@ -233,7 +246,7 @@ namespace
         }
 
         std::sort(untracked_items.begin(), untracked_items.end());
-        for (auto const& it : untracked_items)
+        for (const auto& it : untracked_items)
         {
             if (is_coloured)
             {
@@ -246,7 +259,7 @@ namespace
         }
 
         std::sort(ignored_items.begin(), ignored_items.end());
-        for (auto const& it : ignored_items)
+        for (const auto& it : ignored_items)
         {
             if (is_coloured)
             {
@@ -355,31 +368,31 @@ void print_tracking_info(repository_wrapper& repo, status_list_wrapper& sl, bool
             if (tracking_info.ahead > 0 && tracking_info.behind == 0)
             {
                 std::cout << "Your branch is ahead of '" << tracking_info.upstream_name << "' by "
-                            << tracking_info.ahead << " commit" << (tracking_info.ahead > 1 ? "s" : "") << "."
-                            << std::endl;
+                          << tracking_info.ahead << " commit" << (tracking_info.ahead > 1 ? "s" : "") << "."
+                          << std::endl;
                 std::cout << "  (use \"git push\" to publish your local commits)" << std::endl;
             }
             else if (tracking_info.ahead == 0 && tracking_info.behind > 0)
             {
                 std::cout << "Your branch is behind '" << tracking_info.upstream_name << "' by "
-                            << tracking_info.behind << " commit" << (tracking_info.behind > 1 ? "s" : "") << "."
-                            << std::endl;
+                          << tracking_info.behind << " commit" << (tracking_info.behind > 1 ? "s" : "") << "."
+                          << std::endl;
                 std::cout << "  (use \"git pull\" to update your local branch)" << std::endl;
             }
             else if (tracking_info.ahead > 0 && tracking_info.behind > 0)
             {
                 std::cout << "Your branch and '" << tracking_info.upstream_name << "' have diverged,"
-                            << std::endl;
+                          << std::endl;
                 std::cout << "and have " << tracking_info.ahead << " and " << tracking_info.behind
-                            << " different commit"
-                            << ((tracking_info.ahead + tracking_info.behind) > 2 ? "s" : "")
-                            << " each, respectively." << std::endl;
+                          << " different commit"
+                          << ((tracking_info.ahead + tracking_info.behind) > 2 ? "s" : "")
+                          << " each, respectively." << std::endl;
                 std::cout << "  (use \"git pull\" to merge the remote branch into yours)" << std::endl;
             }
             else  // ahead == 0 && behind == 0
             {
                 std::cout << "Your branch is up to date with '" << tracking_info.upstream_name << "'."
-                            << std::endl;
+                          << std::endl;
             }
             std::cout << std::endl;
         }
@@ -392,11 +405,11 @@ void print_tracking_info(repository_wrapper& repo, status_list_wrapper& sl, bool
         if (sl.has_unmerged_header())
         {
             std::cout << "You have unmerged paths.\n  (fix conflicts and run \"git commit\")\n  (use \"git merge --abort\" to abort the merge)\n"
-                        << std::endl;
+                      << std::endl;
         }
     }
     else if (branch_flag)
-        {
+    {
         if (tracking_info.has_upstream)
         {
             std::cout << "..." << termcolor::red << tracking_info.upstream_name << termcolor::reset;
