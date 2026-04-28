@@ -98,6 +98,7 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/utils/progress.hpp
     ${GIT2CPP_SOURCE_DIR}/utils/terminal_pager.cpp
     ${GIT2CPP_SOURCE_DIR}/utils/terminal_pager.hpp
+    ${GIT2CPP_SOURCE_DIR}/wasm/constants.hpp
     ${GIT2CPP_SOURCE_DIR}/wasm/libgit2_internals.cpp
     ${GIT2CPP_SOURCE_DIR}/wasm/libgit2_internals.hpp
     ${GIT2CPP_SOURCE_DIR}/wasm/response.cpp
@@ -110,6 +111,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/wasm/subtransport.hpp
     ${GIT2CPP_SOURCE_DIR}/wasm/transport.cpp
     ${GIT2CPP_SOURCE_DIR}/wasm/transport.hpp
+    ${GIT2CPP_SOURCE_DIR}/wasm/utils.cpp
+    ${GIT2CPP_SOURCE_DIR}/wasm/utils.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/annotated_commit_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/annotated_commit_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/branch_wrapper.cpp
