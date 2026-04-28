@@ -7,6 +7,7 @@
 #include <git2/types.h>
 #include <termcolor/termcolor.hpp>
 
+#include "../utils/input_output.hpp"
 #include "../wrapper/status_wrapper.hpp"
 
 merge_subcommand::merge_subcommand(const libgit2_object&, CLI::App& app)
@@ -181,10 +182,8 @@ void merge_subcommand::run()
 
             std::cout << "Warning: 'merge --abort' is not implemented yet. A 'reset --hard HEAD' will be executed."
                       << std::endl;
-            std::cout << "Do you want to continue [y/N] ?" << std::endl;
-            std::string answer;
-            std::cin >> answer;
-            if (answer == "y")
+            auto answer = prompt_yes_or_no("Do you want to continue [y/N] ? ", false);
+            if (answer)
             {
                 repo.state_cleanup();
                 index.conflict_cleanup();

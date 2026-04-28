@@ -47,7 +47,10 @@ async function shellRun(
 
   if (input !== undefined && input !== null) {
     async function delayThenStdin(): Promise<void> {
-      const chars = input! + '\x04';  // EOT
+      let chars = input!;
+      if (!chars.endsWith('\n')) {
+        chars += '\n';
+      }
       await delay(100);
       for (const char of chars) {
         await shell.input(char);
