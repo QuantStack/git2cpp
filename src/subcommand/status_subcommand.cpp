@@ -34,311 +34,314 @@ status_subcommand::status_subcommand(const libgit2_object&, CLI::App& app)
     );
 };
 
-const std::string
-    untracked_header = "Untracked files:\n  (use \"git add <file>...\" to include in what will be committed)\n";
-const std::string tobecommited_header = "Changes to be committed:\n  (use \"git reset HEAD <file>...\" to unstage)\n";
-const std::string
-    ignored_header = "Ignored files:\n  (use \"git add -f <file>...\" to include in what will be committed)\n";
-const std::string
-    notstagged_header = "Changes not staged for commit:\n  (use \"git add <file>...\" to update what will be committed)\n";
-// TODO: add the following ot notstagged_header after "checkout <file>" is implemented: (use \"git checkout --
-// <file>...\" to discard changes in working directory)\n";
-const std::string unmerged_header = "Unmerged paths:\n  (use \"git add <file>...\" to mark resolution)\n";
-const std::string nothingtocommit_message = "no changes added to commit  (use \"git add\" and/or \"git commit -a\")";
-const std::string treeclean_message = "Nothing to commit, working tree clean";
-
-enum class output_format
+namespace
 {
-    DEFAULT = 0,
-    LONG = 1,
-    SHORT = 2
-};
+    const std::string
+        untracked_header = "Untracked files:\n  (use \"git add <file>...\" to include in what will be committed)\n";
+    const std::string tobecommited_header = "Changes to be committed:\n  (use \"git reset HEAD <file>...\" to unstage)\n";
+    const std::string
+        ignored_header = "Ignored files:\n  (use \"git add -f <file>...\" to include in what will be committed)\n";
+    const std::string
+        notstagged_header = "Changes not staged for commit:\n  (use \"git add <file>...\" to update what will be committed)\n";
+    // TODO: add the following ot notstagged_header after "checkout <file>" is implemented: (use \"git checkout --
+    // <file>...\" to discard changes in working directory)\n";
+    const std::string unmerged_header = "Unmerged paths:\n  (use \"git add <file>...\" to mark resolution)\n";
+    const std::string nothingtocommit_message = "no changes added to commit  (use \"git add\" and/or \"git commit -a\")";
+    const std::string treeclean_message = "Nothing to commit, working tree clean";
 
-struct print_entry
-{
-    std::string status;
-    std::string item;
-};
-
-struct combined_entry
-{
-    git_status_t index_status = GIT_STATUS_CURRENT;
-    git_status_t workdir_status = GIT_STATUS_CURRENT;
-    std::string item;
-};
-
-std::string get_print_status(git_status_t status, bool is_long)
-{
-    std::string entry_status;
-    if (is_long)
+    enum class output_format
     {
-        entry_status = get_status_msg(status).long_mod;
-    }
-    else
-    {
-        entry_status = get_status_msg(status).short_mod;
-    }
-    return entry_status;
-}
-
-static char short_char_from_status(git_status_t status)
-{
-    switch (status)
-    {
-    case GIT_STATUS_INDEX_NEW:
-    case GIT_STATUS_WT_NEW:
-        return 'A';
-    case GIT_STATUS_INDEX_MODIFIED:
-    case GIT_STATUS_WT_MODIFIED:
-        return 'M';
-    case GIT_STATUS_INDEX_DELETED:
-    case GIT_STATUS_WT_DELETED:
-        return 'D';
-    case GIT_STATUS_INDEX_RENAMED:
-    case GIT_STATUS_WT_RENAMED:
-        return 'R';
-    case GIT_STATUS_INDEX_TYPECHANGE:
-    case GIT_STATUS_WT_TYPECHANGE:
-        return 'T';
-    default:
-        return ' ';
-    }
-}
-
-void update_tracked_dir_set(const char* path, std::set<std::string>* tracked_dir_set = nullptr)
-{
-    if (tracked_dir_set)
-    {
-        const size_t first_slash_idx = std::string_view(path).find('/');
-        if (std::string::npos != first_slash_idx)
-        {
-            auto directory = std::string_view(path).substr(0, first_slash_idx);
-            tracked_dir_set->insert(std::string(directory));
-        }
-    }
-}
-
-std::string get_print_item(const char* old_path, const char* new_path)
-{
-    std::string entry_item;
-    if (old_path && new_path && std::strcmp(old_path, new_path))
-    {
-        entry_item = std::string(old_path) + " -> " + std::string(new_path);
-    }
-    else
-    {
-        entry_item = old_path ? old_path : new_path;
-    }
-    return entry_item;
-}
-
-static std::unordered_map<std::string, combined_entry> build_combined_status_map(
-    status_list_wrapper& sl,
-    std::set<std::string>& tracked_dir_set)
-{
-    std::unordered_map<std::string, combined_entry> combined;
-
-    auto update_status_map = [&sl, &tracked_dir_set, &combined](const git_status_t(&status_array)[5] , bool index)
-    {
-        for (git_status_t status : status_array)
-        {
-            const auto& list = sl.get_entry_list(status);
-            for (auto* entry : list)
-            {
-                git_diff_delta* dd = index ? entry->head_to_index : entry->index_to_workdir;
-                const char* old_path = dd->old_file.path;
-                const char* new_path = dd->new_file.path;
-                update_tracked_dir_set(old_path, &tracked_dir_set);
-                std::string item = get_print_item(old_path, new_path);
-                auto& ce = combined[item];
-                ce.item = item;
-                if (index)
-                {
-                    ce.index_status = status;
-                }
-                else
-                {
-                    ce.workdir_status = status;
-                }
-            }
-        }
+        DEFAULT = 0,
+        LONG = 1,
+        SHORT = 2
     };
 
-    const git_status_t index_statuses[] = {
-        GIT_STATUS_INDEX_NEW, GIT_STATUS_INDEX_MODIFIED, GIT_STATUS_INDEX_DELETED,
-        GIT_STATUS_INDEX_RENAMED, GIT_STATUS_INDEX_TYPECHANGE
+    struct print_entry
+    {
+        std::string status;
+        std::string item;
     };
-    update_status_map(index_statuses, true);
 
-    const git_status_t worktree_statuses[] = {
-        GIT_STATUS_WT_NEW, GIT_STATUS_WT_MODIFIED, GIT_STATUS_WT_DELETED,
-        GIT_STATUS_WT_TYPECHANGE, GIT_STATUS_WT_RENAMED
+    struct combined_entry
+    {
+        git_status_t index_status = GIT_STATUS_CURRENT;
+        git_status_t workdir_status = GIT_STATUS_CURRENT;
+        std::string item;
     };
-    update_status_map(worktree_statuses, false);
 
-    return combined;
-}
-
-static void print_combined_short(const std::unordered_map<std::string, combined_entry>& map, bool is_coloured)
-{
-    std::vector<std::string> keys;
-    keys.reserve(map.size());
-    for (auto const& kv : map)
+    std::string get_print_status(git_status_t status, bool is_long)
     {
-        keys.push_back(kv.first);
-    }
-    std::sort(keys.begin(), keys.end());
-
-    struct normal_row {char idx; char wt; std::string item;};
-    std::vector<normal_row> normal_rows;
-    std::vector<std::string> untracked_items;
-    std::vector<std::string> ignored_items;
-
-    for (auto const& k : keys)
-    {
-        const auto& ce = map.at(k);
-
-        // Collect special cases to print last (untracked, ignored) only when not staged.
-        if ((ce.workdir_status & GIT_STATUS_WT_NEW) && ce.index_status == 0)
-        {
-            untracked_items.push_back(ce.item);
-            continue;
-        }
-        if ((ce.workdir_status & GIT_STATUS_IGNORED || ce.index_status & GIT_STATUS_IGNORED) && ce.index_status == 0)
-        {
-            ignored_items.push_back(ce.item);
-            continue;
-        }
-
-        // Regular two-column entry (may include index or worktree or both)
-        char idx = short_char_from_status(ce.index_status);
-        char wt = short_char_from_status(ce.workdir_status);
-        normal_rows.push_back({idx, wt, ce.item});
-    }
-
-    for (auto const& r : normal_rows)
-    {
-        if (is_coloured)
-        {
-            std::cout << termcolor::green << r.idx << termcolor::reset;
-            std::cout << termcolor::red << r.wt << termcolor::reset;
-            std::cout << " " << r.item << std::endl;
-        }
-        else
-        {
-            std::cout << r.idx << r.wt << " " << r.item << std::endl;
-        }
-    }
-
-    std::sort(untracked_items.begin(), untracked_items.end());
-    for (auto const& it : untracked_items)
-    {
-        if (is_coloured)
-        {
-            std::cout << termcolor::red << "?? " << termcolor::reset << it << std::endl;
-        }
-        else
-        {
-            std::cout << "?? " << it << std::endl;
-        }
-    }
-
-    std::sort(ignored_items.begin(), ignored_items.end());
-    for (auto const& it : ignored_items)
-    {
-        if (is_coloured)
-        {
-            std::cout << termcolor::red << "!! " << termcolor::reset << it << std::endl;
-        }
-        else
-        {
-            std::cout << "!! " << it << std::endl;
-        }
-    }
-}
-
-std::vector<print_entry> get_entries_to_print(
-    git_status_t status,
-    status_list_wrapper& sl,
-    bool head_selector,
-    bool is_long,
-    std::set<std::string>* tracked_dir_set = nullptr
-)
-{
-    std::vector<print_entry> entries_to_print{};
-    const auto& entry_list = sl.get_entry_list(status);
-    if (entry_list.empty())
-    {
-        return entries_to_print;
-    }
-
-    for (auto* entry : entry_list)
-    {
-        git_diff_delta* diff_delta = head_selector ? entry->head_to_index : entry->index_to_workdir;
-        const char* old_path = diff_delta->old_file.path;
-        const char* new_path = diff_delta->new_file.path;
-
-        update_tracked_dir_set(old_path, tracked_dir_set);
-
-        print_entry e = {get_print_status(status, is_long), get_print_item(old_path, new_path)};
-
-        entries_to_print.push_back(std::move(e));
-    }
-    return entries_to_print;
-}
-
-void print_entries(std::vector<print_entry> entries_to_print, bool is_long, stream_colour_fn colour)
-{
-    for (auto e : entries_to_print)
-    {
+        std::string entry_status;
         if (is_long)
         {
-            std::cout << colour << e.status << e.item << termcolor::reset << std::endl;
+            entry_status = get_status_msg(status).long_mod;
         }
         else
         {
-            std::cout << colour << e.status << termcolor::reset << e.item << std::endl;
+            entry_status = get_status_msg(status).short_mod;
+        }
+        return entry_status;
+    }
+
+    char short_char_from_status(git_status_t status)
+    {
+        switch (status)
+        {
+        case GIT_STATUS_INDEX_NEW:
+        case GIT_STATUS_WT_NEW:
+            return 'A';
+        case GIT_STATUS_INDEX_MODIFIED:
+        case GIT_STATUS_WT_MODIFIED:
+            return 'M';
+        case GIT_STATUS_INDEX_DELETED:
+        case GIT_STATUS_WT_DELETED:
+            return 'D';
+        case GIT_STATUS_INDEX_RENAMED:
+        case GIT_STATUS_WT_RENAMED:
+            return 'R';
+        case GIT_STATUS_INDEX_TYPECHANGE:
+        case GIT_STATUS_WT_TYPECHANGE:
+            return 'T';
+        default:
+            return ' ';
         }
     }
-}
 
-void print_not_tracked(
-    const std::vector<print_entry>& entries_to_print,
-    const std::set<std::string>& tracked_dir_set,
-    std::set<std::string>& untracked_dir_set,
-    bool is_long,
-    stream_colour_fn colour
-)
-{
-    std::vector<print_entry> not_tracked_entries_to_print{};
-    for (auto e : entries_to_print)
+    void update_tracked_dir_set(const char* path, std::set<std::string>* tracked_dir_set = nullptr)
     {
-        const size_t first_slash_idx = e.item.find('/');
-        if (std::string::npos != first_slash_idx)
+        if (tracked_dir_set)
         {
-            auto directory = e.item.substr(0, first_slash_idx) + "/";
-            if (tracked_dir_set.contains(directory))
+            const size_t first_slash_idx = std::string_view(path).find('/');
+            if (std::string::npos != first_slash_idx)
             {
-                not_tracked_entries_to_print.push_back(e);
+                auto directory = std::string_view(path).substr(0, first_slash_idx);
+                tracked_dir_set->insert(std::string(directory));
+            }
+        }
+    }
+
+    std::string get_print_item(const char* old_path, const char* new_path)
+    {
+        std::string entry_item;
+        if (old_path && new_path && std::strcmp(old_path, new_path))
+        {
+            entry_item = std::string(old_path) + " -> " + std::string(new_path);
+        }
+        else
+        {
+            entry_item = old_path ? old_path : new_path;
+        }
+        return entry_item;
+    }
+
+    std::unordered_map<std::string, combined_entry> build_combined_status_map(
+        status_list_wrapper& sl,
+        std::set<std::string>& tracked_dir_set)
+    {
+        std::unordered_map<std::string, combined_entry> combined;
+
+        auto update_status_map = [&sl, &tracked_dir_set, &combined](const git_status_t(&status_array)[5] , bool index)
+        {
+            for (git_status_t status : status_array)
+            {
+                const auto& list = sl.get_entry_list(status);
+                for (auto* entry : list)
+                {
+                    git_diff_delta* dd = index ? entry->head_to_index : entry->index_to_workdir;
+                    const char* old_path = dd->old_file.path;
+                    const char* new_path = dd->new_file.path;
+                    update_tracked_dir_set(old_path, &tracked_dir_set);
+                    std::string item = get_print_item(old_path, new_path);
+                    auto& ce = combined[item];
+                    ce.item = item;
+                    if (index)
+                    {
+                        ce.index_status = status;
+                    }
+                    else
+                    {
+                        ce.workdir_status = status;
+                    }
+                }
+            }
+        };
+
+        const git_status_t index_statuses[] = {
+            GIT_STATUS_INDEX_NEW, GIT_STATUS_INDEX_MODIFIED, GIT_STATUS_INDEX_DELETED,
+            GIT_STATUS_INDEX_RENAMED, GIT_STATUS_INDEX_TYPECHANGE
+        };
+        update_status_map(index_statuses, true);
+
+        const git_status_t worktree_statuses[] = {
+            GIT_STATUS_WT_NEW, GIT_STATUS_WT_MODIFIED, GIT_STATUS_WT_DELETED,
+            GIT_STATUS_WT_TYPECHANGE, GIT_STATUS_WT_RENAMED
+        };
+        update_status_map(worktree_statuses, false);
+
+        return combined;
+    }
+
+    void print_combined_short(const std::unordered_map<std::string, combined_entry>& map, bool is_coloured)
+    {
+        std::vector<std::string> keys;
+        keys.reserve(map.size());
+        for (auto const& kv : map)
+        {
+            keys.push_back(kv.first);
+        }
+        std::sort(keys.begin(), keys.end());
+
+        struct normal_row {char idx; char wt; std::string item;};
+        std::vector<normal_row> normal_rows;
+        std::vector<std::string> untracked_items;
+        std::vector<std::string> ignored_items;
+
+        for (auto const& k : keys)
+        {
+            const auto& ce = map.at(k);
+
+            // Collect special cases to print last (untracked, ignored) only when not staged.
+            if ((ce.workdir_status & GIT_STATUS_WT_NEW) && ce.index_status == 0)
+            {
+                untracked_items.push_back(ce.item);
+                continue;
+            }
+            if ((ce.workdir_status & GIT_STATUS_IGNORED || ce.index_status & GIT_STATUS_IGNORED) && ce.index_status == 0)
+            {
+                ignored_items.push_back(ce.item);
+                continue;
+            }
+
+            // Regular two-column entry (may include index or worktree or both)
+            char idx = short_char_from_status(ce.index_status);
+            char wt = short_char_from_status(ce.workdir_status);
+            normal_rows.push_back({idx, wt, ce.item});
+        }
+
+        for (auto const& r : normal_rows)
+        {
+            if (is_coloured)
+            {
+                std::cout << termcolor::green << r.idx << termcolor::reset;
+                std::cout << termcolor::red << r.wt << termcolor::reset;
+                std::cout << " " << r.item << std::endl;
             }
             else
             {
-                if (untracked_dir_set.contains(directory))
+                std::cout << r.idx << r.wt << " " << r.item << std::endl;
+            }
+        }
+
+        std::sort(untracked_items.begin(), untracked_items.end());
+        for (auto const& it : untracked_items)
+        {
+            if (is_coloured)
+            {
+                std::cout << termcolor::red << "?? " << termcolor::reset << it << std::endl;
+            }
+            else
+            {
+                std::cout << "?? " << it << std::endl;
+            }
+        }
+
+        std::sort(ignored_items.begin(), ignored_items.end());
+        for (auto const& it : ignored_items)
+        {
+            if (is_coloured)
+            {
+                std::cout << termcolor::red << "!! " << termcolor::reset << it << std::endl;
+            }
+            else
+            {
+                std::cout << "!! " << it << std::endl;
+            }
+        }
+    }
+
+    std::vector<print_entry> get_entries_to_print(
+        git_status_t status,
+        status_list_wrapper& sl,
+        bool head_selector,
+        bool is_long,
+        std::set<std::string>* tracked_dir_set = nullptr
+    )
+    {
+        std::vector<print_entry> entries_to_print{};
+        const auto& entry_list = sl.get_entry_list(status);
+        if (entry_list.empty())
+        {
+            return entries_to_print;
+        }
+
+        for (auto* entry : entry_list)
+        {
+            git_diff_delta* diff_delta = head_selector ? entry->head_to_index : entry->index_to_workdir;
+            const char* old_path = diff_delta->old_file.path;
+            const char* new_path = diff_delta->new_file.path;
+
+            update_tracked_dir_set(old_path, tracked_dir_set);
+
+            print_entry e = {get_print_status(status, is_long), get_print_item(old_path, new_path)};
+
+            entries_to_print.push_back(std::move(e));
+        }
+        return entries_to_print;
+    }
+
+    void print_entries(std::vector<print_entry> entries_to_print, bool is_long, stream_colour_fn colour)
+    {
+        for (auto e : entries_to_print)
+        {
+            if (is_long)
+            {
+                std::cout << colour << e.status << e.item << termcolor::reset << std::endl;
+            }
+            else
+            {
+                std::cout << colour << e.status << termcolor::reset << e.item << std::endl;
+            }
+        }
+    }
+
+    void print_not_tracked(
+        const std::vector<print_entry>& entries_to_print,
+        const std::set<std::string>& tracked_dir_set,
+        std::set<std::string>& untracked_dir_set,
+        bool is_long,
+        stream_colour_fn colour
+    )
+    {
+        std::vector<print_entry> not_tracked_entries_to_print{};
+        for (auto e : entries_to_print)
+        {
+            const size_t first_slash_idx = e.item.find('/');
+            if (std::string::npos != first_slash_idx)
+            {
+                auto directory = e.item.substr(0, first_slash_idx) + "/";
+                if (tracked_dir_set.contains(directory))
                 {
+                    not_tracked_entries_to_print.push_back(e);
                 }
                 else
                 {
-                    not_tracked_entries_to_print.push_back({e.status, directory});
-                    untracked_dir_set.insert(std::string(directory));
+                    if (untracked_dir_set.contains(directory))
+                    {
+                    }
+                    else
+                    {
+                        not_tracked_entries_to_print.push_back({e.status, directory});
+                        untracked_dir_set.insert(std::string(directory));
+                    }
                 }
             }
+            else
+            {
+                not_tracked_entries_to_print.push_back(e);
+            }
         }
-        else
-        {
-            not_tracked_entries_to_print.push_back(e);
-        }
+        print_entries(not_tracked_entries_to_print, is_long, colour);
     }
-    print_entries(not_tracked_entries_to_print, is_long, colour);
 }
 
 void print_tracking_info(repository_wrapper& repo, status_list_wrapper& sl, bool is_long, bool branch_flag)
@@ -352,31 +355,31 @@ void print_tracking_info(repository_wrapper& repo, status_list_wrapper& sl, bool
             if (tracking_info.ahead > 0 && tracking_info.behind == 0)
             {
                 std::cout << "Your branch is ahead of '" << tracking_info.upstream_name << "' by "
-                          << tracking_info.ahead << " commit" << (tracking_info.ahead > 1 ? "s" : "") << "."
-                          << std::endl;
+                            << tracking_info.ahead << " commit" << (tracking_info.ahead > 1 ? "s" : "") << "."
+                            << std::endl;
                 std::cout << "  (use \"git push\" to publish your local commits)" << std::endl;
             }
             else if (tracking_info.ahead == 0 && tracking_info.behind > 0)
             {
                 std::cout << "Your branch is behind '" << tracking_info.upstream_name << "' by "
-                          << tracking_info.behind << " commit" << (tracking_info.behind > 1 ? "s" : "") << "."
-                          << std::endl;
+                            << tracking_info.behind << " commit" << (tracking_info.behind > 1 ? "s" : "") << "."
+                            << std::endl;
                 std::cout << "  (use \"git pull\" to update your local branch)" << std::endl;
             }
             else if (tracking_info.ahead > 0 && tracking_info.behind > 0)
             {
                 std::cout << "Your branch and '" << tracking_info.upstream_name << "' have diverged,"
-                          << std::endl;
+                            << std::endl;
                 std::cout << "and have " << tracking_info.ahead << " and " << tracking_info.behind
-                          << " different commit"
-                          << ((tracking_info.ahead + tracking_info.behind) > 2 ? "s" : "")
-                          << " each, respectively." << std::endl;
+                            << " different commit"
+                            << ((tracking_info.ahead + tracking_info.behind) > 2 ? "s" : "")
+                            << " each, respectively." << std::endl;
                 std::cout << "  (use \"git pull\" to merge the remote branch into yours)" << std::endl;
             }
             else  // ahead == 0 && behind == 0
             {
                 std::cout << "Your branch is up to date with '" << tracking_info.upstream_name << "'."
-                          << std::endl;
+                            << std::endl;
             }
             std::cout << std::endl;
         }
@@ -389,11 +392,11 @@ void print_tracking_info(repository_wrapper& repo, status_list_wrapper& sl, bool
         if (sl.has_unmerged_header())
         {
             std::cout << "You have unmerged paths.\n  (fix conflicts and run \"git commit\")\n  (use \"git merge --abort\" to abort the merge)\n"
-                      << std::endl;
+                        << std::endl;
         }
     }
     else if (branch_flag)
-     {
+        {
         if (tracking_info.has_upstream)
         {
             std::cout << "..." << termcolor::red << tracking_info.upstream_name << termcolor::reset;
