@@ -2,6 +2,7 @@
 // #include "../wrapper/index_wrapper.hpp"
 #include <stdexcept>
 
+#include "../utils/ansi_code.hpp"
 #include "../wrapper/repository_wrapper.hpp"
 
 enum class reset_type
@@ -17,9 +18,28 @@ reset_subcommand::reset_subcommand(const libgit2_object&, CLI::App& app)
 
     sub->add_option("<commit>", m_commit, "The ID of the commit that will become HEAD");
 
-    sub->add_flag("--soft", m_soft_flag, "");
-    sub->add_flag("--mixed", m_mixed_flag, "");
-    sub->add_flag("--hard", m_hard_flag, "");
+    sub->add_flag(
+        "--soft",
+        m_soft_flag,
+        "Leave your working tree files and the index unchanged. For example, if you have no staged changes, you can use"
+            + ansi_code::bold + "git reset --soft HEAD~5" + ansi_code::reset + "; " + ansi_code::bold
+            + "git commit" + ansi_code::reset
+            + " to combine the last 5 commits into 1 commit. This works even with changes in the working tree, which are left untouched, but such usage can lead to confusion."
+    );
+    sub->add_flag(
+        "--mixed",
+        m_mixed_flag,
+        "Leave your working directory unchanged. Update the index to match the new HEAD, so nothing will be staged."
+    );
+    sub->add_flag(
+        "--hard",
+        m_hard_flag,
+        "Overwrite all files and directories with the version from " + ansi_code::bold + "<commit>"
+            + ansi_code::reset + ", and may overwrite untracked files. Tracked files not in "
+            + ansi_code::bold + "<commit>" + ansi_code::reset
+            + " are removed so that the working tree matches " + ansi_code::bold + "<commit>"
+            + ansi_code::reset + ". Update the index to match the new HEAD, so nothing will be staged."
+    );
 
     sub->callback(
         [this]()
