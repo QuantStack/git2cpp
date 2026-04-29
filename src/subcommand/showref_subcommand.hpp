@@ -10,8 +10,4 @@ public:
 
     explicit showref_subcommand(const libgit2_object&, CLI::App& app);
     void run();
-
-private:
-
-
 };
