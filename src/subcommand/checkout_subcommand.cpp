@@ -118,7 +118,7 @@ void checkout_subcommand::run()
             print_tobecommited(sl, tracked_dir_set, is_long, is_coloured);
         }
         std::cout << "Switched to branch '" << m_branch_name << "'" << std::endl;
-        print_tracking_info(repo, sl, true);
+        print_tracking_info(repo, sl, true, false);
     }
 }
 

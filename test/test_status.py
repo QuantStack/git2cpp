@@ -258,7 +258,10 @@ def test_status_untracked_directory(repo_init_with_commit, git2cpp_path, tmp_pat
 
 
 @pytest.mark.parametrize("short_flag", ["", "-s"])
-def test_status_ahead_of_upstream(commit_env_config, git2cpp_path, tmp_path, short_flag):
+@pytest.mark.parametrize("branch_flag", ["", "-b"])
+def test_status_ahead_of_upstream(
+    commit_env_config, git2cpp_path, tmp_path, short_flag, branch_flag
+):
     """Test status when local branch is ahead of upstream"""
     # Create a repository with remote tracking
     repo_path = tmp_path / "repo"
@@ -287,12 +290,17 @@ def test_status_ahead_of_upstream(commit_env_config, git2cpp_path, tmp_path, sho
     cmd_status = [git2cpp_path, "status"]
     if short_flag == "-s":
         cmd_status.append(short_flag)
+        if branch_flag == "-b":
+            cmd_status.append(branch_flag)
     p = subprocess.run(cmd_status, capture_output=True, cwd=clone_path, text=True)
 
     assert p.returncode == 0
     if short_flag == "-s":
-        assert "...origin/main" in p.stdout
-        assert "[ahead 1]" in p.stdout
+        if branch_flag == "-b":
+            assert "...origin/main" in p.stdout
+            assert "[ahead 1]" in p.stdout
+        else:
+            assert "main" not in p.stdout
     else:
         assert "Your branch is ahead of 'origin/main'" in p.stdout
         assert "by 1 commit" in p.stdout
@@ -372,3 +380,40 @@ def test_status_all_headers_shown(repo_init_with_commit, git2cpp_path, tmp_path)
     assert 'use "git add <file>..." to update what will be committed' in p.stdout
     assert "Untracked files:" in p.stdout
     assert 'use "git add <file>..." to include in what will be committed' in p.stdout
+
+
+def test_status_modified_staged_then_modified(repo_init_with_commit, git2cpp_path, tmp_path):
+    """
+    File is modified, staged, then modified again.
+    Short status should show 'MM filename'
+    Long status should show the file in both 'Changes to be committed' and 'Changes not staged for commit'
+    """
+    # initial.txt present from fixture
+    f = tmp_path / "initial.txt"
+    assert f.exists()
+
+    # Modify and stage
+    f.write_text("first change")
+    subprocess.run([git2cpp_path, "add", "initial.txt"], cwd=tmp_path, check=True)
+
+    # Modify again (unstaged)
+    f.write_text("second change")
+
+    # Short mode
+    p_short = subprocess.run(
+        [git2cpp_path, "status", "-s"], capture_output=True, cwd=tmp_path, text=True, check=True
+    )
+    assert p_short.returncode == 0
+    # Ensure exact two-letter code for index+worktree is present
+    assert "MM initial.txt" in strip_ansi_colours(p_short.stdout)
+
+    # Long mode
+    p_long = subprocess.run(
+        [git2cpp_path, "status", "--long"], capture_output=True, cwd=tmp_path, text=True, check=True
+    )
+    assert p_long.returncode == 0
+    out = strip_ansi_colours(p_long.stdout)
+    assert "Changes to be committed" in out
+    assert "Changes not staged for commit" in out
+    # Ensure the filename appears (it should appear in one or both sections)
+    assert "initial.txt" in out
