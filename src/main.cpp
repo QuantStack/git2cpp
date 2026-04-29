@@ -23,6 +23,7 @@
 #include "subcommand/revlist_subcommand.hpp"
 #include "subcommand/revparse_subcommand.hpp"
 #include "subcommand/rm_subcommand.hpp"
+#include "subcommand/showref_subcommand.hpp"
 #include "subcommand/stash_subcommand.hpp"
 #include "subcommand/status_subcommand.hpp"
 #include "subcommand/tag_subcommand.hpp"
@@ -63,6 +64,7 @@ int main(int argc, char** argv)
         rm_subcommand rm(lg2_obj, app);
         stash_subcommand stash(lg2_obj, app);
         tag_subcommand tag(lg2_obj, app);
+        showref_subcommand showref(lg2_obj, app);
 
         app.require_subcommand(/* min */ 0, /* max */ 1);
 
