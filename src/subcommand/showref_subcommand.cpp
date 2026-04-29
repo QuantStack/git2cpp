@@ -23,7 +23,7 @@ void showref_subcommand::run()
 
     auto repo_refs = repo.refs_list();
 
-    for (auto r:repo_refs)
+    for (auto r : repo_refs)
     {
         git_oid oid = repo.ref_name_to_id(r);
         std::cout << oid_to_hex(oid) << " " << r << std::endl;
