@@ -187,7 +187,8 @@ namespace
         return combined;
     }
 
-    void print_combined_short(const std::unordered_map<std::string, combined_entry>& entries_map, bool is_coloured)
+    void
+    print_combined_short(const std::unordered_map<std::string, combined_entry>& entries_map, bool is_coloured)
     {
         std::vector<std::string> keys;
         keys.reserve(entries_map.size());
