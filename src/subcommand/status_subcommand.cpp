@@ -246,7 +246,14 @@ namespace
         }
 
         stream_colour_fn colour;
-        colour = is_coloured ? termcolor::red : termcolor::bright_white;
+        if (is_coloured)
+        {
+            colour = termcolor::red;
+        }
+        else
+        {
+            colour = termcolor::bright_white;
+        }
 
         std::sort(untracked_items.begin(), untracked_items.end());
         for (const auto& it : untracked_items)
@@ -425,7 +432,14 @@ void print_tracking_info(repository_wrapper& repo, status_list_wrapper& sl, bool
 void print_tobecommited(status_list_wrapper& sl, std::set<std::string> tracked_dir_set, bool is_long, bool is_coloured)
 {
     stream_colour_fn colour;
-    colour = is_coloured ? termcolor::green : termcolor::bright_white;
+    if (is_coloured)
+    {
+        colour = termcolor::green;
+    }
+    else
+    {
+        colour = termcolor::bright_white;
+    }
 
     if (is_long)
     {
@@ -461,7 +475,14 @@ void print_tobecommited(status_list_wrapper& sl, std::set<std::string> tracked_d
 void print_notstagged(status_list_wrapper& sl, std::set<std::string> tracked_dir_set, bool is_long, bool is_coloured)
 {
     stream_colour_fn colour;
-    colour = is_coloured ? termcolor::red : termcolor::bright_white;
+    if (is_coloured)
+    {
+        colour = termcolor::red;
+    }
+    else
+    {
+        colour = termcolor::bright_white;
+    }
 
     if (is_long)
     {
@@ -502,7 +523,14 @@ void print_unmerged(
 )
 {
     stream_colour_fn colour;
-    colour = is_coloured ? termcolor::red : termcolor::bright_white;
+    if (is_coloured)
+    {
+        colour = termcolor::red;
+    }
+    else
+    {
+        colour = termcolor::bright_white;
+    }
 
     if (is_long)
     {
