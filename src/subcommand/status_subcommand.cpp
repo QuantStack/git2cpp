@@ -187,11 +187,11 @@ namespace
         return combined;
     }
 
-    void print_combined_short(const std::unordered_map<std::string, combined_entry>& map, bool is_coloured)
+    void print_combined_short(const std::unordered_map<std::string, combined_entry>& entries_map, bool is_coloured)
     {
         std::vector<std::string> keys;
-        keys.reserve(map.size());
-        for (const auto& kv : map)
+        keys.reserve(entries_map.size());
+        for (const auto& kv : entries_map)
         {
             keys.push_back(kv.first);
         }
@@ -210,7 +210,7 @@ namespace
 
         for (const auto& k : keys)
         {
-            const auto& ce = map.at(k);
+            const auto& ce = entries_map.at(k);
 
             // Collect special cases to print last (untracked, ignored) only when not staged.
             if ((ce.workdir_status & GIT_STATUS_WT_NEW) && ce.index_status == 0)
@@ -245,30 +245,19 @@ namespace
             }
         }
 
+        stream_colour_fn colour;
+        colour = is_coloured ? termcolor::red : termcolor::bright_white;
+
         std::sort(untracked_items.begin(), untracked_items.end());
         for (const auto& it : untracked_items)
         {
-            if (is_coloured)
-            {
-                std::cout << termcolor::red << "?? " << termcolor::reset << it << std::endl;
-            }
-            else
-            {
-                std::cout << "?? " << it << std::endl;
-            }
+            std::cout << colour << "?? " << termcolor::reset << it << std::endl;
         }
 
         std::sort(ignored_items.begin(), ignored_items.end());
         for (const auto& it : ignored_items)
         {
-            if (is_coloured)
-            {
-                std::cout << termcolor::red << "!! " << termcolor::reset << it << std::endl;
-            }
-            else
-            {
-                std::cout << "!! " << it << std::endl;
-            }
+            std::cout << colour << "!! " << termcolor::reset << it << std::endl;
         }
     }
 
@@ -304,7 +293,7 @@ namespace
 
     void print_entries(std::vector<print_entry> entries_to_print, bool is_long, stream_colour_fn colour)
     {
-        for (auto e : entries_to_print)
+        for (const auto& e : entries_to_print)
         {
             if (is_long)
             {
@@ -326,7 +315,7 @@ namespace
     )
     {
         std::vector<print_entry> not_tracked_entries_to_print{};
-        for (auto e : entries_to_print)
+        for (const auto& e : entries_to_print)
         {
             const size_t first_slash_idx = e.item.find('/');
             if (std::string::npos != first_slash_idx)
@@ -338,10 +327,7 @@ namespace
                 }
                 else
                 {
-                    if (untracked_dir_set.contains(directory))
-                    {
-                    }
-                    else
+                    if (!untracked_dir_set.contains(directory))
                     {
                         not_tracked_entries_to_print.push_back({e.status, directory});
                         untracked_dir_set.insert(std::string(directory));
@@ -439,14 +425,7 @@ void print_tracking_info(repository_wrapper& repo, status_list_wrapper& sl, bool
 void print_tobecommited(status_list_wrapper& sl, std::set<std::string> tracked_dir_set, bool is_long, bool is_coloured)
 {
     stream_colour_fn colour;
-    if (is_coloured)
-    {
-        colour = termcolor::green;
-    }
-    else
-    {
-        colour = termcolor::bright_white;
-    }
+    colour = is_coloured ? termcolor::green : termcolor::bright_white;
 
     if (is_long)
     {
@@ -482,14 +461,7 @@ void print_tobecommited(status_list_wrapper& sl, std::set<std::string> tracked_d
 void print_notstagged(status_list_wrapper& sl, std::set<std::string> tracked_dir_set, bool is_long, bool is_coloured)
 {
     stream_colour_fn colour;
-    if (is_coloured)
-    {
-        colour = termcolor::red;
-    }
-    else
-    {
-        colour = termcolor::bright_white;
-    }
+    colour = is_coloured ? termcolor::red : termcolor::bright_white;
 
     if (is_long)
     {
@@ -530,14 +502,7 @@ void print_unmerged(
 )
 {
     stream_colour_fn colour;
-    if (is_coloured)
-    {
-        colour = termcolor::red;
-    }
-    else
-    {
-        colour = termcolor::bright_white;
-    }
+    colour = is_coloured ? termcolor::red : termcolor::bright_white;
 
     if (is_long)
     {
