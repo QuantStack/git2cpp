@@ -6,6 +6,7 @@
 
 #include <git2.h>
 
+#include "../utils/common.hpp"
 #include "../utils/git_exception.hpp"
 #include "../wrapper/annotated_commit_wrapper.hpp"
 #include "../wrapper/branch_wrapper.hpp"
