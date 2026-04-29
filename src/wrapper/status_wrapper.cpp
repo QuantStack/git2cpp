@@ -23,7 +23,58 @@ status_list_wrapper status_list_wrapper::status_list(const repository_wrapper& r
     for (std::size_t i = 0; i < status_list_size; ++i)
     {
         auto entry = git_status_byindex(res.p_resource, i);
-        res.m_entries[entry->status].push_back(entry);
+        auto s = entry->status;
+
+        if (s & GIT_STATUS_INDEX_NEW)
+        {
+            res.m_entries[GIT_STATUS_INDEX_NEW].push_back(entry);
+        }
+        if (s & GIT_STATUS_INDEX_MODIFIED)
+        {
+            res.m_entries[GIT_STATUS_INDEX_MODIFIED].push_back(entry);
+        }
+        if (s & GIT_STATUS_INDEX_DELETED)
+        {
+            res.m_entries[GIT_STATUS_INDEX_DELETED].push_back(entry);
+        }
+        if (s & GIT_STATUS_INDEX_RENAMED)
+        {
+            res.m_entries[GIT_STATUS_INDEX_RENAMED].push_back(entry);
+        }
+        if (s & GIT_STATUS_INDEX_TYPECHANGE)
+        {
+            res.m_entries[GIT_STATUS_INDEX_TYPECHANGE].push_back(entry);
+        }
+
+        if (s & GIT_STATUS_WT_NEW)
+        {
+            res.m_entries[GIT_STATUS_WT_NEW].push_back(entry);
+        }
+        if (s & GIT_STATUS_WT_MODIFIED)
+        {
+            res.m_entries[GIT_STATUS_WT_MODIFIED].push_back(entry);
+        }
+        if (s & GIT_STATUS_WT_DELETED)
+        {
+            res.m_entries[GIT_STATUS_WT_DELETED].push_back(entry);
+        }
+        if (s & GIT_STATUS_WT_RENAMED)
+        {
+            res.m_entries[GIT_STATUS_WT_RENAMED].push_back(entry);
+        }
+        if (s & GIT_STATUS_WT_TYPECHANGE)
+        {
+            res.m_entries[GIT_STATUS_WT_TYPECHANGE].push_back(entry);
+        }
+
+        if (s & GIT_STATUS_IGNORED)
+        {
+            res.m_entries[GIT_STATUS_IGNORED].push_back(entry);
+        }
+        if (s & GIT_STATUS_CONFLICTED)
+        {
+            res.m_entries[GIT_STATUS_CONFLICTED].push_back(entry);
+        }
     }
 
     if (!res.get_entry_list(GIT_STATUS_INDEX_NEW).empty()
