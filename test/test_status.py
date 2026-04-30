@@ -30,6 +30,7 @@ def test_status_new_file(repo_init_with_commit, git2cpp_path, tmp_path, short_fl
     if long_flag != "":
         cmd.append(long_flag)
     p = subprocess.run(cmd, capture_output=True, cwd=tmp_path, text=True, check=True)
+    p.stdout = strip_ansi_colours(p.stdout)
 
     if (long_flag == "--long") or ((long_flag == "") & (short_flag == "")):
         assert "On branch main" in p.stdout
@@ -72,6 +73,7 @@ def test_status_add_file(repo_init_with_commit, git2cpp_path, tmp_path, short_fl
         cmd_status.append(long_flag)
     p_status = subprocess.run(cmd_status, capture_output=True, cwd=tmp_path, text=True)
     assert p_status.returncode == 0
+    p_status.stdout = strip_ansi_colours(p_status.stdout)
 
     if (long_flag == "--long") or ((long_flag == "") & (short_flag == "")):
         assert "Changes to be committed" in p_status.stdout
@@ -144,6 +146,7 @@ def test_status_rename_detection(repo_init_with_commit, git2cpp_path, tmp_path, 
         cmd_status.append(short_flag)
     p = subprocess.run(cmd_status, capture_output=True, cwd=tmp_path, text=True)
     assert p.returncode == 0
+    p.stdout = strip_ansi_colours(p.stdout)
 
     # Should show as renamed, not as deleted + new file
     assert "initial.txt -> initial_renamed.txt" in p.stdout
@@ -223,6 +226,8 @@ def test_status_typechange(repo_init_with_commit, git2cpp_path, tmp_path, short_
     p = subprocess.run(cmd_status, capture_output=True, cwd=tmp_path, text=True)
 
     assert p.returncode == 0
+    p.stdout = strip_ansi_colours(p.stdout)
+
     # Should show typechange in unstaged changes
     if short_flag == "-s":
         assert " T " in p.stdout
@@ -295,6 +300,8 @@ def test_status_ahead_of_upstream(
     p = subprocess.run(cmd_status, capture_output=True, cwd=clone_path, text=True)
 
     assert p.returncode == 0
+    p.stdout = strip_ansi_colours(p.stdout)
+
     if short_flag == "-s":
         if branch_flag == "-b":
             assert "...origin/main" in p.stdout
@@ -341,6 +348,8 @@ def test_status_with_branch_and_tracking(
     p = subprocess.run(cmd_status, capture_output=True, cwd=clone_path, text=True)
 
     assert p.returncode == 0
+    p.stdout = strip_ansi_colours(p.stdout)
+
     if short_flag == "-s":
         assert "## main" in p.stdout  # "main" locally, but "master" in the CI
         assert "[ahead 1]" in p.stdout

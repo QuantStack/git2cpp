@@ -34,6 +34,7 @@ def pytest_ignore_collect(collection_path: pathlib.Path) -> bool:
         "test_revlist.py",
         "test_revparse.py",
         "test_rm.py",
+        "test_showref.py",
         "test_stash.py",
         "test_status.py",
         "test_tag.py",
@@ -46,7 +47,7 @@ def run_web_server():
         cwd = pathlib.Path(__file__).parent.parent / "wasm/test"
         proc = subprocess.Popen(["npm", "run", "serve"], stdout=f, stderr=f, cwd=cwd)
         # Wait a bit until server ready to receive connections.
-        time.sleep(0.5)
+        time.sleep(1)
         yield
         proc.terminate()
 
