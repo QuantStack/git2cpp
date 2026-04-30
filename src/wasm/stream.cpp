@@ -8,6 +8,7 @@
 #    include <emscripten.h>
 
 #    include "../utils/common.hpp"
+#    include "constants.hpp"
 #    include "response.hpp"
 
 // Buffer size used in transport_smart, hardcoded in libgit2.
@@ -106,7 +107,7 @@ EM_JS(
             // clang-format off
             Module["git2cpp_js_error"] = { name: err.name ?? "", message : err.message ?? "" };
             // clang-format on
-            console.error(err);
+            (err.name == "TimeoutError" ? console.warn : console.error)(err);
             return -1;
         }
     }
@@ -208,7 +209,7 @@ EM_JS(
             // clang-format off
             Module["git2cpp_js_error"] = { name: err.name ?? "", message : err.message ?? "" };
             // clang-format on
-            console.error(err);
+            (err.name == "TimeoutError" ? console.warn : console.error)(err);
             return -1;
         }
     }
@@ -245,7 +246,7 @@ EM_JS(size_t, js_write, (int request_index, const char* buffer, size_t buffer_si
         // clang-format off
         Module["git2cpp_js_error"] = { name: err.name ?? "", message : err.message ?? "" };
         // clang-format on
-        console.error(err);
+        (err.name == "TimeoutError" ? console.warn : console.error)(err);
         return -1;
     }
 });
@@ -271,6 +272,16 @@ static void convert_js_to_git_error(wasm_http_stream* stream)
             GIT_ERROR_HTTP,
             "network error sending request to %s, see the browser console and/or network tab for more details",
             stream->m_unconverted_url.c_str()
+        );
+    }
+    else if (std::string_view(error_str).starts_with("TimeoutError:"))
+    {
+        git_error_set(
+            GIT_ERROR_HTTP,
+            "network request timed out connecting to %s. You can set a longer timeout in seconds using the environment variable %s, the default value is %u seconds.",
+            stream->m_unconverted_url.c_str(),
+            WASM_HTTP_TRANSPORT_TIMEOUT_NAME.data(),
+            WASM_HTTP_TRANSPORT_TIMEOUT_DEFAULT_S
         );
     }
     else
