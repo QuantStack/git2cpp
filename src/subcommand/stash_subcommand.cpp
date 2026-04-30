@@ -43,7 +43,7 @@ stash_subcommand::stash_subcommand(const libgit2_object&, CLI::App& app)
     auto* pop = stash->add_subcommand(
         "pop",
         "Remove a single stashed state from the stash list and apply it on top of the current working tree state, i.e., do the inverse operation of "
-            + ansi_code::bold + "git stash push.\n" + ansi_code::reset
+            + ansi_code::bold + "git stash push" + ansi_code::reset + ".\n"
     );
     auto* apply = stash->add_subcommand(
         "apply",
