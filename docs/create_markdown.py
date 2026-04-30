@@ -19,6 +19,12 @@ def sanitise_line(line):
     line = line.replace(r"<", r"&lt;")
     line = line.replace(r">", r"&gt;")
 
+    # Replace ansi style codes with <span> elements, only bold is displayed.
+    # Colour codes are converted to empty <span> elements to match the number of </span>.
+    line = line.replace("\x1b[1m", r"<span class=git2cpp-bold>")
+    line = line.replace("\x1b[0m", r"</span>")
+    line = re.sub(r"\x1b\[[^m]+m", r"<span>", line)
+
     # If there are whitespace characters at the start of the line, replace the first with an &nbsp
     # so that it is not discarded by the markdown parser used by the parsed-literal directive.
     line = re.sub(r"^\s", r"&nbsp;", line)

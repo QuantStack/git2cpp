@@ -21,7 +21,7 @@ reset_subcommand::reset_subcommand(const libgit2_object&, CLI::App& app)
     sub->add_flag(
         "--soft",
         m_soft_flag,
-        "Leave your working tree files and the index unchanged. For example, if you have no staged changes, you can use"
+        "Leave your working tree files and the index unchanged. For example, if you have no staged changes, you can use "
             + ansi_code::bold + "git reset --soft HEAD~5" + ansi_code::reset + "; " + ansi_code::bold
             + "git commit" + ansi_code::reset
             + " to combine the last 5 commits into 1 commit. This works even with changes in the working tree, which are left untouched, but such usage can lead to confusion."
