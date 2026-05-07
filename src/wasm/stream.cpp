@@ -72,6 +72,10 @@ EM_JS(
                 // Should this only be set if using https?  What about CORS via http?
                 xhr.setRequestHeader("Authorization", authorization_header_js);
             }
+            if (!"{#{RUNTIME_TOKEN}#}".startsWith("{#{"))
+            {
+                xhr.setRequestHeader("x-runtime-token", "{#{RUNTIME_TOKEN}#}");
+            }
 
             // Cache request info on JavaScript side so that it is available in subsequent calls
             // without having to pass it back and forth to/from C++.
