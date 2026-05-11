@@ -19,3 +19,4 @@ html_theme_options = {
     "show_navbar_depth": 2,
 }
 html_title = "git2cpp documentation"
+myst_enable_extensions = ["deflist"]

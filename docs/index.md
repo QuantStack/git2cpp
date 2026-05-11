@@ -15,3 +15,14 @@ please create an issue in the [git2cpp github repository](https://github.com/Qua
 :hidden:
 created/git2cpp
 ```
+
+## Environment variables
+
+`GIT_HTTP_TIMEOUT`
+: In the WebAssembly build, all http(s) requests are limited by a timeout which has a default of 10
+  seconds. To use a different timeout set the `GIT_HTTP_TIMEOUT` environment variable. For example,
+  to set a timeout of 20 seconds use:
+
+  ```bash
+  export GIT_HTTP_TIMEOUT=20
+  ```
