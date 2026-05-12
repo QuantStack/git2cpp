@@ -220,7 +220,7 @@ EM_JS(void, js_warning, (const char* msg), {
     console.warning(msg_js);
 });
 
-EM_JS(size_t, js_write, (int request_index, const char* buffer, size_t buffer_size), {
+EM_JS(int, js_write, (int request_index, const char* buffer, size_t buffer_size), {
     try
     {
         const cache = Module["git2cpp_js_cache"];
@@ -359,7 +359,7 @@ static int read(wasm_http_stream* stream, wasm_http_response& response, bool is_
         &status_text,
         &response_headers
     );
-    if (bytes_read < 0)
+    if (bytes_read == static_cast<size_t>(-1))
     {
         convert_js_to_git_error(stream);
         // Delete const char* allocated in JavaScript.
@@ -551,7 +551,7 @@ int wasm_http_stream_read(git_smart_subtransport_stream* s, char* buffer, size_t
     bool send = true;
     while (send)
     {
-        if (read(stream, response, false) < 0)
+        if (read(stream, response, false) == static_cast<size_t>(-1))
         {
             return -1;  // git error already set.
         }
