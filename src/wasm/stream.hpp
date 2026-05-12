@@ -5,6 +5,7 @@
 #    include <git2/sys/transport.h>
 
 #    include "libgit2_internals.hpp"
+#    include "response.hpp"
 #    include "subtransport.hpp"
 
 // A stream represents a single http/https request.
@@ -26,6 +27,7 @@ struct wasm_http_stream
     http_service m_service;
     std::string m_unconverted_url;
     int m_request_index;
+    wasm_http_response m_response;
 };
 
 void wasm_http_stream_free(git_smart_subtransport_stream* s);

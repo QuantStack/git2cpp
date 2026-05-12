@@ -309,8 +309,7 @@ static void delete_request(wasm_http_stream* stream)
     }
 }
 
-static int
-read(wasm_http_stream* stream, read_buffer_t& read_buffer, wasm_http_response& response, bool is_read_response)
+static int read(wasm_http_stream* stream, read_buffer_t& read_buffer, bool is_read_response)
 {
     if (is_read_response)
     {
@@ -344,6 +343,7 @@ read(wasm_http_stream* stream, read_buffer_t& read_buffer, wasm_http_response& r
         }
     }
 
+    auto& response = stream->m_response;
     const char* status_text = nullptr;
     const char* response_headers = nullptr;
 
@@ -429,7 +429,7 @@ static int write(wasm_http_stream* stream, const char* buffer, size_t buffer_siz
 
 // C credential functions.
 
-static int create_credential(wasm_http_stream* stream, const wasm_http_response& response)
+static int create_credential(wasm_http_stream* stream)
 {
     wasm_http_subtransport* subtransport = stream->m_subtransport;
 
@@ -442,7 +442,7 @@ static int create_credential(wasm_http_stream* stream, const wasm_http_response&
     subtransport->m_authorization_header = "";
 
     // Check that response headers show support for 'www-authenticate: Basic'.
-    if (!response.has_header_starts_with("www-authenticate", "Basic"))
+    if (!stream->m_response.has_header_starts_with("www-authenticate", "Basic"))
     {
         git_error_set(
             GIT_ERROR_HTTP,
@@ -544,36 +544,35 @@ int wasm_http_stream_read(git_smart_subtransport_stream* s, char* buffer, size_t
 {
     wasm_http_stream* stream = reinterpret_cast<wasm_http_stream*>(s);
     read_buffer_t read_buffer(buffer, buffer_size, bytes_read);
-    wasm_http_response response;
 
     bool send = true;
     while (send)
     {
-        if (read(stream, read_buffer, response, false) == static_cast<size_t>(-1))
+        if (read(stream, read_buffer, false) == static_cast<size_t>(-1))
         {
             return -1;  // git error already set.
         }
         send = false;
 
-        auto final_url_header = response.get_header("x-final-url");
+        auto final_url_header = stream->m_response.get_header("x-final-url");
         if (final_url_header.has_value() && stream->ensure_final_url(final_url_header.value())
-            && response.m_status != GIT_HTTP_STATUS_OK)
+            && stream->m_response.m_status != GIT_HTTP_STATUS_OK)
         {
             // Resend only if status not OK, if OK next request will use updated URL.
             send = true;
         }
 
-        if (response.has_header("strict-transport-security") && stream->ensure_https()
-            && response.m_status != GIT_HTTP_STATUS_OK)
+        if (stream->m_response.has_header("strict-transport-security") && stream->ensure_https()
+            && stream->m_response.m_status != GIT_HTTP_STATUS_OK)
         {
             // Resend only if status not OK, if OK next request will use https not http.
             send = true;
         }
 
-        if (response.m_status == GIT_HTTP_STATUS_UNAUTHORIZED)
+        if (stream->m_response.m_status == GIT_HTTP_STATUS_UNAUTHORIZED)
         {
             // Request and create new credentials.
-            if (create_credential(stream, response) < 0)
+            if (create_credential(stream) < 0)
             {
                 return -1;  // git error already set.
             }
@@ -583,13 +582,13 @@ int wasm_http_stream_read(git_smart_subtransport_stream* s, char* buffer, size_t
         if (send)
         {
             delete_request(stream);
-            response.clear();
+            stream->m_response.clear();
         }
     }
 
-    if (response.m_status != GIT_HTTP_STATUS_OK)
+    if (stream->m_response.m_status != GIT_HTTP_STATUS_OK)
     {
-        response.set_git_error(stream->m_unconverted_url);
+        stream->m_response.set_git_error(stream->m_unconverted_url);
         return -1;
     }
 
@@ -601,15 +600,14 @@ int wasm_http_stream_read_response(git_smart_subtransport_stream* s, char* buffe
     wasm_http_stream* stream = reinterpret_cast<wasm_http_stream*>(s);
 
     read_buffer_t read_buffer(buffer, buffer_size, bytes_read);
-    wasm_http_response response;
-    int error = read(stream, read_buffer, response, true);
+    int error = read(stream, read_buffer, true);
 
     // May need similar handling of response status and headers as occurs in read() above, but so
     // far this has not been necessary.
 
-    if (error == 0 && response.m_status != GIT_HTTP_STATUS_OK)
+    if (error == 0 && stream->m_response.m_status != GIT_HTTP_STATUS_OK)
     {
-        response.set_git_error(stream->m_unconverted_url);
+        stream->m_response.set_git_error(stream->m_unconverted_url);
         error = -1;
     }
 
