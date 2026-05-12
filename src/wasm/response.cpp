@@ -5,13 +5,9 @@
 #    include "../utils/common.hpp"
 #    include "libgit2_internals.hpp"
 
-wasm_http_response::wasm_http_response(char* buffer, size_t buffer_size, size_t* bytes_read)
-    : m_buffer(buffer)
-    , m_buffer_size(buffer_size)
-    , m_bytes_read(bytes_read)
-    , m_status(0)
+wasm_http_response::wasm_http_response()
+    : m_status(0)
 {
-    *m_bytes_read = 0;
 }
 
 void wasm_http_response::add_header(const std::string& key, const std::string& value)
@@ -21,7 +17,6 @@ void wasm_http_response::add_header(const std::string& key, const std::string& v
 
 void wasm_http_response::clear()
 {
-    *m_bytes_read = 0;
     m_status = 0;
     m_status_text.clear();
     m_response_headers.clear();

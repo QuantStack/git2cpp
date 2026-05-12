@@ -9,6 +9,7 @@
 
 #    include "../utils/common.hpp"
 #    include "constants.hpp"
+#    include "read_buffer.hpp"
 #    include "response.hpp"
 
 // Buffer size used in transport_smart, hardcoded in libgit2.
@@ -308,7 +309,8 @@ static void delete_request(wasm_http_stream* stream)
     }
 }
 
-static int read(wasm_http_stream* stream, wasm_http_response& response, bool is_read_response)
+static int
+read(wasm_http_stream* stream, read_buffer_t& read_buffer, wasm_http_response& response, bool is_read_response)
 {
     if (is_read_response)
     {
@@ -348,8 +350,8 @@ static int read(wasm_http_stream* stream, wasm_http_response& response, bool is_
     // Actual read.
     size_t bytes_read = js_read(
         stream->m_request_index,
-        response.m_buffer,
-        response.m_buffer_size,
+        read_buffer.m_buffer,
+        read_buffer.m_buffer_size,
         &response.m_status,
         &status_text,
         &response_headers
@@ -399,7 +401,7 @@ static int read(wasm_http_stream* stream, wasm_http_response& response, bool is_
         }
     }
 
-    *response.m_bytes_read = bytes_read;
+    *read_buffer.m_bytes_read = bytes_read;
     return 0;
 }
 
@@ -541,12 +543,13 @@ void wasm_http_stream_free(git_smart_subtransport_stream* s)
 int wasm_http_stream_read(git_smart_subtransport_stream* s, char* buffer, size_t buffer_size, size_t* bytes_read)
 {
     wasm_http_stream* stream = reinterpret_cast<wasm_http_stream*>(s);
-    wasm_http_response response(buffer, buffer_size, bytes_read);
+    read_buffer_t read_buffer(buffer, buffer_size, bytes_read);
+    wasm_http_response response;
 
     bool send = true;
     while (send)
     {
-        if (read(stream, response, false) == static_cast<size_t>(-1))
+        if (read(stream, read_buffer, response, false) == static_cast<size_t>(-1))
         {
             return -1;  // git error already set.
         }
@@ -597,8 +600,9 @@ int wasm_http_stream_read_response(git_smart_subtransport_stream* s, char* buffe
 {
     wasm_http_stream* stream = reinterpret_cast<wasm_http_stream*>(s);
 
-    wasm_http_response response(buffer, buffer_size, bytes_read);
-    int error = read(stream, response, true);
+    read_buffer_t read_buffer(buffer, buffer_size, bytes_read);
+    wasm_http_response response;
+    int error = read(stream, read_buffer, response, true);
 
     // May need similar handling of response status and headers as occurs in read() above, but so
     // far this has not been necessary.
