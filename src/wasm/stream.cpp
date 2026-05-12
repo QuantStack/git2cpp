@@ -11,6 +11,7 @@
 #    include "constants.hpp"
 #    include "read_buffer.hpp"
 #    include "response.hpp"
+#    include "utils.hpp"
 
 // Buffer size used in transport_smart, hardcoded in libgit2.
 #    define EMFORGE_BUFSIZE 65536
@@ -158,8 +159,10 @@ EM_JS(
     (int request_index,
      char* buffer,
      size_t buffer_size,
+     bool first_read,  // Set subsequent arguments only if this is true.
      int32_t* status,
      const char** status_text,
+     int64_t* total_bytes,
      const char** response_headers),
     {
         try
@@ -174,22 +177,28 @@ EM_JS(
                 request.content = null;
             }
 
-            let bytes_read = 0;
+            let byte_length = 0;  // Total number of bytes that will be returned.
+            let bytes_read = 0;   // Number of bytes returned by this call.
             if (xhr.response && xhr.response.byteLength)
             {
-                bytes_read = xhr.response.byteLength - request.result_buffer_pointer;
+                byte_length = xhr.response.byteLength;
+                bytes_read = byte_length - request.result_buffer_pointer;
                 if (bytes_read > buffer_size)
                 {
                     bytes_read = buffer_size;
                 }
             }
 
-            // Caller must delete the returned status_text and response_headers.
-            // clang-format off
-            setValue(status, xhr.status, 'i32*');
-            setValue(status_text, stringToNewUTF8(xhr.statusText ?? ""), 'i8**');
-            setValue(response_headers, stringToNewUTF8(xhr.getAllResponseHeaders() ?? ""), 'i8**');
-            // clang-format on
+            if (first_read)
+            {
+                // Caller must delete the returned status_text and response_headers.
+                // clang-format off
+                setValue(status, xhr.status, 'i32*');
+                setValue(status_text, stringToNewUTF8(xhr.statusText ?? ""), 'i8**');
+                setValue(total_bytes, byte_length, 'i64*');
+                setValue(response_headers, stringToNewUTF8(xhr.getAllResponseHeaders() ?? ""), 'i8**');
+                // clang-format on
+            }
 
             if (bytes_read > 0)
             {
@@ -344,6 +353,7 @@ static int read(wasm_http_stream* stream, read_buffer_t& read_buffer, bool is_re
     }
 
     auto& response = stream->m_response;
+    bool first_read = response.m_read_count == 0;
     const char* status_text = nullptr;
     const char* response_headers = nullptr;
 
@@ -352,10 +362,13 @@ static int read(wasm_http_stream* stream, read_buffer_t& read_buffer, bool is_re
         stream->m_request_index,
         read_buffer.m_buffer,
         read_buffer.m_buffer_size,
+        first_read,
         &response.m_status,
         &status_text,
+        &response.m_total_bytes,
         &response_headers
     );
+    stream->m_response.m_read_count++;
     if (bytes_read == static_cast<size_t>(-1))
     {
         convert_js_to_git_error(stream);
@@ -365,38 +378,47 @@ static int read(wasm_http_stream* stream, read_buffer_t& read_buffer, bool is_re
         return -1;
     }
 
-    response.m_status_text = status_text;
-    delete status_text;  // Delete const char* allocated in JavaScript.
-
-    // Split single string with response headers separated by \r\n into individual headers.
-    auto lines = split_input_at_newlines(response_headers);
-    for (const auto& line : lines)
+    if (first_read)
     {
-        auto pos = line.find(":");
-        if (pos == std::string::npos)
+        response.m_status_text = status_text;
+        delete status_text;  // Delete const char* allocated in JavaScript.
+
+        // Split single string with response headers separated by \r\n into individual headers.
+        auto lines = split_input_at_newlines(response_headers);
+        for (const auto& line : lines)
         {
-            // Skip invalid lines.  Should this be an error condition?
-            continue;
+            auto pos = line.find(":");
+            if (pos == std::string::npos)
+            {
+                // Skip invalid lines.  Should this be an error condition?
+                continue;
+            }
+            response.add_header(line.substr(0, pos), line.substr(pos + 1));
         }
-        response.add_header(line.substr(0, pos), line.substr(pos + 1));
-    }
-    delete response_headers;  // Delete const char* allocated in JavaScript.
+        delete response_headers;  // Delete const char* allocated in JavaScript.
 
-    // If successful, check expected response content-type is correct.
-    if (response.m_status == GIT_HTTP_STATUS_OK)
-    {
-        auto expected_response_type = stream->m_service.m_response_type;
-        if (!expected_response_type.empty()
-            && !response.has_header_matches("content-type", expected_response_type))
+        // If successful, check expected response content-type is correct.
+        if (response.m_status == GIT_HTTP_STATUS_OK)
         {
-            // Not sure this should be checked at all, as CORS proxy may be doing something
-            // with it.
-            git_error_set(
-                GIT_ERROR_HTTP,
-                "expected response content-type header '%s' to request %s",
-                expected_response_type.c_str(),
-                stream->m_unconverted_url.c_str()
-            );
+            auto expected_response_type = stream->m_service.m_response_type;
+            if (!expected_response_type.empty()
+                && !response.has_header_matches("content-type", expected_response_type))
+            {
+                // Not sure this should be checked at all, as CORS proxy may be doing something
+                // with it.
+                git_error_set(
+                    GIT_ERROR_HTTP,
+                    "expected response content-type header '%s' to request %s",
+                    expected_response_type.c_str(),
+                    stream->m_unconverted_url.c_str()
+                );
+                return -1;
+            }
+        }
+
+        if (!maybe_prompt_to_download(response.m_total_bytes))
+        {
+            git_error_set(GIT_ERROR_NONE, "Download aborted");
             return -1;
         }
     }

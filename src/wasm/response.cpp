@@ -7,6 +7,8 @@
 
 wasm_http_response::wasm_http_response()
     : m_status(0)
+    , m_read_count(0)
+    , m_total_bytes(0)
 {
 }
 
@@ -19,6 +21,8 @@ void wasm_http_response::clear()
 {
     m_status = 0;
     m_status_text.clear();
+    m_read_count = 0;
+    m_total_bytes = 0;
     m_response_headers.clear();
 }
 

@@ -31,6 +31,8 @@ public:
 
     int32_t m_status;  // Specific type corresponding to i32 in emscripten setValue call.
     std::string m_status_text;
+    unsigned int m_read_count;
+    int64_t m_total_bytes;  // Specific type corresponding to i64 in emscripten setValue call.
 
 private:
 
