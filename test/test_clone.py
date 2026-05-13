@@ -1,5 +1,6 @@
 import pytest
 import subprocess
+from .conftest import GIT2CPP_TEST_WASM
 
 xtl_url = "https://github.com/xtensor-stack/xtl.git"
 
@@ -144,3 +145,63 @@ def test_clone_gitlab(git2cpp_path, tmp_path, run_in_tmp_path, protocol):
     assert p_status.returncode == 0
     assert "On branch main" in p_status.stdout
     assert "Your branch is up to date with 'origin/main'" in p_status.stdout
+
+
+@pytest.mark.skipif(not GIT2CPP_TEST_WASM, reason="Only test in WebAssembly")
+def test_clone_timeout(git2cpp_path, tmp_path, run_in_tmp_path):
+    # Set very short timeout.
+    subprocess.run(["export", "GIT_HTTP_TIMEOUT=0.001"], check=True)
+
+    # Check timeout is set.
+    check_env_cmd = ["env"]
+    p_check_env = subprocess.run(check_env_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert "GIT_HTTP_TIMEOUT=0.001" in p_check_env.stdout
+
+    # Clone fails with timeout.
+    clone_cmd = [git2cpp_path, "clone", xtl_url]
+    p_clone = subprocess.run(clone_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_clone.returncode != 0
+    assert "network request timed out connecting to" in p_clone.stderr
+    assert (
+        "set a longer timeout in seconds using the environment variable GIT_HTTP_TIMEOUT"
+        in p_clone.stderr
+    )
+
+    # Set more reasonable timeout.
+    subprocess.run(["export", "GIT_HTTP_TIMEOUT=10"], check=True)
+
+    # Check timeout is set.
+    p_check_env = subprocess.run(check_env_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert "GIT_HTTP_TIMEOUT=10" in p_check_env.stdout
+
+    # Clone succeeds.
+    clone_cmd = [git2cpp_path, "clone", xtl_url]
+    p_clone = subprocess.run(clone_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_clone.returncode == 0
+
+    assert (tmp_path / "xtl").exists()
+    assert (tmp_path / "xtl/include").exists()
+
+
+@pytest.mark.skipif(not GIT2CPP_TEST_WASM, reason="Only test in WebAssembly")
+def test_clone_negative_timeout_ignored(git2cpp_path, tmp_path, run_in_tmp_path):
+    # Set negative timeout.
+    subprocess.run(["export", "GIT_HTTP_TIMEOUT=-1"], check=True)
+
+    # Check timeout is set.
+    check_env_cmd = ["env"]
+    p_check_env = subprocess.run(check_env_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert "GIT_HTTP_TIMEOUT=-1" in p_check_env.stdout
+
+    # Clone succeeds, ignoring invalid timeout.
+    clone_cmd = [git2cpp_path, "clone", xtl_url]
+    p_clone = subprocess.run(clone_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_clone.returncode == 0
+
+    assert (tmp_path / "xtl").exists()
+    assert (tmp_path / "xtl/include").exists()
+
+    assert (
+        "environment variable GIT_HTTP_TIMEOUT must be a positive number of seconds"
+        in p_clone.stdout
+    )

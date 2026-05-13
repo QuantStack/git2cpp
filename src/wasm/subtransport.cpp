@@ -2,15 +2,16 @@
 
 #    include "subtransport.hpp"
 
+#    include <iostream>
 #    include <regex>
 #    include <sstream>
 
-#    include <emscripten.h>
 #    include <git2/sys/credential.h>
 #    include <git2/sys/remote.h>
 
 #    include "libgit2_internals.hpp"
 #    include "stream.hpp"
+#    include "utils.hpp"
 
 // C functions.
 
@@ -93,6 +94,7 @@ int create_wasm_http_subtransport(git_smart_subtransport** out, git_transport* o
     subtransport->m_owner = owner;
     subtransport->m_base_url = "";
     subtransport->m_credential = nullptr;
+    subtransport->m_request_timeout_ms = get_request_timeout_ms();
 
     *out = &subtransport->m_parent;
     return 0;

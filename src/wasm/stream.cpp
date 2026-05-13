@@ -8,6 +8,7 @@
 #    include <emscripten.h>
 
 #    include "../utils/common.hpp"
+#    include "constants.hpp"
 #    include "response.hpp"
 
 // Buffer size used in transport_smart, hardcoded in libgit2.
@@ -51,6 +52,7 @@ EM_JS(
      const char* method,
      const char* content_type_header,
      const char* authorization_header,
+     unsigned long request_timeout_ms,
      size_t buffer_size),
     {
         const url_js = UTF8ToString(url);
@@ -76,6 +78,7 @@ EM_JS(
             {
                 xhr.setRequestHeader("x-runtime-token", "{#{RUNTIME_TOKEN}#}");
             }
+            xhr.timeout = request_timeout_ms;
 
             // Cache request info on JavaScript side so that it is available in subsequent calls
             // without having to pass it back and forth to/from C++.
@@ -104,7 +107,7 @@ EM_JS(
             // clang-format off
             Module["git2cpp_js_error"] = { name: err.name ?? "", message : err.message ?? "" };
             // clang-format on
-            console.error(err);
+            (err.name == "TimeoutError" ? console.warn : console.error)(err);
             return -1;
         }
     }
@@ -206,7 +209,7 @@ EM_JS(
             // clang-format off
             Module["git2cpp_js_error"] = { name: err.name ?? "", message : err.message ?? "" };
             // clang-format on
-            console.error(err);
+            (err.name == "TimeoutError" ? console.warn : console.error)(err);
             return -1;
         }
     }
@@ -217,7 +220,7 @@ EM_JS(void, js_warning, (const char* msg), {
     console.warning(msg_js);
 });
 
-EM_JS(size_t, js_write, (int request_index, const char* buffer, size_t buffer_size), {
+EM_JS(int, js_write, (int request_index, const char* buffer, size_t buffer_size), {
     try
     {
         const cache = Module["git2cpp_js_cache"];
@@ -243,7 +246,7 @@ EM_JS(size_t, js_write, (int request_index, const char* buffer, size_t buffer_si
         // clang-format off
         Module["git2cpp_js_error"] = { name: err.name ?? "", message : err.message ?? "" };
         // clang-format on
-        console.error(err);
+        (err.name == "TimeoutError" ? console.warn : console.error)(err);
         return -1;
     }
 });
@@ -271,6 +274,16 @@ static void convert_js_to_git_error(wasm_http_stream* stream)
             stream->m_unconverted_url.c_str()
         );
     }
+    else if (std::string_view(error_str).starts_with("TimeoutError:"))
+    {
+        git_error_set(
+            GIT_ERROR_HTTP,
+            "network request timed out connecting to %s. You can set a longer timeout in seconds using the environment variable %s, the default value is %u seconds.",
+            stream->m_unconverted_url.c_str(),
+            WASM_HTTP_TRANSPORT_TIMEOUT_NAME.data(),
+            WASM_HTTP_TRANSPORT_TIMEOUT_DEFAULT_S
+        );
+    }
     else
     {
         git_error_set(GIT_ERROR_HTTP, "%s", error_str);
@@ -285,6 +298,7 @@ static int create_request(wasm_http_stream* stream, std::string_view content_hea
         name_for_method(stream->m_service.m_method).c_str(),
         content_header.data(),
         stream->m_subtransport->m_authorization_header.c_str(),
+        stream->m_subtransport->m_request_timeout_ms,
         EMFORGE_BUFSIZE
     );
     return stream->m_request_index;
@@ -345,7 +359,7 @@ static int read(wasm_http_stream* stream, wasm_http_response& response, bool is_
         &status_text,
         &response_headers
     );
-    if (bytes_read < 0)
+    if (bytes_read == static_cast<size_t>(-1))
     {
         convert_js_to_git_error(stream);
         // Delete const char* allocated in JavaScript.
@@ -537,7 +551,7 @@ int wasm_http_stream_read(git_smart_subtransport_stream* s, char* buffer, size_t
     bool send = true;
     while (send)
     {
-        if (read(stream, response, false) < 0)
+        if (read(stream, response, false) == static_cast<size_t>(-1))
         {
             return -1;  // git error already set.
         }
