@@ -125,32 +125,27 @@ EM_JS(const char*, js_maybe_convert_url, (const char* url_str), {
     let ret = url_js;  // Default to returning original unconverted URL as new string.
     if (GIT_CORS_PROXY)
     {
-        // clang-format off
-        const GIT_CORS_PROXY_TYPE = env["GIT_CORS_PROXY_TYPE"] ?? "prefix";
-        // clang-format on
-        if (GIT_CORS_PROXY_TYPE == "prefix")
+        if (!GIT_CORS_PROXY.includes("{"))
         {
-            ret = GIT_CORS_PROXY;
-            if (ret.at(-1) != '/')
-            {
-                ret += '/';
-            }
-            ret += url_js;
-        }
-        else if (GIT_CORS_PROXY_TYPE == "insert")
-        {
-            ret = url.protocol + "/" + GIT_CORS_PROXY;
-            if (ret.at(-1) != '/')
-            {
-                ret += '/';
-            }
-            ret += url.host + url.pathname + url.search;
+            ret = GIT_CORS_PROXY + url_js;
         }
         else
         {
-            // clang-format off
-            console.warn(`Invalid GIT_CORS_PROXY_TYPE of '${GIT_CORS_PROXY_TYPE}'`);
-            // clang-format on
+            ret = GIT_CORS_PROXY;
+            ret = ret.replace("{url}", url_js);
+            ret = ret.replace("{url:encode}", encodeURIComponent(url_js));
+            ret = ret.replace("{protocol}", url.protocol);
+            ret = ret.replace("{protocol:encode}", encodeURIComponent(url.protocol));
+            ret = ret.replace("{host}", url.host);
+            ret = ret.replace("{host:encode}", encodeURIComponent(url.host));
+            ret = ret.replace("{path}", url.pathname + url.search);
+            ret = ret.replace("{path:encode}", encodeURIComponent(url.pathname + url.search));
+            const api_key = env["GIT_CORS_PROXY_API_KEY"];
+            if (api_key)
+            {
+                ret = ret.replace("{api_key}", api_key);
+            }
+            // Ignore any other use of curly braces.
         }
     }
     return stringToNewUTF8(ret);
