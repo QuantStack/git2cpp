@@ -103,6 +103,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/wasm/constants.hpp
     ${GIT2CPP_SOURCE_DIR}/wasm/libgit2_internals.cpp
     ${GIT2CPP_SOURCE_DIR}/wasm/libgit2_internals.hpp
+    ${GIT2CPP_SOURCE_DIR}/wasm/read_buffer.cpp
+    ${GIT2CPP_SOURCE_DIR}/wasm/read_buffer.hpp
     ${GIT2CPP_SOURCE_DIR}/wasm/response.cpp
     ${GIT2CPP_SOURCE_DIR}/wasm/response.hpp
     ${GIT2CPP_SOURCE_DIR}/wasm/scope.cpp

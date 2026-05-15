@@ -13,7 +13,7 @@ class wasm_http_response
 {
 public:
 
-    wasm_http_response(char* buffer, size_t buffer_size, size_t* bytes_read);
+    wasm_http_response();
 
     void add_header(const std::string& key, const std::string& value);
 
@@ -29,11 +29,10 @@ public:
 
     void set_git_error(std::string_view url) const;
 
-    char* m_buffer;  // Not owned.
-    size_t m_buffer_size;
-    size_t* m_bytes_read;  // Not owned.
-    int32_t m_status;      // Specific type corresponding to i32 in emscripten setValue call.
+    int32_t m_status;  // Specific type corresponding to i32 in emscripten setValue call.
     std::string m_status_text;
+    unsigned int m_read_count;
+    int64_t m_total_bytes;  // Specific type corresponding to i64 in emscripten setValue call.
 
 private:
 

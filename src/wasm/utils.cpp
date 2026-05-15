@@ -2,8 +2,14 @@
 
 #    include "utils.hpp"
 
+#    include <algorithm>
+#    include <cmath>
+#    include <iomanip>
+#    include <sstream>
+
 #    include <termcolor/termcolor.hpp>
 
+#    include "../utils/input_output.hpp"
 #    include "constants.hpp"
 
 unsigned long get_request_timeout_ms()
@@ -33,6 +39,42 @@ unsigned long get_request_timeout_ms()
         }
     }
     return 1000 * timeout_seconds;
+}
+
+std::string human_readable_size(double bytes)
+{
+    static constexpr const char* units[] = {"B", "kB", "MB", "GB", "TB"};
+    int nunits = sizeof(units) / sizeof(units[0]);
+    int index = std::trunc(std::log10(bytes) / 3);
+    index = std::clamp(index, 0, nunits - 1, std::less());
+
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(1) << (bytes / std::pow(1000.0, index)) << ' ' << units[index];
+    return oss.str();
+}
+
+bool maybe_prompt_to_download(double bytes)
+{
+    if (bytes <= 0.0)
+    {
+        return true;
+    }
+
+    // Limit
+    double bytes_limit = 1e7;  // 10 MB
+    if (bytes > bytes_limit)
+    {
+        if (!termcolor::_internal::is_atty(std::cout))
+        {
+            // If not a tty cannot prompt user so prevent the download.
+            return false;
+        }
+
+        std::string prompt = "Download size is " + human_readable_size(bytes) + ", continue [y/N]? ";
+        return prompt_yes_or_no(prompt, false);
+    }
+
+    return true;
 }
 
 #endif  // EMSCRIPTEN
