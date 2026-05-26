@@ -33,6 +33,89 @@ push_subcommand::push_subcommand(const libgit2_object&, CLI::App& app)
     );
 }
 
+namespace
+{
+    std::unordered_map<std::string, git_oid> get_remotes(repository_wrapper& repo, std::string remote_name)
+    {
+        std::vector<std::string> repo_refs = repo.refs_list();
+        std::unordered_map<std::string, git_oid> remotes_oids;
+        const std::string prefix = std::string("refs/remotes/") + remote_name + "/";
+        for (const auto& r : repo_refs)
+        {
+            if (r.size() > prefix.size() && r.compare(0, prefix.size(), prefix) == 0)
+            {
+                // r is like "refs/remotes/origin/main"
+                std::string short_name = r.substr(prefix.size());  // "main" or "feature/x"
+
+                git_oid oid = repo.ref_name_to_id(r);
+                remotes_oids.emplace(short_name, oid);
+            }
+        }
+        return remotes_oids;
+    }
+
+    std::unordered_map<std::string, git_oid> diff_branches(
+        std::unordered_map<std::string, git_oid> remotes_before_push,
+        std::unordered_map<std::string, git_oid> remotes_after_push
+    )
+    {
+        std::unordered_map<std::string, git_oid> new_branches;
+        for (const auto& br : remotes_after_push)
+        {
+            const std::string name = br.first;
+            const git_oid& oid = br.second;
+            if (!remotes_before_push.contains(name))
+            {
+                new_branches.emplace(name, oid);
+            }
+        }
+        return new_branches;
+    }
+
+    std::pair<std::vector<std::string>, std::vector<std::string>>
+    split_refspecs(std::vector<std::string> refspecs, std::unordered_map<std::string, git_oid> new_branches)
+    {
+        std::vector<std::string> new_pushed_refspecs;
+        std::vector<std::string> existing_refspecs;
+
+        for (const auto refspec : refspecs)
+        {
+            if (!new_branches.contains(refspec))
+            {
+                existing_refspecs.push_back(refspec);
+            }
+            else
+            {
+                new_pushed_refspecs.push_back(refspec);
+            }
+        }
+
+        return std::make_pair(new_pushed_refspecs, existing_refspecs);
+    }
+
+    std::pair<std::string, std::string>
+    get_branch_names(repository_wrapper& repo, std::string remote_name, std::string refspec)
+    {
+        std::optional<std::string> upstream_opt = repo.branch_upstream_name(refspec);
+        std::string remote_branch = refspec;
+        if (upstream_opt.has_value())
+        {
+            const std::string up_name = upstream_opt.value();
+            auto pos = up_name.find('/');
+            if (pos != std::string::npos && pos + 1 < up_name.size())
+            {
+                std::string up_remote = up_name.substr(0, pos);
+                std::string up_branch = up_name.substr(pos + 1);
+                if (up_remote == remote_name)
+                {
+                    remote_branch = up_branch;
+                }
+            }
+        }
+        return std::make_pair(refspec, remote_branch);
+    }
+}
+
 void push_subcommand::fill_refspec(repository_wrapper& repo)
 {
     const std::string prefix = std::string("refs/heads/");
@@ -76,86 +159,6 @@ void push_subcommand::fill_refspec(repository_wrapper& repo)
             }
         }
     }
-}
-
-std::unordered_map<std::string, git_oid> get_remotes(repository_wrapper& repo, std::string remote_name)
-{
-    std::vector<std::string> repo_refs = repo.refs_list();
-    std::unordered_map<std::string, git_oid> remotes_oids;
-    const std::string prefix = std::string("refs/remotes/") + remote_name + "/";
-    for (const auto& r : repo_refs)
-    {
-        if (r.size() > prefix.size() && r.compare(0, prefix.size(), prefix) == 0)
-        {
-            // r is like "refs/remotes/origin/main"
-            std::string short_name = r.substr(prefix.size());  // "main" or "feature/x"
-
-            git_oid oid = repo.ref_name_to_id(r);
-            remotes_oids.emplace(short_name, oid);
-        }
-    }
-    return remotes_oids;
-}
-
-std::unordered_map<std::string, git_oid> diff_branches(
-    std::unordered_map<std::string, git_oid> remotes_before_push,
-    std::unordered_map<std::string, git_oid> remotes_after_push
-)
-{
-    std::unordered_map<std::string, git_oid> new_branches;
-    for (const auto& br : remotes_after_push)
-    {
-        const std::string name = br.first;
-        const git_oid& oid = br.second;
-        if (!remotes_before_push.contains(name))
-        {
-            new_branches.emplace(name, oid);
-        }
-    }
-    return new_branches;
-}
-
-std::pair<std::vector<std::string>, std::vector<std::string>>
-split_refspecs(std::vector<std::string> refspecs, std::unordered_map<std::string, git_oid> new_branches)
-{
-    std::vector<std::string> new_pushed_refspecs;
-    std::vector<std::string> existing_refspecs;
-
-    for (const auto refspec : refspecs)
-    {
-        if (!new_branches.contains(refspec))
-        {
-            existing_refspecs.push_back(refspec);
-        }
-        else
-        {
-            new_pushed_refspecs.push_back(refspec);
-        }
-    }
-
-    return std::make_pair(new_pushed_refspecs, existing_refspecs);
-}
-
-std::pair<std::string, std::string>
-get_branch_names(repository_wrapper& repo, std::string remote_name, std::string refspec)
-{
-    std::optional<std::string> upstream_opt = repo.branch_upstream_name(refspec);
-    std::string remote_branch = refspec;
-    if (upstream_opt.has_value())
-    {
-        const std::string up_name = upstream_opt.value();
-        auto pos = up_name.find('/');
-        if (pos != std::string::npos && pos + 1 < up_name.size())
-        {
-            std::string up_remote = up_name.substr(0, pos);
-            std::string up_branch = up_name.substr(pos + 1);
-            if (up_remote == remote_name)
-            {
-                remote_branch = up_branch;
-            }
-        }
-    }
-    return std::make_pair(refspec, remote_branch);
 }
 
 void push_subcommand::run()

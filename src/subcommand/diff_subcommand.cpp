@@ -71,6 +71,129 @@ diff_subcommand::diff_subcommand(const libgit2_object&, CLI::App& app)
     );
 }
 
+namespace
+{
+    int colour_printer(
+        [[maybe_unused]] const git_diff_delta* delta,
+        [[maybe_unused]] const git_diff_hunk* hunk,
+        const git_diff_line* line,
+        void* payload
+    )
+    {
+        bool use_colour = *reinterpret_cast<bool*>(payload);
+
+        // Only print origin for context/addition/deletion lines
+        bool print_origin = (line->origin == GIT_DIFF_LINE_CONTEXT || line->origin == GIT_DIFF_LINE_ADDITION || line->origin == GIT_DIFF_LINE_DELETION);
+
+        if (use_colour)
+        {
+            switch (line->origin)
+            {
+                case GIT_DIFF_LINE_ADDITION:
+                    std::cout << termcolor::green;
+                    break;
+                case GIT_DIFF_LINE_DELETION:
+                    std::cout << termcolor::red;
+                    break;
+                case GIT_DIFF_LINE_ADD_EOFNL:
+                    std::cout << termcolor::green;
+                    break;
+                case GIT_DIFF_LINE_DEL_EOFNL:
+                    std::cout << termcolor::red;
+                    break;
+                case GIT_DIFF_LINE_FILE_HDR:
+                    std::cout << termcolor::bold;
+                    break;
+                case GIT_DIFF_LINE_HUNK_HDR:
+                    std::cout << termcolor::cyan;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (print_origin)
+        {
+            std::cout << line->origin;
+        }
+
+        std::cout << std::string_view(line->content, line->content_len);
+
+        if (use_colour)
+        {
+            std::cout << termcolor::reset;
+        }
+
+        // Print copy/rename headers ONLY after the "diff --git" line
+        if (line->origin == GIT_DIFF_LINE_FILE_HDR)
+        {
+            if (delta->status == GIT_DELTA_COPIED)
+            {
+                if (use_colour)
+                {
+                    std::cout << termcolor::bold;
+                }
+                std::cout << "similarity index " << delta->similarity << "%\n";
+                std::cout << "copy from " << delta->old_file.path << "\n";
+                std::cout << "copy to " << delta->new_file.path << "\n";
+                if (use_colour)
+                {
+                    std::cout << termcolor::reset;
+                }
+            }
+            else if (delta->status == GIT_DELTA_RENAMED)
+            {
+                if (use_colour)
+                {
+                    std::cout << termcolor::bold;
+                }
+                std::cout << "similarity index " << delta->similarity << "%\n";
+                std::cout << "rename from " << delta->old_file.path << "\n";
+                std::cout << "rename to " << delta->new_file.path << "\n";
+                if (use_colour)
+                {
+                    std::cout << termcolor::reset;
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    diff_wrapper compute_diff_no_index(std::vector<std::string> files, git_diff_options& diffopts)
+    {
+        if (files.size() != 2)
+        {
+            throw git_exception(
+                "usage: git diff --no-index [<options>] <path> <path> [<pathspec>...]",
+                git2cpp_error_code::BAD_ARGUMENT
+            );
+        }
+
+        git_diff_options_init(&diffopts, GIT_DIFF_OPTIONS_VERSION);
+
+        std::string file1_str = read_file(files[0]);
+        std::string file2_str = read_file(files[1]);
+
+        if (file1_str.empty())
+        {
+            throw git_exception("Cannot read file: " + files[0], git2cpp_error_code::GENERIC_ERROR);
+        }
+        if (file2_str.empty())
+        {
+            throw git_exception("Cannot read file: " + files[1], git2cpp_error_code::GENERIC_ERROR);
+        }
+
+        auto patch = patch_wrapper::patch_from_files(files[0], file1_str, files[1], file2_str, &diffopts);
+        auto buf = patch.to_buf();
+        auto diff = diff_wrapper::diff_from_buffer(buf);
+
+        git_buf_dispose(&buf);
+
+        return diff;
+    }
+}
+
 void print_stats(
     const diff_wrapper& diff,
     bool use_colour,
@@ -170,93 +293,6 @@ void print_stats(
     git_buf_dispose(&buf);
 }
 
-static int colour_printer(
-    [[maybe_unused]] const git_diff_delta* delta,
-    [[maybe_unused]] const git_diff_hunk* hunk,
-    const git_diff_line* line,
-    void* payload
-)
-{
-    bool use_colour = *reinterpret_cast<bool*>(payload);
-
-    // Only print origin for context/addition/deletion lines
-    bool print_origin = (line->origin == GIT_DIFF_LINE_CONTEXT || line->origin == GIT_DIFF_LINE_ADDITION || line->origin == GIT_DIFF_LINE_DELETION);
-
-    if (use_colour)
-    {
-        switch (line->origin)
-        {
-            case GIT_DIFF_LINE_ADDITION:
-                std::cout << termcolor::green;
-                break;
-            case GIT_DIFF_LINE_DELETION:
-                std::cout << termcolor::red;
-                break;
-            case GIT_DIFF_LINE_ADD_EOFNL:
-                std::cout << termcolor::green;
-                break;
-            case GIT_DIFF_LINE_DEL_EOFNL:
-                std::cout << termcolor::red;
-                break;
-            case GIT_DIFF_LINE_FILE_HDR:
-                std::cout << termcolor::bold;
-                break;
-            case GIT_DIFF_LINE_HUNK_HDR:
-                std::cout << termcolor::cyan;
-                break;
-            default:
-                break;
-        }
-    }
-
-    if (print_origin)
-    {
-        std::cout << line->origin;
-    }
-
-    std::cout << std::string_view(line->content, line->content_len);
-
-    if (use_colour)
-    {
-        std::cout << termcolor::reset;
-    }
-
-    // Print copy/rename headers ONLY after the "diff --git" line
-    if (line->origin == GIT_DIFF_LINE_FILE_HDR)
-    {
-        if (delta->status == GIT_DELTA_COPIED)
-        {
-            if (use_colour)
-            {
-                std::cout << termcolor::bold;
-            }
-            std::cout << "similarity index " << delta->similarity << "%\n";
-            std::cout << "copy from " << delta->old_file.path << "\n";
-            std::cout << "copy to " << delta->new_file.path << "\n";
-            if (use_colour)
-            {
-                std::cout << termcolor::reset;
-            }
-        }
-        else if (delta->status == GIT_DELTA_RENAMED)
-        {
-            if (use_colour)
-            {
-                std::cout << termcolor::bold;
-            }
-            std::cout << "similarity index " << delta->similarity << "%\n";
-            std::cout << "rename from " << delta->old_file.path << "\n";
-            std::cout << "rename to " << delta->new_file.path << "\n";
-            if (use_colour)
-            {
-                std::cout << termcolor::reset;
-            }
-        }
-    }
-
-    return 0;
-}
-
 void diff_subcommand::print_diff(diff_wrapper& diff, bool use_colour)
 {
     if (m_stat_flag || m_shortstat_flag || m_numstat_flag || m_summary_flag)
@@ -305,39 +341,6 @@ void diff_subcommand::print_diff(diff_wrapper& diff, bool use_colour)
     }
 
     diff.print(format, colour_printer, &use_colour);
-}
-
-diff_wrapper compute_diff_no_index(std::vector<std::string> files, git_diff_options& diffopts)
-{
-    if (files.size() != 2)
-    {
-        throw git_exception(
-            "usage: git diff --no-index [<options>] <path> <path> [<pathspec>...]",
-            git2cpp_error_code::BAD_ARGUMENT
-        );
-    }
-
-    git_diff_options_init(&diffopts, GIT_DIFF_OPTIONS_VERSION);
-
-    std::string file1_str = read_file(files[0]);
-    std::string file2_str = read_file(files[1]);
-
-    if (file1_str.empty())
-    {
-        throw git_exception("Cannot read file: " + files[0], git2cpp_error_code::GENERIC_ERROR);
-    }
-    if (file2_str.empty())
-    {
-        throw git_exception("Cannot read file: " + files[1], git2cpp_error_code::GENERIC_ERROR);
-    }
-
-    auto patch = patch_wrapper::patch_from_files(files[0], file1_str, files[1], file2_str, &diffopts);
-    auto buf = patch.to_buf();
-    auto diff = diff_wrapper::diff_from_buffer(buf);
-
-    git_buf_dispose(&buf);
-
-    return diff;
 }
 
 void diff_subcommand::run()

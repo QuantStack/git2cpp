@@ -30,21 +30,25 @@ checkout_subcommand::checkout_subcommand(const libgit2_object&, CLI::App& app)
     );
 }
 
-void print_no_switch(status_list_wrapper& sl)
+namespace
 {
-    std::cout << "Your local changes to the following files would be overwritten by checkout:" << std::endl;
-
-    for (const auto* entry : sl.get_entry_list(GIT_STATUS_WT_MODIFIED))
+    void print_no_switch(status_list_wrapper& sl)
     {
-        std::cout << "\t" << entry->index_to_workdir->new_file.path << std::endl;
-    }
-    for (const auto* entry : sl.get_entry_list(GIT_STATUS_WT_DELETED))
-    {
-        std::cout << "\t" << entry->index_to_workdir->old_file.path << std::endl;
-    }
+        std::cout << "Your local changes to the following files would be overwritten by checkout:" << std::endl;
 
-    std::cout << "Please commit your changes or stash them before you switch branches.\nAborting" << std::endl;
-    return;
+        for (const auto* entry : sl.get_entry_list(GIT_STATUS_WT_MODIFIED))
+        {
+            std::cout << "\t" << entry->index_to_workdir->new_file.path << std::endl;
+        }
+        for (const auto* entry : sl.get_entry_list(GIT_STATUS_WT_DELETED))
+        {
+            std::cout << "\t" << entry->index_to_workdir->old_file.path << std::endl;
+        }
+
+        std::cout << "Please commit your changes or stash them before you switch branches.\nAborting"
+                  << std::endl;
+        return;
+    }
 }
 
 void checkout_subcommand::run()

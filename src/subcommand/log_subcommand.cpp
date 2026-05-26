@@ -52,198 +52,201 @@ log_subcommand::log_subcommand(const libgit2_object&, CLI::App& app)
     );
 };
 
-void print_time(git_time intime, std::string prefix)
+namespace
 {
-    char sign, out[32];
-    struct tm* intm;
-    int offset, hours, minutes;
-    time_t t;
-
-    offset = intime.offset;
-    if (offset < 0)
+    void print_time(git_time intime, std::string prefix)
     {
-        sign = '-';
-        offset = -offset;
-    }
-    else
-    {
-        sign = '+';
-    }
+        char sign, out[32];
+        struct tm* intm;
+        int offset, hours, minutes;
+        time_t t;
 
-    hours = offset / 60;
-    minutes = offset % 60;
-
-    t = (time_t) intime.time + (intime.offset * 60);
-
-    intm = gmtime(&t);
-    strftime(out, sizeof(out), "%a %b %e %T %Y", intm);
-
-    std::cout << prefix << out << " " << sign << std::format("{:02d}", hours)
-              << std::format("{:02d}", minutes) << std::endl;
-}
-
-std::vector<std::string> get_tags_for_commit(repository_wrapper& repo, const git_oid& commit_oid)
-{
-    std::vector<std::string> tags;
-    git_strarray tag_names = {0};
-
-    if (git_tag_list(&tag_names, repo) != 0)
-    {
-        return tags;
-    }
-
-    for (size_t i = 0; i < tag_names.count; i++)
-    {
-        std::string tag_name = tag_names.strings[i];
-        std::string ref_name = "refs/tags/" + std::string(tag_name);
-
-        reference_wrapper tag_ref = repo.find_reference(ref_name);
-        object_wrapper peeled = tag_ref.peel<object_wrapper>();
-
-        if (git_oid_equal(&peeled.oid(), &commit_oid))
+        offset = intime.offset;
+        if (offset < 0)
         {
-            tags.push_back(std::string(tag_name));
+            sign = '-';
+            offset = -offset;
         }
+        else
+        {
+            sign = '+';
+        }
+
+        hours = offset / 60;
+        minutes = offset % 60;
+
+        t = (time_t) intime.time + (intime.offset * 60);
+
+        intm = gmtime(&t);
+        strftime(out, sizeof(out), "%a %b %e %T %Y", intm);
+
+        std::cout << prefix << out << " " << sign << std::format("{:02d}", hours)
+                  << std::format("{:02d}", minutes) << std::endl;
     }
 
-    git_strarray_dispose(&tag_names);  // TODO: refactor git_strarray_wrapper to use it here
-    return tags;
-}
-
-std::vector<std::string> get_branches_for_commit(
-    repository_wrapper& repo,
-    git_branch_t type,
-    const git_oid& commit_oid,
-    const std::string exclude_branch
-)
-{
-    std::vector<std::string> branches;
-
-    auto branch_iter = repo.iterate_branches(type);
-    while (auto branch = branch_iter.next())
+    std::vector<std::string> get_tags_for_commit(repository_wrapper& repo, const git_oid& commit_oid)
     {
-        const git_oid* branch_target = nullptr;
-        git_reference* ref = branch.value();
+        std::vector<std::string> tags;
+        git_strarray tag_names = {0};
 
-        if (git_reference_type(ref) == GIT_REFERENCE_DIRECT)
+        if (git_tag_list(&tag_names, repo) != 0)
         {
-            branch_target = git_reference_target(ref);
+            return tags;
         }
-        else if (git_reference_type(ref) == GIT_REFERENCE_SYMBOLIC)
+
+        for (size_t i = 0; i < tag_names.count; i++)
         {
-            git_reference* resolved = nullptr;
-            if (git_reference_resolve(&resolved, ref) == 0)
+            std::string tag_name = tag_names.strings[i];
+            std::string ref_name = "refs/tags/" + std::string(tag_name);
+
+            reference_wrapper tag_ref = repo.find_reference(ref_name);
+            object_wrapper peeled = tag_ref.peel<object_wrapper>();
+
+            if (git_oid_equal(&peeled.oid(), &commit_oid))
             {
-                branch_target = git_reference_target(resolved);
-                git_reference_free(resolved);
+                tags.push_back(std::string(tag_name));
             }
         }
 
-        if (branch_target && git_oid_equal(branch_target, &commit_oid))
+        git_strarray_dispose(&tag_names);  // TODO: refactor git_strarray_wrapper to use it here
+        return tags;
+    }
+
+    std::vector<std::string> get_branches_for_commit(
+        repository_wrapper& repo,
+        git_branch_t type,
+        const git_oid& commit_oid,
+        const std::string exclude_branch
+    )
+    {
+        std::vector<std::string> branches;
+
+        auto branch_iter = repo.iterate_branches(type);
+        while (auto branch = branch_iter.next())
         {
-            std::string branch_name(branch->name());
-            if (type == GIT_BRANCH_LOCAL)
+            const git_oid* branch_target = nullptr;
+            git_reference* ref = branch.value();
+
+            if (git_reference_type(ref) == GIT_REFERENCE_DIRECT)
             {
-                if (branch_name != exclude_branch)
+                branch_target = git_reference_target(ref);
+            }
+            else if (git_reference_type(ref) == GIT_REFERENCE_SYMBOLIC)
+            {
+                git_reference* resolved = nullptr;
+                if (git_reference_resolve(&resolved, ref) == 0)
+                {
+                    branch_target = git_reference_target(resolved);
+                    git_reference_free(resolved);
+                }
+            }
+
+            if (branch_target && git_oid_equal(branch_target, &commit_oid))
+            {
+                std::string branch_name(branch->name());
+                if (type == GIT_BRANCH_LOCAL)
+                {
+                    if (branch_name != exclude_branch)
+                    {
+                        branches.push_back(branch_name);
+                    }
+                }
+                else
                 {
                     branches.push_back(branch_name);
                 }
             }
-            else
+        }
+
+        return branches;
+    }
+
+    struct commit_refs
+    {
+        std::string head_branch;
+        std::vector<std::string> tags;
+        std::vector<std::string> local_branches;
+        std::vector<std::string> remote_branches;
+
+        bool has_refs() const
+        {
+            return !head_branch.empty() || !tags.empty() || !local_branches.empty() || !remote_branches.empty();
+        }
+    };
+
+    commit_refs get_refs_for_commit(repository_wrapper& repo, const git_oid& commit_oid)
+    {
+        commit_refs refs;
+
+        if (!repo.is_head_unborn())
+        {
+            auto head = repo.head();
+            auto head_taget = head.target();
+            if (git_oid_equal(head_taget, &commit_oid))
             {
-                branches.push_back(branch_name);
+                refs.head_branch = head.short_name();
             }
         }
+
+        refs.tags = get_tags_for_commit(repo, commit_oid);
+        refs.local_branches = get_branches_for_commit(repo, GIT_BRANCH_LOCAL, commit_oid, refs.head_branch);
+        refs.remote_branches = get_branches_for_commit(repo, GIT_BRANCH_REMOTE, commit_oid, "");
+
+        return refs;
     }
 
-    return branches;
-}
-
-struct commit_refs
-{
-    std::string head_branch;
-    std::vector<std::string> tags;
-    std::vector<std::string> local_branches;
-    std::vector<std::string> remote_branches;
-
-    bool has_refs() const
+    void print_refs(const commit_refs& refs)
     {
-        return !head_branch.empty() || !tags.empty() || !local_branches.empty() || !remote_branches.empty();
-    }
-};
-
-commit_refs get_refs_for_commit(repository_wrapper& repo, const git_oid& commit_oid)
-{
-    commit_refs refs;
-
-    if (!repo.is_head_unborn())
-    {
-        auto head = repo.head();
-        auto head_taget = head.target();
-        if (git_oid_equal(head_taget, &commit_oid))
+        if (!refs.has_refs())
         {
-            refs.head_branch = head.short_name();
+            return;
         }
-    }
 
-    refs.tags = get_tags_for_commit(repo, commit_oid);
-    refs.local_branches = get_branches_for_commit(repo, GIT_BRANCH_LOCAL, commit_oid, refs.head_branch);
-    refs.remote_branches = get_branches_for_commit(repo, GIT_BRANCH_REMOTE, commit_oid, "");
+        std::cout << termcolor::yellow;
+        std::cout << " (";
 
-    return refs;
-}
+        bool first = true;
 
-void print_refs(const commit_refs& refs)
-{
-    if (!refs.has_refs())
-    {
-        return;
-    }
-
-    std::cout << termcolor::yellow;
-    std::cout << " (";
-
-    bool first = true;
-
-    if (!refs.head_branch.empty())
-    {
-        std::cout << termcolor::bold << termcolor::cyan << "HEAD" << termcolor::reset << termcolor::yellow
-                  << " -> " << termcolor::reset << termcolor::bold << termcolor::green << refs.head_branch
-                  << termcolor::reset << termcolor::yellow;
-        first = false;
-    }
-
-    for (const auto& tag : refs.tags)
-    {
-        if (!first)
+        if (!refs.head_branch.empty())
         {
-            std::cout << ", ";
+            std::cout << termcolor::bold << termcolor::cyan << "HEAD" << termcolor::reset << termcolor::yellow
+                      << " -> " << termcolor::reset << termcolor::bold << termcolor::green << refs.head_branch
+                      << termcolor::reset << termcolor::yellow;
+            first = false;
         }
-        std::cout << termcolor::bold << "tag: " << tag << termcolor::reset << termcolor::yellow;
-        first = false;
-    }
 
-    for (const auto& remote : refs.remote_branches)
-    {
-        if (!first)
+        for (const auto& tag : refs.tags)
         {
-            std::cout << ", ";
+            if (!first)
+            {
+                std::cout << ", ";
+            }
+            std::cout << termcolor::bold << "tag: " << tag << termcolor::reset << termcolor::yellow;
+            first = false;
         }
-        std::cout << termcolor::bold << termcolor::red << remote << termcolor::reset << termcolor::yellow;
-        first = false;
-    }
 
-    for (const auto& local : refs.local_branches)
-    {
-        if (!first)
+        for (const auto& remote : refs.remote_branches)
         {
-            std::cout << ", ";
+            if (!first)
+            {
+                std::cout << ", ";
+            }
+            std::cout << termcolor::bold << termcolor::red << remote << termcolor::reset << termcolor::yellow;
+            first = false;
         }
-        std::cout << termcolor::bold << termcolor::green << local << termcolor::reset << termcolor::yellow;
-        first = false;
-    }
 
-    std::cout << ")" << termcolor::reset;
+        for (const auto& local : refs.local_branches)
+        {
+            if (!first)
+            {
+                std::cout << ", ";
+            }
+            std::cout << termcolor::bold << termcolor::green << local << termcolor::reset << termcolor::yellow;
+            first = false;
+        }
+
+        std::cout << ")" << termcolor::reset;
+    }
 }
 
 void log_subcommand::print_commit(repository_wrapper& repo, const commit_wrapper& commit)
