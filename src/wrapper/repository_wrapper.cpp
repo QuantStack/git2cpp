@@ -293,7 +293,6 @@ void repository_wrapper::create_commit(
     {
         if (parents_list)
         {
-            // TODO: write a "as_const" function to replace the following
             auto pl_size = parents_list.value().size();
             git_commit** pl_value = parents_list.value();
             auto pl_value_const = const_cast<const git_commit**>(pl_value);
@@ -313,8 +312,28 @@ void repository_wrapper::create_commit(
     }();
 
     index_wrapper index = this->make_index();
+
+    // Check: initial commit (no parents) with nothing staged
+    if (parents_count == 0 && index.entry_count() == 0)
+    {
+        throw std::runtime_error(
+            "On branch main\n\nInitial commit\n\nnothing to commit "
+            "(create/copy files and use \"git add\" to track)"
+        );
+    }
+
     git_oid tree_id = index.write_tree();
     index.write();
+
+    // Check: tree is identical to parent tree (nothing changed since last commit)
+    if (parents_count > 0 && placeholder[0] != nullptr)
+    {
+        const git_oid* parent_tree_id = git_commit_tree_id(placeholder[0]);
+        if (git_oid_equal(&tree_id, parent_tree_id))
+        {
+            throw std::runtime_error("nothing to commit, working tree clean");
+        }
+    }
 
     auto tree = this->tree_lookup(&tree_id);
 
