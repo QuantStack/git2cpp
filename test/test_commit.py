@@ -81,3 +81,45 @@ def test_commit_message_via_stdin(
         assert "Author:" in lines[1]
         assert "Date" in lines[2]
         assert commit_msg_out in lines[4]
+
+
+def test_commit_no_changes_initial(commit_env_config, git2cpp_path, tmp_path):
+    """Commit on fresh repo with no staged files should fail"""
+    cmd_init = [git2cpp_path, "init", "."]
+    p_init = subprocess.run(cmd_init, capture_output=True, cwd=tmp_path)
+    assert p_init.returncode == 0
+
+    # Do NOT add any files — attempt to commit immediately
+    cmd_commit = [git2cpp_path, "commit", "-m", "empty commit"]
+    p_commit = subprocess.run(cmd_commit, capture_output=True, cwd=tmp_path, text=True)
+
+    # Should fail: nothing to commit
+    assert p_commit.returncode != 0
+    assert "nothing to commit" in p_commit.stderr or "nothing to commit" in p_commit.stdout
+
+
+def test_commit_no_changes_after_first_commit(commit_env_config, git2cpp_path, tmp_path):
+    """Commit twice without changes between commits should fail"""
+    cmd_init = [git2cpp_path, "init", "."]
+    p_init = subprocess.run(cmd_init, capture_output=True, cwd=tmp_path)
+    assert p_init.returncode == 0
+
+    # Create and commit a file
+    (tmp_path / "file.txt").write_text("hello")
+    subprocess.run([git2cpp_path, "add", "file.txt"], cwd=tmp_path, check=True)
+    p_first = subprocess.run(
+        [git2cpp_path, "commit", "-m", "first commit"], cwd=tmp_path, capture_output=True, text=True
+    )
+    assert p_first.returncode == 0
+
+    # Try to commit again without any new changes
+    p_second = subprocess.run(
+        [git2cpp_path, "commit", "-m", "second commit (no changes)"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+    )
+
+    # Should fail: nothing to commit
+    assert p_second.returncode != 0
+    assert "nothing to commit" in p_second.stderr or "nothing to commit" in p_second.stdout

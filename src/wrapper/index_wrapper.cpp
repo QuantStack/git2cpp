@@ -79,6 +79,11 @@ git_oid index_wrapper::write_tree()
     return tree_id;
 }
 
+size_t index_wrapper::entry_count() const
+{
+    return git_index_entrycount(*this);
+}
+
 bool index_wrapper::has_conflict() const
 {
     return git_index_has_conflicts(*this);
