@@ -45,7 +45,8 @@ namespace
             std::cout << "\t" << entry->index_to_workdir->old_file.path << std::endl;
         }
 
-        std::cout << "Please commit your changes or stash them before you switch branches.\nAborting" << std::endl;
+        std::cout << "Please commit your changes or stash them before you switch branches.\nAborting"
+                  << std::endl;
         return;
     }
 }
