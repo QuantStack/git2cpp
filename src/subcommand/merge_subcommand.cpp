@@ -47,6 +47,59 @@ merge_subcommand::merge_subcommand(const libgit2_object&, CLI::App& app)
     );
 }
 
+namespace
+{
+    annotated_commit_list_wrapper
+    resolve_mergeheads(const repository_wrapper& repo, const std::vector<git_oid>& oid_list)
+    {
+        std::vector<annotated_commit_wrapper> commits_to_merge;
+        commits_to_merge.reserve(oid_list.size());
+
+        for (const auto& id : oid_list)
+        {
+            std::optional<annotated_commit_wrapper> commit = repo.find_annotated_commit(id);
+            if (commit.has_value())
+            {
+                commits_to_merge.push_back(std::move(commit).value());
+            }
+        }
+        return annotated_commit_list_wrapper(std::move(commits_to_merge));
+    }
+
+    void perform_fastforward(repository_wrapper& repo, const git_oid& target_oid, int is_unborn)
+    {
+        const git_checkout_options ff_checkout_options = GIT_CHECKOUT_OPTIONS_INIT;
+
+        auto lambda_get_target_ref = [](auto repo, auto is_unborn)
+        {
+            if (!is_unborn)
+            {
+                return repo->head();
+            }
+            else
+            {
+                return repo->find_reference("HEAD");
+            }
+        };
+        reference_wrapper target_ref = lambda_get_target_ref(&repo, is_unborn);
+
+        object_wrapper target = repo.find_object(target_oid, GIT_OBJECT_COMMIT);
+
+        repo.checkout_tree(target, ff_checkout_options);
+
+        target_ref.write_new_ref(target_oid);
+    }
+
+    // This function is used as a callback in git_repository_mergehead_foreach and therefore its type must be
+    // git_repository_mergehead_foreach_cb.
+    int populate_list(const git_oid* oid, void* payload)
+    {
+        auto* l = reinterpret_cast<std::vector<git_oid>*>(payload);
+        l->push_back(*oid);
+        return 0;
+    }
+}
+
 annotated_commit_list_wrapper merge_subcommand::resolve_heads(const repository_wrapper& repo)
 {
     std::vector<annotated_commit_wrapper> commits_to_merge;
@@ -61,47 +114,6 @@ annotated_commit_list_wrapper merge_subcommand::resolve_heads(const repository_w
         }
     }
     return annotated_commit_list_wrapper(std::move(commits_to_merge));
-}
-
-annotated_commit_list_wrapper
-resolve_mergeheads(const repository_wrapper& repo, const std::vector<git_oid>& oid_list)
-{
-    std::vector<annotated_commit_wrapper> commits_to_merge;
-    commits_to_merge.reserve(oid_list.size());
-
-    for (const auto& id : oid_list)
-    {
-        std::optional<annotated_commit_wrapper> commit = repo.find_annotated_commit(id);
-        if (commit.has_value())
-        {
-            commits_to_merge.push_back(std::move(commit).value());
-        }
-    }
-    return annotated_commit_list_wrapper(std::move(commits_to_merge));
-}
-
-void perform_fastforward(repository_wrapper& repo, const git_oid& target_oid, int is_unborn)
-{
-    const git_checkout_options ff_checkout_options = GIT_CHECKOUT_OPTIONS_INIT;
-
-    auto lambda_get_target_ref = [](auto repo, auto is_unborn)
-    {
-        if (!is_unborn)
-        {
-            return repo->head();
-        }
-        else
-        {
-            return repo->find_reference("HEAD");
-        }
-    };
-    reference_wrapper target_ref = lambda_get_target_ref(&repo, is_unborn);
-
-    object_wrapper target = repo.find_object(target_oid, GIT_OBJECT_COMMIT);
-
-    repo.checkout_tree(target, ff_checkout_options);
-
-    target_ref.write_new_ref(target_oid);
 }
 
 void merge_subcommand::create_merge_commit(
@@ -146,15 +158,6 @@ void merge_subcommand::create_merge_commit(
     repo.create_commit(author_committer_sign_now, msg, std::optional<commit_list_wrapper>(std::move(parents)));
 
     repo.state_cleanup();
-}
-
-// This function is used as a callback in git_repository_mergehead_foreach and therefore its type must be
-// git_repository_mergehead_foreach_cb.
-int populate_list(const git_oid* oid, void* payload)
-{
-    auto* l = reinterpret_cast<std::vector<git_oid>*>(payload);
-    l->push_back(*oid);
-    return 0;
 }
 
 void merge_subcommand::run()

@@ -27,104 +27,107 @@ tag_subcommand::tag_subcommand(const libgit2_object&, CLI::App& app)
     );
 }
 
-// Tag listing: Print individual message lines
-void print_list_lines(const std::string& message, int num_lines)
+namespace
 {
-    if (message.empty())
+    // Tag listing: Print individual message lines
+    void print_list_lines(const std::string& message, int num_lines)
     {
-        return;
-    }
-
-    auto lines = split_input_at_newlines(message);
-
-    // header
-    std::cout << lines[0];
-
-    // other lines
-    if (num_lines <= 1 || lines.size() <= 2)
-    {
-        std::cout << std::endl;
-    }
-    else
-    {
-        for (size_t i = 1; i < lines.size(); i++)
+        if (message.empty())
         {
-            if (i < num_lines)
+            return;
+        }
+
+        auto lines = split_input_at_newlines(message);
+
+        // header
+        std::cout << lines[0];
+
+        // other lines
+        if (num_lines <= 1 || lines.size() <= 2)
+        {
+            std::cout << std::endl;
+        }
+        else
+        {
+            for (size_t i = 1; i < lines.size(); i++)
             {
-                std::cout << "\n\t\t" << lines[i];
+                if (i < num_lines)
+                {
+                    std::cout << "\n\t\t" << lines[i];
+                }
             }
         }
     }
-}
 
-// Tag listing: Print an actual tag object
-void print_tag(git_tag* tag, int num_lines)
-{
-    std::cout << std::left << std::setw(16) << git_tag_name(tag);
-
-    if (num_lines)
+    // Tag listing: Print an actual tag object
+    void print_tag(git_tag* tag, int num_lines)
     {
-        std::string msg = git_tag_message(tag);
-        if (!msg.empty())
+        std::cout << std::left << std::setw(16) << git_tag_name(tag);
+
+        if (num_lines)
         {
-            print_list_lines(msg, num_lines);
+            std::string msg = git_tag_message(tag);
+            if (!msg.empty())
+            {
+                print_list_lines(msg, num_lines);
+            }
+            else
+            {
+                std::cout << std::endl;
+            }
         }
         else
         {
             std::cout << std::endl;
         }
     }
-    else
-    {
-        std::cout << std::endl;
-    }
-}
 
-// Tag listing: Print a commit (target of a lightweight tag)
-void print_commit(git_commit* commit, std::string name, int num_lines)
-{
-    std::cout << std::left << std::setw(16) << name;
-
-    if (num_lines)
+    // Tag listing: Print a commit (target of a lightweight tag)
+    void print_commit(git_commit* commit, std::string name, int num_lines)
     {
-        std::string msg = git_commit_message(commit);
-        if (!msg.empty())
+        std::cout << std::left << std::setw(16) << name;
+
+        if (num_lines)
         {
-            print_list_lines(msg, num_lines);
+            std::string msg = git_commit_message(commit);
+            if (!msg.empty())
+            {
+                print_list_lines(msg, num_lines);
+            }
+            else
+            {
+                std::cout << std::endl;
+            }
         }
         else
         {
             std::cout << std::endl;
         }
     }
-    else
-    {
-        std::cout << std::endl;
-    }
-}
 
-// Tag listing: Lookup tags based on ref name and dispatch to print
-void each_tag(repository_wrapper& repo, const std::string& name, int num_lines)
-{
-    auto obj = repo.revparse_single(name);
-
-    if (obj.has_value())
+    // Tag listing: Lookup tags based on ref name and dispatch to print
+    void each_tag(repository_wrapper& repo, const std::string& name, int num_lines)
     {
-        switch (git_object_type(obj.value()))
+        auto obj = repo.revparse_single(name);
+
+        if (obj.has_value())
         {
-            case GIT_OBJECT_TAG:
-                print_tag(obj.value(), num_lines);
-                break;
-            case GIT_OBJECT_COMMIT:
-                print_commit(obj.value(), name, num_lines);
-                break;
-            default:
-                std::cout << name << std::endl;
+            switch (git_object_type(obj.value()))
+            {
+                case GIT_OBJECT_TAG:
+                    print_tag(obj.value(), num_lines);
+                    break;
+                case GIT_OBJECT_COMMIT:
+                    print_commit(obj.value(), name, num_lines);
+                    break;
+                default:
+                    std::cout << name << std::endl;
+            }
         }
-    }
-    else
-    {
-        std::cout << name << std::endl;
+        else
+        {
+            std::cout << name << std::endl;
+        }
     }
 }
 

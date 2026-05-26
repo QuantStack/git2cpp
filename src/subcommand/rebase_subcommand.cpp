@@ -31,11 +31,14 @@ rebase_subcommand::rebase_subcommand(const libgit2_object&, CLI::App& app)
     );
 }
 
-void ensure_rebase_in_progress(git_repository_state_t state)
+namespace
 {
-    if (state != GIT_REPOSITORY_STATE_REBASE_INTERACTIVE && state != GIT_REPOSITORY_STATE_REBASE_MERGE)
+    void ensure_rebase_in_progress(git_repository_state_t state)
     {
-        throw std::runtime_error("No rebase in progress");
+        if (state != GIT_REPOSITORY_STATE_REBASE_INTERACTIVE && state != GIT_REPOSITORY_STATE_REBASE_MERGE)
+        {
+            throw std::runtime_error("No rebase in progress");
+        }
     }
 }
 
