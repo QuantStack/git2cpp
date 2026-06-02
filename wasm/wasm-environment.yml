@@ -15,7 +15,7 @@ dependencies:
   - jupyter_server
   - jupyterlite-terminal
   # For cockle and JupyterLite deployments
-  - nodejs
+  - nodejs <25
   # For testing
   - pytest
   - pytest-playwright
