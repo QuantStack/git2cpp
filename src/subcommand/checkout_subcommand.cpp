@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <set>
-#include <sstream>
+#include <filesystem>
 
 #include "../subcommand/status_subcommand.hpp"
 #include "../utils/git_exception.hpp"
@@ -13,7 +13,8 @@ checkout_subcommand::checkout_subcommand(const libgit2_object&, CLI::App& app)
 {
     auto* sub = app.add_subcommand("checkout", "Switch branches or restore working tree files");
 
-    sub->add_option("<branch>", m_branch_name, "Branch to checkout");
+    // "-- file" lands in m_positional_args because CLI11 consumes "--" silently.
+    sub->add_option("<branch|files>", m_positional_args, "Branch to checkout, or one/many file path(s)");
     sub->add_flag("-b", m_create_flag, "Create a new branch before checking it out");
     sub->add_flag("-B", m_force_create_flag, "Create a new branch or reset it if it exists before checking it out");
     sub->add_flag(
@@ -51,6 +52,26 @@ namespace
     }
 }
 
+void checkout_subcommand::checkout_files(
+    const repository_wrapper& repo,
+    const std::vector<std::string>& files,
+    const git_checkout_options& base_options
+)
+{
+    std::vector<const char*> pathspec_strings;
+    pathspec_strings.reserve(files.size());
+    for (const auto& f : files)
+    {
+        pathspec_strings.push_back(f.c_str());
+    }
+
+    git_checkout_options options = base_options;
+    options.paths.strings = const_cast<char**>(pathspec_strings.data());
+    options.paths.count = pathspec_strings.size();
+
+    throw_if_error(git_checkout_head(repo, &options));
+}
+
 void checkout_subcommand::run()
 {
     auto directory = get_current_git_path();
@@ -73,30 +94,57 @@ void checkout_subcommand::run()
         options.checkout_strategy = GIT_CHECKOUT_SAFE;
     }
 
+    if (m_positional_args.empty())
+    {
+        throw std::runtime_error("error: no branch or file specified");
+    }
+
+    std::string branch_name = m_positional_args[0];
     if (m_create_flag || m_force_create_flag)
     {
-        auto annotated_commit = create_local_branch(repo, m_branch_name, m_force_create_flag);
-        checkout_tree(repo, annotated_commit, m_branch_name, options);
-        update_head(repo, annotated_commit, m_branch_name);
+        auto annotated_commit = create_local_branch(repo, branch_name, m_force_create_flag);
+        checkout_tree(repo, annotated_commit, branch_name, options);
+        update_head(repo, annotated_commit, branch_name);
 
-        std::cout << "Switched to a new branch '" << m_branch_name << "'" << std::endl;
+        std::cout << "Switched to a new branch '" << branch_name << "'" << std::endl;
     }
     else
     {
-        auto optional_commit = repo.resolve_local_ref(m_branch_name);
+        auto optional_commit = repo.resolve_local_ref(branch_name);
         if (!optional_commit)
         {
             // TODO: handle remote refs
-            std::ostringstream buffer;
-            buffer << "error: could not resolve pathspec '" << m_branch_name << "'" << std::endl;
-            throw std::runtime_error(buffer.str());
+
+            // Fall back to file restore only if at least one path exists on disk.
+            // If none do, it's an unresolvable branch name — report it as such.
+            bool any_exists = std::any_of(
+                m_positional_args.begin(),
+                m_positional_args.end(),
+                [&](const std::string& p)
+                {
+                    return std::filesystem::exists(
+                        std::filesystem::path(directory) / p
+                    );
+                }
+            );
+
+            if (!any_exists)
+            {
+                std::ostringstream buffer;
+                buffer << "error: could not resolve pathspec '" << branch_name << "'" << std::endl;
+                throw std::runtime_error(buffer.str());
+            }
+
+            options.checkout_strategy = GIT_CHECKOUT_FORCE;
+            checkout_files(repo, m_positional_args, options);
+            return;
         }
 
         auto sl = status_list_wrapper::status_list(repo);
         try
         {
-            checkout_tree(repo, *optional_commit, m_branch_name, options);
-            update_head(repo, *optional_commit, m_branch_name);
+            checkout_tree(repo, *optional_commit, branch_name, options);
+            update_head(repo, *optional_commit, branch_name);
         }
         catch (const git_exception& e)
         {
@@ -121,7 +169,7 @@ void checkout_subcommand::run()
             std::set<std::string> tracked_dir_set{};
             print_tobecommited(sl, tracked_dir_set, is_long, is_coloured);
         }
-        std::cout << "Switched to branch '" << m_branch_name << "'" << std::endl;
+        std::cout << "Switched to branch '" << branch_name << "'" << std::endl;
         print_tracking_info(repo, sl, true, false);
     }
 }

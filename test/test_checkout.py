@@ -170,3 +170,110 @@ def test_checkout_refuses_overwrite(
         branch_cmd = [git2cpp_path, "branch"]
         p_branch = subprocess.run(branch_cmd, capture_output=True, cwd=tmp_path, text=True)
         assert "* newbranch" in p_branch.stdout
+
+
+def test_checkout_file_restores_modified_file(repo_init_with_commit, git2cpp_path, tmp_path):
+    """Test that checkout -- <file> discards working tree changes"""
+    initial_file = tmp_path / "initial.txt"
+    original_content = initial_file.read_text()
+
+    # Modify the file (unstaged)
+    initial_file.write_text("Modified content")
+    assert initial_file.read_text() == "Modified content"
+
+    # Restore it via checkout -- <file>
+    checkout_cmd = [git2cpp_path, "checkout", "--", "initial.txt"]
+    p = subprocess.run(checkout_cmd, capture_output=True, cwd=tmp_path, text=True)
+
+    assert p.returncode == 0
+    assert initial_file.read_text() == original_content
+
+
+def test_checkout_file_restores_multiple_files(repo_init_with_commit, git2cpp_path, tmp_path):
+    """Test that checkout -- <file1> <file2> restores multiple files at once"""
+    initial_file = tmp_path / "initial.txt"
+
+    # Create and commit a second file first
+    second_file = tmp_path / "second.txt"
+    second_file.write_text("second content")
+
+    add_cmd = [git2cpp_path, "add", "second.txt"]
+    subprocess.run(add_cmd, cwd=tmp_path, text=True)
+    commit_cmd = [git2cpp_path, "commit", "-m", "Add second file"]
+    subprocess.run(commit_cmd, cwd=tmp_path, text=True)
+
+    original_initial = initial_file.read_text()
+    original_second = second_file.read_text()
+
+    # Modify both files
+    initial_file.write_text("dirty initial")
+    second_file.write_text("dirty second")
+
+    checkout_cmd = [git2cpp_path, "checkout", "--", "initial.txt", "second.txt"]
+    p = subprocess.run(checkout_cmd, capture_output=True, cwd=tmp_path, text=True)
+
+    assert p.returncode == 0
+    assert initial_file.read_text() == original_initial
+    assert second_file.read_text() == original_second
+
+
+def test_checkout_file_does_not_affect_other_files(repo_init_with_commit, git2cpp_path, tmp_path):
+    """Test that checkout -- <file> only touches the specified file"""
+    initial_file = tmp_path / "initial.txt"
+    original_initial = initial_file.read_text()
+
+    # Create and commit a second file
+    second_file = tmp_path / "second.txt"
+    second_file.write_text("second content")
+
+    add_cmd = [git2cpp_path, "add", "second.txt"]
+    subprocess.run(add_cmd, cwd=tmp_path, text=True)
+    commit_cmd = [git2cpp_path, "commit", "-m", "Add second file"]
+    subprocess.run(commit_cmd, cwd=tmp_path, text=True)
+
+    # Modify both files
+    initial_file.write_text("dirty initial")
+    second_file.write_text("dirty second")
+
+    # Only restore initial.txt
+    checkout_cmd = [git2cpp_path, "checkout", "--", "initial.txt"]
+    p = subprocess.run(checkout_cmd, capture_output=True, cwd=tmp_path, text=True)
+
+    assert p.returncode == 0
+    assert initial_file.read_text() == original_initial
+    assert second_file.read_text() == "dirty second"
+
+
+def test_checkout_file_does_not_change_branch(repo_init_with_commit, git2cpp_path, tmp_path):
+    """Test that checkout -- <file> does not move HEAD or change the current branch"""
+    initial_file = tmp_path / "initial.txt"
+    original_initial = initial_file.read_text()
+
+    initial_file.write_text("dirty")
+
+    checkout_cmd = [git2cpp_path, "checkout", "--", "initial.txt"]
+    p = subprocess.run(checkout_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p.returncode == 0
+    assert initial_file.read_text() == original_initial
+
+    branch_cmd = [git2cpp_path, "branch"]
+    p_branch = subprocess.run(branch_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_branch.returncode == 0
+    assert "* main" in p_branch.stdout
+
+
+def test_checkout_file_nonexistent_path_fails(repo_init_with_commit, git2cpp_path, tmp_path):
+    """Test that checkout -- <nonexistent> fails with a non-zero exit code"""
+    checkout_cmd = [git2cpp_path, "checkout", "--", "doesnotexist.txt"]
+    p = subprocess.run(checkout_cmd, capture_output=True, cwd=tmp_path, text=True)
+
+    assert p.returncode != 0
+
+
+def test_checkout_file_no_paths_fails(repo_init_with_commit, git2cpp_path, tmp_path):
+    """Test that checkout -- with no file arguments fails"""
+    checkout_cmd = [git2cpp_path, "checkout", "--"]
+    p = subprocess.run(checkout_cmd, capture_output=True, cwd=tmp_path, text=True)
+
+    assert p.returncode != 0
+    assert "no branch or file specified" in p.stderr

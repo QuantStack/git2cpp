@@ -1,7 +1,7 @@
 #pragma once
 
-#include <optional>
 #include <string>
+#include <vector>
 
 #include <CLI/CLI.hpp>
 
@@ -33,7 +33,13 @@ private:
         const std::string_view target_name
     );
 
-    std::string m_branch_name = {};
+    void checkout_files(
+        const repository_wrapper& repo,
+        const std::vector<std::string>& files,
+        const git_checkout_options& options
+    );
+
+    std::vector<std::string> m_positional_args = {};
     bool m_create_flag = false;
     bool m_force_create_flag = false;
     bool m_force_checkout_flag = false;
