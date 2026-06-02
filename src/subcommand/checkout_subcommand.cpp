@@ -1,8 +1,8 @@
 #include "../subcommand/checkout_subcommand.hpp"
 
+#include <filesystem>
 #include <iostream>
 #include <set>
-#include <filesystem>
 
 #include "../subcommand/status_subcommand.hpp"
 #include "../utils/git_exception.hpp"
@@ -122,9 +122,7 @@ void checkout_subcommand::run()
                 m_positional_args.end(),
                 [&](const std::string& p)
                 {
-                    return std::filesystem::exists(
-                        std::filesystem::path(directory) / p
-                    );
+                    return std::filesystem::exists(std::filesystem::path(directory) / p);
                 }
             );
 
