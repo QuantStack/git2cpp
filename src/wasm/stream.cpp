@@ -116,7 +116,8 @@ EM_JS(
 );
 
 EM_JS(const char*, js_maybe_convert_url, (const char* url_str), {
-    // Convert URL to use CORS proxy based on env vars GIT_CORS_PROXY and GIT_CORS_PROXY_TYPE.
+    // Convert URL to use CORS proxy based on env vars GIT_CORS_PROXY and possible
+    // GIT_CORS_PROXY_API_KEY.
     // If no conversion occurs, return the original unconverted URL as a new string.
     const url_js = UTF8ToString(url_str);
     const url = new URL(url_js);
