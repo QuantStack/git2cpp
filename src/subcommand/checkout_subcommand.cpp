@@ -296,8 +296,8 @@ void checkout_subcommand::update_head(
     {
         previous_head_commit = repo.find_commit("HEAD");
         previous_head_message = "Previous HEAD position was "
-                                + std::string(previous_head_commit.value().commit_oid_tostr().substr(0, 7)) + " "
-                                + previous_head_commit.value().summary();
+                                + std::string(previous_head_commit.value().commit_oid_tostr().substr(0, 7))
+                                + " " + previous_head_commit.value().summary();
     }
 
     std::string_view annotated_ref = target_annotated_commit.reference_name();
