@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <string_view>
 
 #include <git2.h>
@@ -18,6 +19,7 @@ public:
     annotated_commit_wrapper& operator=(annotated_commit_wrapper&&) noexcept = default;
 
     const git_oid& oid() const;
+    std::string commit_oid_tostr() const;
     std::string_view reference_name() const;
 
 private:

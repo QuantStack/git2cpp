@@ -83,7 +83,9 @@ def test_checkout_invalid_branch(repo_init_with_commit, git2cpp_path, tmp_path):
 
     # Should fail with error message
     assert p_checkout.returncode != 0
-    assert "error: could not resolve pathspec 'nonexistent'" in p_checkout.stderr
+    assert (
+        "error: pathspec 'nonexistent' did not match any file(s) known to git" in p_checkout.stderr
+    )
 
 
 def test_checkout_with_unstaged_changes(repo_init_with_commit, git2cpp_path, tmp_path):
@@ -277,3 +279,114 @@ def test_checkout_file_no_paths_fails(repo_init_with_commit, git2cpp_path, tmp_p
 
     assert p.returncode != 0
     assert "no branch or file specified" in p.stderr
+
+
+def test_checkout_branch_file_restores_modified_file(repo_init_with_commit, git2cpp_path, tmp_path):
+    """Test that checkout <branch> -- <file> restores the file from the branch."""
+    initial_file = tmp_path / "initial.txt"
+
+    # Create a new commit on main so the branch switch is meaningful
+    second_file = tmp_path / "second.txt"
+    second_file.write_text("second content")
+    subprocess.run([git2cpp_path, "add", "second.txt"], cwd=tmp_path, text=True, check=True)
+    subprocess.run(
+        [git2cpp_path, "commit", "-m", "Add second file"], cwd=tmp_path, text=True, check=True
+    )
+
+    # Create and switch to feature branch
+    subprocess.run([git2cpp_path, "checkout", "-b", "feature"], cwd=tmp_path, text=True, check=True)
+
+    # Modify the file on feature branch and commit it
+    initial_file.write_text("feature content")
+    subprocess.run([git2cpp_path, "add", "initial.txt"], cwd=tmp_path, text=True, check=True)
+    subprocess.run(
+        [git2cpp_path, "commit", "-m", "Change initial on feature"],
+        cwd=tmp_path,
+        text=True,
+        check=True,
+    )
+
+    # Go back to main and dirty the file
+    subprocess.run([git2cpp_path, "checkout", "main"], cwd=tmp_path, text=True, check=True)
+    initial_file.write_text("local dirty content")
+
+    # Restore only initial.txt from feature
+    checkout_cmd = [git2cpp_path, "checkout", "feature", "initial.txt"]
+    p = subprocess.run(checkout_cmd, capture_output=True, cwd=tmp_path, text=True)
+
+    assert p.returncode == 0
+    assert initial_file.read_text() == "feature content"
+
+    branch_cmd = [git2cpp_path, "branch"]
+    p_branch = subprocess.run(branch_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_branch.returncode == 0
+    assert "* main" in p_branch.stdout
+
+
+def test_checkout_branch_multiple_files_restores_all(repo_init_with_commit, git2cpp_path, tmp_path):
+    """Test that checkout <branch> -- <file1> <file2> restores multiple files from the branch."""
+    initial_file = tmp_path / "initial.txt"
+
+    second_file = tmp_path / "second.txt"
+    second_file.write_text("second content")
+    subprocess.run([git2cpp_path, "add", "second.txt"], cwd=tmp_path, text=True, check=True)
+    subprocess.run(
+        [git2cpp_path, "commit", "-m", "Add second file"], cwd=tmp_path, text=True, check=True
+    )
+
+    # Create feature branch and modify both files there
+    subprocess.run([git2cpp_path, "checkout", "-b", "feature"], cwd=tmp_path, text=True, check=True)
+    initial_file.write_text("feature initial")
+    second_file.write_text("feature second")
+    subprocess.run(
+        [git2cpp_path, "add", "initial.txt", "second.txt"], cwd=tmp_path, text=True, check=True
+    )
+    subprocess.run(
+        [git2cpp_path, "commit", "-m", "Change both files on feature"],
+        cwd=tmp_path,
+        text=True,
+        check=True,
+    )
+
+    # Return to main and dirty both files
+    subprocess.run([git2cpp_path, "checkout", "main"], cwd=tmp_path, text=True, check=True)
+    initial_file.write_text("dirty main initial")
+    second_file.write_text("dirty main second")
+
+    # Restore both files from feature
+    checkout_cmd = [git2cpp_path, "checkout", "feature", "initial.txt", "second.txt"]
+    p = subprocess.run(checkout_cmd, capture_output=True, cwd=tmp_path, text=True)
+
+    assert p.returncode == 0
+    assert initial_file.read_text() == "feature initial"
+    assert second_file.read_text() == "feature second"
+
+    branch_cmd = [git2cpp_path, "branch"]
+    p_branch = subprocess.run(branch_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_branch.returncode == 0
+    assert "* main" in p_branch.stdout
+
+
+def test_checkout_tag(repo_init_with_commit, git2cpp_path, tmp_path):
+    """checkout <tag> should detach HEAD at the tag commit."""
+    # Create a tag pointing to HEAD
+    tag_cmd = [git2cpp_path, "tag", "v1.0"]
+    p_tag = subprocess.run(tag_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_tag.returncode == 0
+
+    # Switch to the tag
+    checkout_cmd = [git2cpp_path, "checkout", "v1.0"]
+    p_checkout = subprocess.run(checkout_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_checkout.returncode == 0
+    assert "detached HEAD" in p_checkout.stdout
+
+    # Verify we're detached
+    current_branch_cmd = [git2cpp_path, "branch", "--show-current"]
+    p_current = subprocess.run(current_branch_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_current.returncode == 0
+    assert p_current.stdout.strip() == ""
+
+    branch_cmd = [git2cpp_path, "branch"]
+    p_branch = subprocess.run(branch_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_branch.returncode == 0
+    assert "*" not in p_branch.stdout

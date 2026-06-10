@@ -39,6 +39,13 @@ private:
         const git_checkout_options& options
     );
 
+    void checkout_paths(
+        const repository_wrapper& repo,
+        const std::string_view tree_ish,
+        const std::vector<std::string>& pathspecs,
+        const git_checkout_options& options
+    );
+
     std::vector<std::string> m_positional_args = {};
     bool m_create_flag = false;
     bool m_force_create_flag = false;
