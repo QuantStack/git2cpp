@@ -153,7 +153,8 @@ void checkout_subcommand::run()
     else if (!pathspecs.empty())
     {
         // Validate all pathspecs before checkout so we can mimic git-like errors
-        auto lambda_validate_paths = [](repository_wrapper& repo, const std::vector<std::string> pathspecs, std::string directory)
+        auto lambda_validate_paths =
+            [](repository_wrapper& repo, const std::vector<std::string> pathspecs, std::string directory)
         {
             for (const auto& p : pathspecs)
             {
