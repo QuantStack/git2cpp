@@ -33,13 +33,13 @@ private:
         const std::string_view target_name
     );
 
-    void checkout_files(
+    void checkout_head_files(
         const repository_wrapper& repo,
         const std::vector<std::string>& files,
         const git_checkout_options& options
     );
 
-    void checkout_paths(
+    void checkout_ref_files(
         const repository_wrapper& repo,
         const std::string_view tree_ish,
         const std::vector<std::string>& pathspecs,

@@ -56,18 +56,24 @@ namespace
     }
 }
 
-void checkout_subcommand::checkout_files(
-    const repository_wrapper& repo,
-    const std::vector<std::string>& files,
-    const git_checkout_options& base_options
-)
+std::vector<const char*> convert_paths_to_cstr(const std::vector<std::string>& pathspecs)
 {
     std::vector<const char*> pathspec_strings;
-    pathspec_strings.reserve(files.size());
-    for (const auto& f : files)
+    pathspec_strings.reserve(pathspecs.size());
+    for (const auto& f : pathspecs)
     {
         pathspec_strings.push_back(f.c_str());
     }
+    return pathspec_strings;
+}
+
+void checkout_subcommand::checkout_head_files(
+    const repository_wrapper& repo,
+    const std::vector<std::string>& pathspecs,
+    const git_checkout_options& base_options
+)
+{
+    std::vector<const char*> pathspec_strings = convert_paths_to_cstr(pathspecs);
 
     git_checkout_options options = base_options;
     options.paths.strings = const_cast<char**>(pathspec_strings.data());
@@ -76,7 +82,7 @@ void checkout_subcommand::checkout_files(
     throw_if_error(git_checkout_head(repo, &options));
 }
 
-void checkout_subcommand::checkout_paths(
+void checkout_subcommand::checkout_ref_files(
     const repository_wrapper& repo,
     const std::string_view tree_ish,
     const std::vector<std::string>& pathspecs,
@@ -92,12 +98,7 @@ void checkout_subcommand::checkout_paths(
         );
     }
 
-    std::vector<const char*> pathspec_strings;
-    pathspec_strings.reserve(pathspecs.size());
-    for (const auto& p : pathspecs)
-    {
-        pathspec_strings.push_back(p.c_str());
-    }
+    std::vector<const char*> pathspec_strings = convert_paths_to_cstr(pathspecs);
 
     git_checkout_options options = base_options;
     options.paths.strings = const_cast<char**>(pathspec_strings.data());
@@ -148,15 +149,12 @@ void checkout_subcommand::run()
         update_head(repo, annotated_commit, target_name);
 
         std::cout << "Switched to a new branch '" << target_name << "'" << std::endl;
-        return;
     }
-
-    if (!pathspecs.empty())
+    else if (!pathspecs.empty())
     {
-        // Try tree-ish + pathspec(s)
-        if (auto obj = repo.revparse_single(target_name))
+        // Validate all pathspecs before checkout so we can mimic git-like errors
+        auto lambda_validate_paths = [](repository_wrapper& repo, const std::vector<std::string> pathspecs, std::string directory)
         {
-            // Validate all pathspecs before checkout so we can mimic git-like errors
             for (const auto& p : pathspecs)
             {
                 if (!std::filesystem::exists(std::filesystem::path(directory) / p) && !repo.does_track(p))
@@ -167,27 +165,25 @@ void checkout_subcommand::run()
                     );
                 }
             }
+        };
+
+        // Try tree-ish + pathspec(s)
+        if (auto obj = repo.revparse_single(target_name))
+        {
+            lambda_validate_paths(repo, pathspecs, directory);
 
             options.checkout_strategy = GIT_CHECKOUT_FORCE;
-            checkout_paths(repo, target_name, pathspecs, options);
-            return;
+            checkout_ref_files(repo, target_name, pathspecs, options);
         }
-
         // Else treat as files
-        for (const auto& p : pathspecs)
+        else
         {
-            if (!std::filesystem::exists(std::filesystem::path(directory) / p) && !repo.does_track(p))
-            {
-                throw git_exception(
-                    "error: pathspec '" + p + "' did not match any file(s) known to git",
-                    git2cpp_error_code::BAD_ARGUMENT
-                );
-            }
-        }
+            lambda_validate_paths(repo, pathspecs, directory);
 
-        std::vector<std::string> files = m_positional_args;
-        options.checkout_strategy = GIT_CHECKOUT_FORCE;
-        checkout_files(repo, files, options);
+            std::vector<std::string> files = m_positional_args;
+            options.checkout_strategy = GIT_CHECKOUT_FORCE;
+            checkout_head_files(repo, files, options);
+        }
         return;
     }
 
@@ -209,7 +205,7 @@ void checkout_subcommand::run()
         }
 
         options.checkout_strategy = GIT_CHECKOUT_FORCE;
-        checkout_files(repo, file, options);
+        checkout_head_files(repo, file, options);
         return;
     }
 

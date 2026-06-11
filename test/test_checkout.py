@@ -129,10 +129,10 @@ def test_checkout_refuses_overwrite(
     initial_file.write_text("Content on newbranch")
 
     add_cmd = [git2cpp_path, "add", "initial.txt"]
-    subprocess.run(add_cmd, cwd=tmp_path, text=True)
+    subprocess.run(add_cmd, cwd=tmp_path, text=True, check=True)
 
     commit_cmd = [git2cpp_path, "commit", "-m", "Change on newbranch"]
-    subprocess.run(commit_cmd, cwd=tmp_path, text=True)
+    subprocess.run(commit_cmd, cwd=tmp_path, text=True, check=True)
 
     # Switch back to default branch
     checkout_default_cmd = [git2cpp_path, "checkout", "main"]
@@ -200,9 +200,9 @@ def test_checkout_file_restores_multiple_files(repo_init_with_commit, git2cpp_pa
     second_file.write_text("second content")
 
     add_cmd = [git2cpp_path, "add", "second.txt"]
-    subprocess.run(add_cmd, cwd=tmp_path, text=True)
+    subprocess.run(add_cmd, cwd=tmp_path, text=True, check=True)
     commit_cmd = [git2cpp_path, "commit", "-m", "Add second file"]
-    subprocess.run(commit_cmd, cwd=tmp_path, text=True)
+    subprocess.run(commit_cmd, cwd=tmp_path, text=True, check=True)
 
     original_initial = initial_file.read_text()
     original_second = second_file.read_text()
@@ -229,9 +229,9 @@ def test_checkout_file_does_not_affect_other_files(repo_init_with_commit, git2cp
     second_file.write_text("second content")
 
     add_cmd = [git2cpp_path, "add", "second.txt"]
-    subprocess.run(add_cmd, cwd=tmp_path, text=True)
+    subprocess.run(add_cmd, cwd=tmp_path, text=True, check=True)
     commit_cmd = [git2cpp_path, "commit", "-m", "Add second file"]
-    subprocess.run(commit_cmd, cwd=tmp_path, text=True)
+    subprocess.run(commit_cmd, cwd=tmp_path, text=True, check=True)
 
     # Modify both files
     initial_file.write_text("dirty initial")
