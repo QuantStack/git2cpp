@@ -27,6 +27,11 @@ bool reference_wrapper::is_remote() const
     return git_reference_is_remote(*this);
 }
 
+bool reference_wrapper::is_branch() const
+{
+    return git_reference_is_branch(*this);
+}
+
 const git_oid* reference_wrapper::target() const
 {
     return git_reference_target(p_resource);

@@ -22,6 +22,7 @@ public:
 
     std::string short_name() const;
     bool is_remote() const;
+    bool is_branch() const;
     const git_oid* target() const;
     reference_wrapper write_new_ref(const git_oid target_oid);
 
