@@ -15,7 +15,11 @@ checkout_subcommand::checkout_subcommand(const libgit2_object&, CLI::App& app)
 {
     auto* sub = app.add_subcommand("checkout", "Switch branches or restore working tree files");
 
-    sub->add_option("<tree-ish|pathspec>", m_positional_args, "Tree-ish to checkout, and/or one/many pathspec(s)\ne.g. checkout <branch>, checkout <tag>, checkout <file> ..., checkout <branch> <file> ...\nNote: use without '--'");
+    sub->add_option(
+        "<tree-ish|pathspec>",
+        m_positional_args,
+        "Tree-ish to checkout, and/or one/many pathspec(s)\ne.g. checkout <branch>, checkout <tag>, checkout <file> ..., checkout <branch> <file> ...\nNote: use without '--'"
+    );
     sub->add_flag("-b", m_create_flag, "Create a new branch before checking it out");
     sub->add_flag("-B", m_force_create_flag, "Create a new branch or reset it if it exists before checking it out");
     sub->add_flag(
