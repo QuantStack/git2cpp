@@ -12,6 +12,7 @@
 #include <termcolor/termcolor.hpp>
 
 #include "../utils/terminal_pager.hpp"
+#include "../wrapper/strarray_wrapper.hpp"
 
 log_subcommand::log_subcommand(const libgit2_object&, CLI::App& app)
 {
@@ -87,17 +88,17 @@ namespace
     std::vector<std::string> get_tags_for_commit(repository_wrapper& repo, const git_oid& commit_oid)
     {
         std::vector<std::string> tags;
-        git_strarray tag_names = {0};
+        strarray_owned_wrapper tag_names;
 
-        if (git_tag_list(&tag_names, repo) != 0)
+        if (git_tag_list(tag_names, repo) != 0)
         {
             return tags;
         }
 
-        for (size_t i = 0; i < tag_names.count; i++)
+        for (size_t i = 0; i < tag_names.size(); i++)
         {
-            std::string tag_name = tag_names.strings[i];
-            std::string ref_name = "refs/tags/" + std::string(tag_name);
+            auto tag_name = std::string(tag_names[i]);
+            std::string ref_name = "refs/tags/" + tag_name;
 
             reference_wrapper tag_ref = repo.find_reference(ref_name);
             object_wrapper peeled = tag_ref.peel<object_wrapper>();
@@ -108,7 +109,6 @@ namespace
             }
         }
 
-        git_strarray_dispose(&tag_names);  // TODO: refactor git_strarray_wrapper to use it here
         return tags;
     }
 

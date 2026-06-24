@@ -60,59 +60,6 @@ status_messages get_status_msg(git_status_t st)
     return get_status_msg_map().find(st)->second;
 }
 
-git_strarray_wrapper::git_strarray_wrapper(std::vector<std::string> patterns)
-    : m_patterns(std::move(patterns))
-{
-    init_str_array();
-}
-
-git_strarray_wrapper::git_strarray_wrapper(git_strarray_wrapper&& rhs)
-    : m_patterns(std::move(rhs.m_patterns))
-{
-    init_str_array();
-    rhs.reset_str_array();
-}
-
-git_strarray_wrapper& git_strarray_wrapper::operator=(git_strarray_wrapper&& rhs)
-{
-    using std::swap;
-    swap(m_patterns, rhs.m_patterns);
-    swap(m_array.strings, rhs.m_array.strings);
-    swap(m_array.count, rhs.m_array.count);
-    return *this;
-}
-
-git_strarray_wrapper::~git_strarray_wrapper()
-{
-    reset_str_array();
-}
-
-git_strarray_wrapper::operator git_strarray*()
-{
-    return &m_array;
-}
-
-void git_strarray_wrapper::reset_str_array()
-{
-    delete[] m_array.strings;
-    m_array = {nullptr, 0};
-}
-
-void git_strarray_wrapper::init_str_array()
-{
-    m_array.strings = new char*[m_patterns.size()];
-    m_array.count = m_patterns.size();
-    for (size_t i = 0; i < m_patterns.size(); ++i)
-    {
-        m_array.strings[i] = const_cast<char*>(m_patterns[i].c_str());
-    }
-}
-
-size_t git_strarray_wrapper::size()
-{
-    return m_patterns.size();
-}
-
 std::string read_file(const std::string& path)
 {
     std::ifstream file(path, std::ios::binary);
