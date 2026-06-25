@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <string_view>
 #include <vector>
 
 #include <git2.h>
@@ -27,7 +26,7 @@ public:
 
     size_t size() const;
 
-    std::string_view operator[](size_t i) const;
+    std::string operator[](size_t i) const;
 
 private:
 

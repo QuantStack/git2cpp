@@ -38,7 +38,7 @@ size_t strarray_owned_wrapper::size() const
     return m_array.count;
 }
 
-std::string_view strarray_owned_wrapper::operator[](size_t i) const
+std::string strarray_owned_wrapper::operator[](size_t i) const
 {
     return { m_array.strings[i] };
 }

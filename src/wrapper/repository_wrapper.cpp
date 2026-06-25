@@ -6,11 +6,11 @@
 
 #include "../utils/git_exception.hpp"
 #include "../wrapper/commit_wrapper.hpp"
+#include "../wrapper/config_wrapper.hpp"
+#include "../wrapper/diff_wrapper.hpp"
 #include "../wrapper/index_wrapper.hpp"
 #include "../wrapper/object_wrapper.hpp"
 #include "../wrapper/remote_wrapper.hpp"
-#include "config_wrapper.hpp"
-#include "diff_wrapper.hpp"
 
 repository_wrapper::~repository_wrapper()
 {
@@ -651,13 +651,10 @@ repository_wrapper::diff_index_to_workdir(std::optional<index_wrapper> index, gi
 
 // Tags
 
-std::vector<std::string> repository_wrapper::tag_list_match(std::string pattern)
+strarray_owned_wrapper repository_wrapper::tag_list_match(std::string pattern)
 {
-    git_strarray tag_names;
-    throw_if_error(git_tag_list_match(&tag_names, pattern.c_str(), *this));
-
-    std::vector<std::string> result(tag_names.strings, tag_names.strings + tag_names.count);
-
-    git_strarray_dispose(&tag_names);
-    return result;
+    strarray_owned_wrapper tag_names;
+    throw_if_error(git_tag_list_match(tag_names, pattern.c_str(), *this));
+    return tag_names;
 }
+

@@ -7,7 +7,6 @@
 #include <git2/remote.h>
 
 #include "../utils/ansi_code.hpp"
-//#include "../utils/common.hpp"
 #include "../utils/credentials.hpp"
 #include "../utils/progress.hpp"
 #include "../wasm/scope.hpp"
