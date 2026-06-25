@@ -36,7 +36,7 @@ private:
 // Wrapper of git_strarray containing pointers to strings
 // stored in a stnadard container. Does not free them upon
 // destruction.
-class  strarray_view_wrapper
+class strarray_view_wrapper
 {
 public:
 

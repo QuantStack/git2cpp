@@ -40,7 +40,7 @@ size_t strarray_owned_wrapper::size() const
 
 std::string strarray_owned_wrapper::operator[](size_t i) const
 {
-    return { m_array.strings[i] };
+    return {m_array.strings[i]};
 }
 
 strarray_view_wrapper::strarray_view_wrapper(std::vector<std::string> patterns)
@@ -95,5 +95,3 @@ size_t strarray_view_wrapper::size() const
 {
     return m_patterns.size();
 }
-
-

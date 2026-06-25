@@ -657,4 +657,3 @@ strarray_owned_wrapper repository_wrapper::tag_list_match(std::string pattern)
     throw_if_error(git_tag_list_match(tag_names, pattern.c_str(), *this));
     return tag_names;
 }
-
