@@ -7,10 +7,10 @@
 #include <git2/remote.h>
 
 #include "../utils/ansi_code.hpp"
-#include "../utils/common.hpp"
 #include "../utils/credentials.hpp"
 #include "../utils/progress.hpp"
 #include "../wasm/scope.hpp"
+#include "../wrapper/strarray_wrapper.hpp"
 
 push_subcommand::push_subcommand(const libgit2_object&, CLI::App& app)
 {
@@ -182,7 +182,7 @@ void push_subcommand::run()
     {
         refspecs_push.push_back("refs/heads/" + refspec);
     }
-    git_strarray_wrapper refspecs_wrapper(refspecs_push);
+    strarray_view_wrapper refspecs_wrapper(refspecs_push);
     git_strarray* refspecs_ptr = refspecs_wrapper;
 
     auto remotes_before_push = get_remotes(repo, remote_name);

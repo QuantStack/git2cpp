@@ -19,6 +19,7 @@
 #include "../wrapper/remote_wrapper.hpp"
 #include "../wrapper/revwalk_wrapper.hpp"
 #include "../wrapper/signature_wrapper.hpp"
+#include "../wrapper/strarray_wrapper.hpp"
 #include "../wrapper/tree_wrapper.hpp"
 #include "../wrapper/wrapper_base.hpp"
 
@@ -134,8 +135,7 @@ public:
     diff_wrapper diff_index_to_workdir(std::optional<index_wrapper> index, git_diff_options* diffopts);
 
     // Tags
-    //  git_strarray_wrapper tag_list_match(std::string pattern);
-    std::vector<std::string> tag_list_match(std::string pattern);
+    strarray_owned_wrapper tag_list_match(std::string pattern);
 
 private:
 

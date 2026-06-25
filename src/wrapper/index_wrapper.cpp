@@ -9,6 +9,7 @@
 #include "../utils/common.hpp"
 #include "../utils/git_exception.hpp"
 #include "../wrapper/repository_wrapper.hpp"
+#include "../wrapper/strarray_wrapper.hpp"
 
 index_wrapper::~index_wrapper()
 {
@@ -40,7 +41,7 @@ void index_wrapper::add_all()
 
 void index_wrapper::add_impl(std::vector<std::string> patterns)
 {
-    git_strarray_wrapper array{patterns};
+    strarray_view_wrapper array{patterns};
     throw_if_error(git_index_add_all(*this, array, 0, NULL, NULL));
 }
 
@@ -51,7 +52,7 @@ void index_wrapper::remove_entry(const std::string& path)
 
 void index_wrapper::remove_entries(std::vector<std::string> paths)
 {
-    git_strarray_wrapper array{paths};
+    strarray_view_wrapper array{paths};
     throw_if_error(git_index_remove_all(*this, array, NULL, NULL));
 }
 

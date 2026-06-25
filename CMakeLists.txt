@@ -149,6 +149,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/wrapper/signature_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/status_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/status_wrapper.hpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/strarray_wrapper.cpp
+    ${GIT2CPP_SOURCE_DIR}/wrapper/strarray_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/tag_wrapper.cpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/tag_wrapper.hpp
     ${GIT2CPP_SOURCE_DIR}/wrapper/tree_wrapper.cpp

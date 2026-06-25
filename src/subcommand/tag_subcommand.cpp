@@ -136,9 +136,9 @@ void tag_subcommand::list_tags(repository_wrapper& repo)
     std::string pattern = m_tag_name.empty() ? "*" : m_tag_name;
     auto tag_names = repo.tag_list_match(pattern);
 
-    for (const auto& tag_name : tag_names)
+    for (size_t i = 0u; i < tag_names.size(); ++i)
     {
-        each_tag(repo, tag_name, m_num_lines);
+        each_tag(repo, tag_names[i], m_num_lines);
     }
 }
 
