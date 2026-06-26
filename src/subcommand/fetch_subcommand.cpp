@@ -44,7 +44,10 @@ void fetch_subcommand::run()
 
     git_indexer_progress pd = {0};
     git_fetch_options fetch_opts = GIT_FETCH_OPTIONS_INIT;
-    fetch_opts.callbacks.credentials = user_credentials;
+    if (want_user_credentials())
+    {
+        fetch_opts.callbacks.credentials = user_credentials;
+    }
     fetch_opts.callbacks.sideband_progress = sideband_progress;
     fetch_opts.callbacks.transfer_progress = fetch_progress;
     fetch_opts.callbacks.payload = &pd;

@@ -11,3 +11,5 @@ int user_credentials(
     unsigned int allowed_types,
     void* payload
 );
+
+bool want_user_credentials();
