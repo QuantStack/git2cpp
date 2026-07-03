@@ -8,6 +8,7 @@
 #    include <emscripten.h>
 
 #    include "../utils/common.hpp"
+#    include "../utils/credentials.hpp"
 #    include "constants.hpp"
 #    include "read_buffer.hpp"
 #    include "response.hpp"
@@ -464,28 +465,38 @@ static int create_credential(wasm_http_stream* stream)
     }
     subtransport->m_authorization_header = "";
 
-    // Check that response headers show support for 'www-authenticate: Basic'.
-    if (!stream->m_response.has_header_starts_with("www-authenticate", "Basic"))
+    if (!want_user_credentials())
     {
-        git_error_set(
-            GIT_ERROR_HTTP,
-            "remote host for request %s does not support Basic authentication",
-            stream->m_unconverted_url.c_str()
-        );
-        return -1;
+        // Check that response headers show support for 'www-authenticate: Basic'.
+        if (!stream->m_response.has_header_starts_with("www-authenticate", "Basic"))
+        {
+            git_error_set(
+                GIT_ERROR_HTTP,
+                "remote host for request %s does not support Basic authentication",
+                stream->m_unconverted_url.c_str()
+            );
+            return -1;
+        }
     }
 
     // Get credentials from user via libgit2 registered callback.
-    if (git_transport_smart_credentials(
-            &subtransport->m_credential,
-            subtransport->m_owner,
-            nullptr,
-            GIT_CREDENTIAL_USERPASS_PLAINTEXT
-        )
+    int err;
+    if ((err = git_transport_smart_credentials(
+             &subtransport->m_credential,
+             subtransport->m_owner,
+             nullptr,
+             GIT_CREDENTIAL_USERPASS_PLAINTEXT
+         ))
         < 0)
     {
+        if (err == GIT_PASSTHROUGH)
+        {
+            // Use same error message as libgit2
+            git_error_set(GIT_ERROR_HTTP, "remote authentication required but no callback set");
+        }
+
         // credentials_callback will have set git error.
-        return -1;
+        return err;
     }
 
     if (subtransport->m_credential->credtype != GIT_CREDENTIAL_USERPASS_PLAINTEXT)

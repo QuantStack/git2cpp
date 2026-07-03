@@ -52,6 +52,14 @@ def commit_env_config(monkeypatch):
 
 
 @pytest.fixture
+def disable_credential_callback(monkeypatch):
+    if GIT2CPP_TEST_WASM:
+        subprocess.run(["export", "GIT_CREDENTIAL_CALLBACK=0"], check=True)
+    else:
+        monkeypatch.setenv("GIT_CREDENTIAL_CALLBACK", "0")
+
+
+@pytest.fixture
 def repo_init_with_commit(commit_env_config, git2cpp_path, tmp_path):
     cmd_init = [git2cpp_path, "init", ".", "-b", "main"]
     p_init = subprocess.run(cmd_init, capture_output=True, cwd=tmp_path, text=True)

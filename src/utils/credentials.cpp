@@ -47,3 +47,9 @@ int user_credentials(
     giterr_set_str(GIT_ERROR_HTTP, "Unexpected credentials request");
     return GIT_ERROR;
 }
+
+bool want_user_credentials()
+{
+    const char* env_var = std::getenv("GIT_CREDENTIAL_CALLBACK");
+    return env_var == nullptr || std::string_view(env_var) != "0";
+}

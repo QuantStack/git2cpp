@@ -19,6 +19,12 @@ time.
 `GIT_COMMITTER_NAME`
 : The human-readable name for the "committer" field.
 
+`GIT_CREDENTIAL_CALLBACK`
+: By default, `git2cpp` will prompt the user to enter a username and password if they are required
+  for remote authentication, using a
+  [libgit2 credential callback](https://libgit2.org/docs/reference/main/credential/git_credential_acquire_cb.html).
+  To disable the callback use `export GIT_CREDENTIAL_CALLBACK=0`.
+
 
 ## In WebAssembly build only
 

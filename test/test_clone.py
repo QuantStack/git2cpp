@@ -128,6 +128,17 @@ def test_clone_private_repo_fails_on_no_password(
     assert p_clone.stdout.count("Password:") == 1
 
 
+def test_clone_private_repo_fails_with_no_credential_callback(
+    git2cpp_path, tmp_path, run_in_tmp_path, disable_credential_callback
+):
+    clone_cmd = [git2cpp_path, "clone", "https://github.com/QuantStack/git2cpp-test-private"]
+    p_clone = subprocess.run(clone_cmd, capture_output=True, text=True)
+
+    assert p_clone.returncode != 0
+    assert "Cloning into 'git2cpp-test-private'..." in p_clone.stdout
+    assert "error: remote authentication required but no callback set" in p_clone.stderr
+
+
 @pytest.mark.parametrize("protocol", ["http", "https"])
 def test_clone_gitlab(git2cpp_path, tmp_path, run_in_tmp_path, protocol):
     repo_url = f"{protocol}://gitlab.quantstack.net/ianthomas23_group/cockle-playground"
