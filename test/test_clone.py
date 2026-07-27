@@ -1,5 +1,7 @@
-import pytest
 import subprocess
+
+import pytest
+
 from .conftest import GIT2CPP_TEST_WASM
 
 xtl_url = "https://github.com/xtensor-stack/xtl.git"

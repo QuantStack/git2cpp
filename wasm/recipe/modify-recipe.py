@@ -2,10 +2,10 @@
 # This can be called repeatedly and will produce the same output.
 
 import argparse
-from pathlib import Path
 import shutil
-import yaml
+from pathlib import Path
 
+import yaml
 
 parser = argparse.ArgumentParser()
 parser.add_argument("input_directory", type=Path)
