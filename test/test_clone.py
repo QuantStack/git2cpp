@@ -79,7 +79,7 @@ def test_clone_private_repo_fails_then_succeeds(
     # Fails with wrong credentials, then succeeds with correct ones.
     username = "xyz"  # Can be any non-empty string.
     password = private_test_repo["token"]
-    input = "\n".join(["wrong1", "wrong2", username, password]) + "\n"
+    input = f"wrong1\nwrong2\n{username}\n{password}"
     repo_path = tmp_path / private_test_repo["repo_name"]
 
     clone_cmd = [git2cpp_path, "clone", private_test_repo["https_url"]]
