@@ -101,7 +101,7 @@ class MockPath(pathlib.Path):
     def write_bytes(self, data: bytes):
         # Convert binary data to a string where each element is backslash-escaped so that we can
         # write to file in cockle using `echo -e <backslash-escaped data>`.
-        encoded_string = "".join(lambda d: f"\\x{d:02x}", data)
+        encoded_string = "".join(f"\\x{d:02x}" for d in data)
         cmd = ["echo", "-e", encoded_string, ">", str(self)]
         subprocess.run(cmd, capture_output=True, text=True, check=True)
         return len(data)
