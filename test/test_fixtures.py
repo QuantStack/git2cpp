@@ -2,6 +2,7 @@
 
 import re
 import subprocess
+
 from .conftest import GIT2CPP_TEST_WASM
 
 

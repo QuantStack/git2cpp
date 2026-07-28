@@ -12,7 +12,7 @@ def test_init_in_directory(git2cpp_path, tmp_path):
     assert p.stdout.startswith("Initialized empty Git repository in ")
     assert p.stdout.strip().endswith("/")
 
-    assert sorted(map(lambda path: path.name, tmp_path.iterdir())) == [
+    assert sorted(path.name for path in tmp_path.iterdir()) == [
         "HEAD",
         "config",
         "description",
@@ -36,7 +36,7 @@ def test_init_in_cwd(git2cpp_path, tmp_path, run_in_tmp_path):
     assert p.stdout.startswith("Initialized empty Git repository in ")
     assert p.stdout.strip().endswith("/")
 
-    assert sorted(map(lambda path: path.name, tmp_path.iterdir())) == [
+    assert sorted(path.name for path in tmp_path.iterdir()) == [
         "HEAD",
         "config",
         "description",
@@ -60,9 +60,9 @@ def test_init_not_bare(git2cpp_path, tmp_path):
     assert p.stdout.strip().endswith(".git/")
 
     # Directory contains just .git directory.
-    assert sorted(map(lambda path: path.name, tmp_path.iterdir())) == [".git"]
+    assert sorted(path.name for path in tmp_path.iterdir()) == [".git"]
     # .git directory is a valid repo.
-    assert sorted(map(lambda path: path.name, (tmp_path / ".git").iterdir())) == [
+    assert sorted(path.name for path in (tmp_path / ".git").iterdir()) == [
         "HEAD",
         "config",
         "description",

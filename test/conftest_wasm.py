@@ -1,12 +1,13 @@
 # Extra fixtures used for wasm testing, including some that override the default pytest fixtures.
-from functools import partial
 import os
 import pathlib
-from playwright.sync_api import Page
-import pytest
 import re
 import subprocess
 import time
+from functools import partial
+
+import pytest
+from playwright.sync_api import Page
 
 
 # Only include particular test files when testing wasm.
@@ -94,14 +95,13 @@ class MockPath(pathlib.Path):
     def read_text(self) -> str:
         p = subprocess.run(["cat", str(self)], capture_output=True, text=True, check=True)
         text = p.stdout
-        if text.endswith("\n"):
-            text = text[:-1]
+        text = text.removesuffix("\n")
         return text
 
     def write_bytes(self, data: bytes):
         # Convert binary data to a string where each element is backslash-escaped so that we can
         # write to file in cockle using `echo -e <backslash-escaped data>`.
-        encoded_string = "".join(map(lambda d: f"\\x{d:02x}", data))
+        encoded_string = "".join(f"\\x{d:02x}" for d in data)
         cmd = ["echo", "-e", encoded_string, ">", str(self)]
         subprocess.run(cmd, capture_output=True, text=True, check=True)
         return len(data)
@@ -110,8 +110,7 @@ class MockPath(pathlib.Path):
         # Note that in general it is not valid to direct output of a subprocess.run call to a file,
         # but we get away with it here as the command arguments are passed straight through to
         # cockle without being checked.
-        if data.endswith("\n"):
-            data = data[:-1]
+        data = data.removesuffix("\n")
         cmd = ["echo", data, ">", str(self)]
         subprocess.run(cmd, capture_output=True, text=True, check=True)
         return len(data)

@@ -297,7 +297,7 @@ def repo_with_remote(git2cpp_path, tmp_path, run_in_tmp_path):
 
 def test_fetch_from_remote(git2cpp_path, repo_with_remote):
     """Test fetching from a remote."""
-    local_path, remote_path = repo_with_remote
+    local_path, _remote_path = repo_with_remote
 
     # Note: This is a bare repo with no refs, so fetch will fail gracefully
     # For now, just test that  /stdofetch command runs (it will fail gracefully if no refs)
@@ -309,7 +309,7 @@ def test_fetch_from_remote(git2cpp_path, repo_with_remote):
 
 def test_fetch_default_origin(git2cpp_path, repo_with_remote):
     """Test fetching with default origin."""
-    local_path, remote_path = repo_with_remote
+    local_path, _remote_path = repo_with_remote
 
     cmd = [git2cpp_path, "fetch"]
     p = subprocess.run(cmd, capture_output=True, text=True, cwd=local_path)

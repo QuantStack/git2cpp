@@ -2,10 +2,11 @@
 # This can be called repeatedly and will produce the same output.
 
 import argparse
-from pathlib import Path
 import shutil
-import yaml
+import sys
+from pathlib import Path
 
+import yaml
 
 parser = argparse.ArgumentParser()
 parser.add_argument("input_directory", type=Path)
@@ -14,11 +15,11 @@ args = parser.parse_args()
 
 input_dir = args.input_directory
 if not input_dir.is_dir():
-    quit(f"{input_dir} should exist and be a directory")
+    sys.exit(f"{input_dir} should exist and be a directory")
 
 input_filename = input_dir / "recipe.yaml"
 if not input_filename.is_file():
-    quit(f"{input_filename} should exist and be a file")
+    sys.exit(f"{input_filename} should exist and be a file")
 
 # If backup does not exist create it.
 input_backup = input_dir / "recipe_original.yaml"

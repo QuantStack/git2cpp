@@ -2,5 +2,11 @@
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+
 [tool.ruff.format]
 line-ending = "lf"
+
+[tool.ruff.lint]
+ignore = [
+    "PLW1510"
+]

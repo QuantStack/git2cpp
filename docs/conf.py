@@ -1,8 +1,8 @@
-from datetime import date
+from datetime import UTC, datetime
 
 project = "git2cpp"
 author = "QuantStack"
-copyright = f"2025-{date.today().year}"
+copyright = f"2025-{datetime.now(UTC).year}"
 
 extensions = [
     "myst_parser",
