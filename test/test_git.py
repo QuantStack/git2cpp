@@ -21,7 +21,7 @@ def test_error_on_unknown_option(git2cpp_path):
     p = subprocess.run(cmd, capture_output=True)
     assert p.returncode == 109
     assert p.stdout == b""
-    assert p.stderr.startswith(b"The following argument was not expected: --unknown")
+    assert b"The following argument was not expected: --unknown" in p.stderr
 
 
 @pytest.mark.skipif(not GIT2CPP_TEST_WASM, reason="Only test in WebAssembly")

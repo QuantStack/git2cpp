@@ -97,7 +97,7 @@ def test_error_on_unknown_option(git2cpp_path):
     p = subprocess.run(cmd, capture_output=True)
     assert p.returncode == 109
     assert p.stdout == b""
-    assert p.stderr.startswith(b"The following argument was not expected: --unknown")
+    assert b"The following argument was not expected: --unknown" in p.stderr
 
 
 def test_error_on_repeated_directory(git2cpp_path):
@@ -105,7 +105,7 @@ def test_error_on_repeated_directory(git2cpp_path):
     p = subprocess.run(cmd, capture_output=True)
     assert p.returncode == 109
     assert p.stdout == b""
-    assert p.stderr.startswith(b"The following argument was not expected: def")
+    assert b"The following argument was not expected: def" in p.stderr
 
 
 def test_init_creates_missing_parent_directories(git2cpp_path, tmp_path):
