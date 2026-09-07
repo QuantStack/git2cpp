@@ -106,8 +106,8 @@ EM_JS(
         }
         catch (err)
         {
-            // Store error for later retrieval
-            // clang-format off
+                // Store error for later retrieval
+                // clang-format off
             Module["git2cpp_js_error"] = { name: err.name ?? "", message : err.message ?? "" };
             // clang-format on
             (err.name == "TimeoutError" ? console.warn : console.error)(err);
@@ -193,8 +193,8 @@ EM_JS(
 
             if (first_read)
             {
-                // Caller must delete the returned status_text and response_headers.
-                // clang-format off
+                    // Caller must delete the returned status_text and response_headers.
+                    // clang-format off
                 setValue(status, xhr.status, 'i32*');
                 setValue(status_text, stringToNewUTF8(xhr.statusText ?? ""), 'i8**');
                 setValue(total_bytes, byte_length, 'i64*');
@@ -212,8 +212,8 @@ EM_JS(
         }
         catch (err)
         {
-            // Store error for later retrieval
-            // clang-format off
+                // Store error for later retrieval
+                // clang-format off
             Module["git2cpp_js_error"] = { name: err.name ?? "", message : err.message ?? "" };
             // clang-format on
             (err.name == "TimeoutError" ? console.warn : console.error)(err);

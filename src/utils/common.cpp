@@ -51,7 +51,7 @@ const std::map<git_status_t, status_messages>& get_status_msg_map()
             {GIT_STATUS_WT_UNREADABLE, {"", ""}},
             {GIT_STATUS_IGNORED, {"!! ", ""}},
             {GIT_STATUS_CONFLICTED, {"AA ", "\tboth added:   "}},
-        };
+    };
     return status_msg_map;
 }
 
