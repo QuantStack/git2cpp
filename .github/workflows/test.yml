@@ -67,7 +67,7 @@ jobs:
         with:
           environment-file: dev-environment.yml
           cache-environment: true
-          create-args: lcov
+          create-args: lcov<2
 
       - name: Configure CMake
         run: |

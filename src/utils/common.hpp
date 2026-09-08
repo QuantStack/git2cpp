@@ -38,7 +38,7 @@ struct status_messages
 
 status_messages get_status_msg(git_status_t);
 
-using stream_colour_fn = std::ostream& (*) (std::ostream&);
+using stream_colour_fn = std::ostream& (*)(std::ostream&);
 
 std::string read_file(const std::string& path);
 
