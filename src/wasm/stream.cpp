@@ -337,20 +337,14 @@ static int read(wasm_http_stream* stream, read_buffer_t& read_buffer, bool is_re
     }
     else
     {
-        if (stream->m_request_index != -1)
+        if (stream->m_request_index == -1)
         {
-            git_error_set(
-                GIT_ERROR_HTTP,
-                "read called with pending request to %s",
-                stream->m_unconverted_url.c_str()
-            );
-            return -1;
-        }
-
-        if (create_request(stream, stream->m_service.m_response_type.c_str()) < 0)
-        {
-            convert_js_to_git_error(stream);
-            return -1;
+            // Send http(s) request if have not already done so.
+            if (create_request(stream, stream->m_service.m_response_type.c_str()) < 0)
+            {
+                convert_js_to_git_error(stream);
+                return -1;
+            }
         }
     }
 
