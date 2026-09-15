@@ -4,6 +4,7 @@ import pytest
 
 from .conftest import GIT2CPP_TEST_WASM
 
+xsimd_url = "https://github.com/xtensor-stack/xsimd.git"
 xtl_url = "https://github.com/xtensor-stack/xtl.git"
 
 
@@ -218,3 +219,13 @@ def test_clone_negative_timeout_ignored(git2cpp_path, tmp_path, run_in_tmp_path)
         "environment variable GIT_HTTP_TIMEOUT must be a positive number of seconds"
         in p_clone.stdout
     )
+
+
+def test_clone_large_repo(git2cpp_path, tmp_path, run_in_tmp_path):
+    clone_cmd = [git2cpp_path, "clone", xsimd_url]
+    p_clone = subprocess.run(clone_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_clone.returncode == 0
+
+    assert (tmp_path / "xsimd").exists()
+    assert (tmp_path / "xsimd/include").exists()
+    assert (tmp_path / "xsimd/xsimdConfig.cmake.in").exists()
