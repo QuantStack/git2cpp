@@ -16,12 +16,12 @@
     },
     "devDependencies": {
         "@jupyterlite/cockle": "file:../cockle",
-        "@rspack/cli": "^2.0.6",
-        "@rspack/core": "^2.0.6",
-        "@rspack/dev-server": "^2.0.3",
-        "concurrently": "^9.2.1",
+        "@rspack/cli": "^2.2.5",
+        "@rspack/core": "^2.2.5",
+        "@rspack/dev-server": "^2.2.1",
+        "concurrently": "^10.0.5",
         "cors-anywhere": "^0.4.4",
-        "ts-loader": "^9.6.0",
+        "ts-loader": "^9.6.2",
         "ts-node": "^10.9.2",
         "typescript": "^5.5.4"
     }

@@ -10,7 +10,7 @@
         "serve:cors": "HOST=localhost PORT=8881 node node_modules/cors-anywhere/server.js "
     },
     "devDependencies": {
-        "concurrently": "^9.2.1",
+        "concurrently": "^10.0.5",
         "cors-anywhere": "^0.4.4",
         "static-handler": "^0.5.3"
     }
