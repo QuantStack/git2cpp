@@ -98,6 +98,21 @@ def private_test_repo():
 # Functions not fixtures below here.
 
 
+def get_filemode_lines(git2cpp_path, cwd):
+    # Return all core.filemode lines from config list.
+    cmd_list = [git2cpp_path, "config", "list"]
+    p_list = subprocess.run(cmd_list, capture_output=True, cwd=cwd, text=True)
+    assert p_list.returncode == 0
+    return [line for line in p_list.stdout.splitlines() if line.startswith("core.filemode")]
+
+
+def set_filemode(git2cpp_path, cwd, value):
+    # Set core.filemode in the repository's config file.
+    cmd_set = [git2cpp_path, "config", "set", "core.filemode", value]
+    p_set = subprocess.run(cmd_set, capture_output=True, cwd=cwd, text=True)
+    assert p_set.returncode == 0
+
+
 def strip_ansi_colours(text):
     # Strip ansi colour code sequences from a string.
     return re.sub(r"\x1b\[[^m]*m", "", text)
