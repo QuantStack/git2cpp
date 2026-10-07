@@ -170,11 +170,11 @@ def subprocess_run(
                 raise RuntimeError(f"Error setting cwd to {cwd}")
 
     def maybe_wrap_arg(s: str | MockPath) -> str:
-        # An argument containing spaces needs to be wrapped in quotes if it is not already, due
-        # to how the command is passed to cockle as a single string.
+        # An argument containing whitespace (including newlines) needs to be wrapped in quotes if
+        # it is not already, due to how the command is passed to cockle as a single string.
         # Could do better here.
         s = str(s)
-        if " " in s and not s.endswith("'"):
+        if re.search(r"\s", s) and not s.endswith("'"):
             return "'" + s + "'"
         return s
 

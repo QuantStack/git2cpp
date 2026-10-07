@@ -1,6 +1,8 @@
 import subprocess
 from pathlib import Path
 
+from .conftest import GIT2CPP_TEST_WASM, get_filemode_lines, set_filemode
+
 
 def test_init_in_directory(git2cpp_path, tmp_path):
     # tmp_path exists and is empty.
@@ -155,3 +157,32 @@ def test_init_initial_branch_bare(git2cpp_path, tmp_path):
 
     head = (tmp_path / "HEAD").read_text()
     assert "refs/heads/main" in head
+
+
+def test_init_filemode(git2cpp_path, tmp_path):
+    cmd_init = [git2cpp_path, "init", "."]
+    p_init = subprocess.run(cmd_init, capture_output=True, cwd=tmp_path, text=True)
+    assert p_init.returncode == 0
+
+    filemode_lines = get_filemode_lines(git2cpp_path, tmp_path)
+    if GIT2CPP_TEST_WASM:
+        # In WebAssembly core.filemode=false is set by an in-memory config override that has higher
+        # priority than the repository's config file, so is listed after it.
+        assert filemode_lines == ["core.filemode=true", "core.filemode=false"]
+    else:
+        assert filemode_lines == ["core.filemode=true"]
+
+    # Setting writes to the repository's config file, not the in-memory override.
+    set_filemode(git2cpp_path, tmp_path, "true")
+    filemode_lines = get_filemode_lines(git2cpp_path, tmp_path)
+    if GIT2CPP_TEST_WASM:
+        assert filemode_lines == ["core.filemode=true", "core.filemode=false"]
+    else:
+        assert filemode_lines == ["core.filemode=true"]
+
+    set_filemode(git2cpp_path, tmp_path, "false")
+    filemode_lines = get_filemode_lines(git2cpp_path, tmp_path)
+    if GIT2CPP_TEST_WASM:
+        assert filemode_lines == ["core.filemode=false", "core.filemode=false"]
+    else:
+        assert filemode_lines == ["core.filemode=false"]

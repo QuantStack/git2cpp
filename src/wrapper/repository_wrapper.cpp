@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 
+#include "../utils/config_overrides.hpp"
 #include "../utils/git_exception.hpp"
 #include "../wrapper/commit_wrapper.hpp"
 #include "../wrapper/config_wrapper.hpp"
@@ -22,6 +23,7 @@ repository_wrapper repository_wrapper::open(std::string_view directory)
 {
     repository_wrapper rw;
     throw_if_error(git_repository_open(&(rw.p_resource), directory.data()));
+    apply_config_overrides(rw.p_resource);
     return rw;
 }
 
@@ -29,6 +31,7 @@ repository_wrapper repository_wrapper::init(std::string_view directory, bool bar
 {
     repository_wrapper rw;
     throw_if_error(git_repository_init(&(rw.p_resource), directory.data(), bare));
+    apply_config_overrides(rw.p_resource);
     return rw;
 }
 
@@ -36,6 +39,7 @@ repository_wrapper repository_wrapper::init_ext(std::string_view directory, git_
 {
     repository_wrapper rw;
     throw_if_error(git_repository_init_ext(&(rw.p_resource), directory.data(), opts));
+    apply_config_overrides(rw.p_resource);
     return rw;
 }
 
@@ -44,6 +48,7 @@ repository_wrapper::clone(std::string_view url, std::string_view path, const git
 {
     repository_wrapper rw;
     throw_if_error(git_clone(&(rw.p_resource), url.data(), path.data(), &opts));
+    apply_config_overrides(rw.p_resource);
     return rw;
 }
 

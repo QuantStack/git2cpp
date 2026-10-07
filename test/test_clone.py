@@ -2,7 +2,7 @@ import subprocess
 
 import pytest
 
-from .conftest import GIT2CPP_TEST_WASM
+from .conftest import GIT2CPP_TEST_WASM, get_filemode_lines, set_filemode
 
 xsimd_url = "https://github.com/xtensor-stack/xsimd.git"
 xtl_url = "https://github.com/xtensor-stack/xtl.git"
@@ -229,3 +229,34 @@ def test_clone_large_repo(git2cpp_path, tmp_path, run_in_tmp_path):
     assert (tmp_path / "xsimd").exists()
     assert (tmp_path / "xsimd/include").exists()
     assert (tmp_path / "xsimd/xsimdConfig.cmake.in").exists()
+
+
+def test_clone_filemode(git2cpp_path, tmp_path, run_in_tmp_path):
+    clone_cmd = [git2cpp_path, "clone", xtl_url]
+    p_clone = subprocess.run(clone_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_clone.returncode == 0
+
+    xtl_path = tmp_path / "xtl"
+
+    filemode_lines = get_filemode_lines(git2cpp_path, xtl_path)
+    if GIT2CPP_TEST_WASM:
+        # In WebAssembly core.filemode=false is set by an in-memory config override that has higher
+        # priority than the repository's config file, so is listed after it.
+        assert filemode_lines == ["core.filemode=true", "core.filemode=false"]
+    else:
+        assert filemode_lines == ["core.filemode=true"]
+
+    # Setting writes to the repository's config file, not the in-memory override.
+    set_filemode(git2cpp_path, xtl_path, "true")
+    filemode_lines = get_filemode_lines(git2cpp_path, xtl_path)
+    if GIT2CPP_TEST_WASM:
+        assert filemode_lines == ["core.filemode=true", "core.filemode=false"]
+    else:
+        assert filemode_lines == ["core.filemode=true"]
+
+    set_filemode(git2cpp_path, xtl_path, "false")
+    filemode_lines = get_filemode_lines(git2cpp_path, xtl_path)
+    if GIT2CPP_TEST_WASM:
+        assert filemode_lines == ["core.filemode=false", "core.filemode=false"]
+    else:
+        assert filemode_lines == ["core.filemode=false"]

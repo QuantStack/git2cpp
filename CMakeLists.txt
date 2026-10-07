@@ -90,6 +90,8 @@ set(GIT2CPP_SRC
     ${GIT2CPP_SOURCE_DIR}/utils/ansi_code.hpp
     ${GIT2CPP_SOURCE_DIR}/utils/common.cpp
     ${GIT2CPP_SOURCE_DIR}/utils/common.hpp
+    ${GIT2CPP_SOURCE_DIR}/utils/config_overrides.cpp
+    ${GIT2CPP_SOURCE_DIR}/utils/config_overrides.hpp
     ${GIT2CPP_SOURCE_DIR}/utils/credentials.cpp
     ${GIT2CPP_SOURCE_DIR}/utils/credentials.hpp
     ${GIT2CPP_SOURCE_DIR}/utils/git_exception.cpp
