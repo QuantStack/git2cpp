@@ -180,6 +180,7 @@ def test_clone_timeout(git2cpp_path, tmp_path, run_in_tmp_path):
         "set a longer timeout in seconds using the environment variable GIT_HTTP_TIMEOUT"
         in p_clone.stderr
     )
+    assert "the current value is 0.001 seconds" in p_clone.stderr
 
     # Set more reasonable timeout.
     subprocess.run(["export", "GIT_HTTP_TIMEOUT=10"], check=True)

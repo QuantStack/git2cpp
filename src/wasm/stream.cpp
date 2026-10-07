@@ -2,8 +2,10 @@
 
 #    include "stream.hpp"
 
+#    include <cstdlib>
 #    include <regex>
 #    include <sstream>
+#    include <string>
 
 #    include <emscripten.h>
 
@@ -283,12 +285,16 @@ static void convert_js_to_git_error(wasm_http_stream* stream)
     }
     else if (std::string_view(error_str).starts_with("TimeoutError:"))
     {
+        auto env_var = std::getenv(WASM_HTTP_TRANSPORT_TIMEOUT_NAME.data());
+        std::string value = env_var != nullptr ? env_var
+                                               : std::to_string(WASM_HTTP_TRANSPORT_TIMEOUT_DEFAULT_S);
         git_error_set(
             GIT_ERROR_HTTP,
-            "network request timed out connecting to %s. You can set a longer timeout in seconds using the environment variable %s, the default value is %u seconds.",
+            "network request timed out connecting to %s. You can set a longer timeout in seconds using the environment variable %s, the %s value is %s seconds.",
             stream->m_unconverted_url.c_str(),
             WASM_HTTP_TRANSPORT_TIMEOUT_NAME.data(),
-            WASM_HTTP_TRANSPORT_TIMEOUT_DEFAULT_S
+            env_var != nullptr ? "current" : "default",
+            value.c_str()
         );
     }
     else
