@@ -8,13 +8,14 @@ and test the WebAssembly build.
 
 It works on Linux and macOS but not Windows.
 
-There are 5 sub-directories:
+There are 6 sub-directories:
 
 - `recipe`: build local `git2cpp` source code into an Emscripten-forge package.
 - `cockle-deploy`: create a `cockle` deployment in the `serve` directory.
 - `lite-deploy`: create a JupyterLite `terminal` deployment in the `serve` directory.
 - `serve`: where the two deployments are served from.
-- `test`: test the WebAssembly build.
+- `test-cockle`: test the WebAssembly build in a `cockle` deployment.
+- `test-lite`: test the WebAssembly build in a JupyterLite `terminal` deployment.
 
 ## Build and deploy
 
@@ -85,15 +86,20 @@ make rebuild
 
 ## Test
 
-To test the WebAssembly build use from the `wasm` directory:
+There are two separate test runs which both run the tests in the top-level `test` directory with
+various monkey patching so that `git2cpp` commands are executed in the browser:
+
+- `test-cockle` runs each command directly in a `cockle` shell.
+- `test-lite` types each command into a JupyterLite terminal using the browser UI. This is slower
+  than `test-cockle` but is closer to how users run `git2cpp`.
+
+To run them use from the `wasm` directory:
 
 ```bash
-make test
+make test-cockle
+make test-lite
 ```
 
-This runs the tests in the top-level `test` directory with various monkey patching so that
-`git2cpp` commands are executed in the browser.
-The tests that are run are defined in the function `pytest_ignore_collect` in `conftest_wasm.py`.
 If there are problems running the tests then ensure you have the latest `playwright` browser installed:
 
 ```bash
@@ -103,23 +109,42 @@ playwright install chromium
 To run all of the tests including those that require the `GIT2CPP_TEST_PRIVATE_TOKEN`:
 
 ```bash
-GIT2CPP_TEST_PRIVATE_TOKEN=<this-is-the-personal-access-token> make test
+GIT2CPP_TEST_PRIVATE_TOKEN=<this-is-the-personal-access-token> make test-cockle
+GIT2CPP_TEST_PRIVATE_TOKEN=<this-is-the-personal-access-token> make test-lite
 ```
 
-You can run a specific test from the top-level `test` directory (not the `wasm/test` directory)
-using:
+You can run a specific test from the top-level `test` directory (not the `wasm/test-cockle` or
+`wasm/test-lite` directories) by setting `GIT2CPP_TEST_WASM` to either `cockle` or `lite`:
 
 ```bash
-GIT2CPP_TEST_WASM=1 pytest -v test_git.py::test_version
+GIT2CPP_TEST_WASM=cockle pytest -v test_git.py::test_version
+GIT2CPP_TEST_WASM=lite pytest -v test_git.py::test_version
+```
+
+### Watching the tests in a browser
+
+The tests use [pytest-playwright](https://playwright.dev/python/docs/test-runners) so its command
+line options can be used to see what is happening in the browser, for both `cockle` and `lite`:
+
+- `--headed` shows the browser window, and `--slowmo <ms>` slows down each browser operation.
+- `PWDEBUG=1` opens the Playwright Inspector to step through browser operations (use with `-s`).
+- `--tracing on` (or `retain-on-failure`) records a trace which can be viewed using
+  `playwright show-trace test-results/<test-name>/trace.zip`.
+- `--video on` (or `retain-on-failure`) records a video of each test in `test-results`.
+
+For example:
+
+```bash
+GIT2CPP_TEST_WASM=lite pytest -v --headed --slowmo 100 test_git.py::test_version
 ```
 
 ### Manually running the test servers
 
 If wasm tests are failing it can be helpful to run the test servers and manually run `cockle`
-commands to help understand the problem. To do this use:
+commands to help understand the problem. For `cockle` use:
 
 ```bash
-cd wasm/test
+cd test-cockle
 npm run serve
 ```
 
@@ -128,3 +153,13 @@ at http://localhost:8000/ and to run a command such as `ls -l` open the dev cons
 following at the prompt: `await window.cockle.shellRun('ls -al')`. The generated output will appear
 in a new `<div>` in the web page in a format similar to that returned by Python's
 `subprocess.run()`.
+
+For JupyterLite use:
+
+```bash
+cd test-lite
+npm run serve
+```
+
+This will start both the JupyterLite server on port 8001 and the CORS server on port 8881. Open a
+browser at http://localhost:8001/ and open a terminal to run commands.

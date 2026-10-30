@@ -1,0 +1,15 @@
+{
+  "packages": {
+    "git2cpp": {},
+    "nano": {},
+    "tree": {},
+    "vim": {}
+  },
+  "aliases": {
+    "git": "git2cpp",
+    "vi": "vim"
+  },
+  "environment": {
+    "GIT_CORS_PROXY": "http://localhost:8881/"
+  }
+}
