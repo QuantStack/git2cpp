@@ -7,6 +7,7 @@ dependencies:
   - cmake
   - pkg-config
   - pre-commit
+  - identify >=2.6
   - python
   - pytest
   - termcolor-cpp

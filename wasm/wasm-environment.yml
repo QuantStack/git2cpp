@@ -4,6 +4,7 @@ channels:
   - conda-forge
 dependencies:
   - pre-commit
+  - identify >=2.6
   # To modify emscripten-forge recipe
   - python
   - pyyaml
