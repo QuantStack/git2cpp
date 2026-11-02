@@ -14,7 +14,7 @@ dependencies:
   - rattler-build
   # For JupyterLite deployment
   - jupyter_server
-  - jupyterlite-terminal
+  - jupyterlite-terminal>=1.7.1
   # For cockle and JupyterLite deployments
   - nodejs <25
   # For testing
