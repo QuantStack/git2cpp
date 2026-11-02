@@ -121,23 +121,6 @@ GIT2CPP_TEST_WASM=cockle pytest -v test_git.py::test_version
 GIT2CPP_TEST_WASM=lite pytest -v test_git.py::test_version
 ```
 
-### Watching the tests in a browser
-
-The tests use [pytest-playwright](https://playwright.dev/python/docs/test-runners) so its command
-line options can be used to see what is happening in the browser, for both `cockle` and `lite`:
-
-- `--headed` shows the browser window, and `--slowmo <ms>` slows down each browser operation.
-- `PWDEBUG=1` opens the Playwright Inspector to step through browser operations (use with `-s`).
-- `--tracing on` (or `retain-on-failure`) records a trace which can be viewed using
-  `playwright show-trace test-results/<test-name>/trace.zip`.
-- `--video on` (or `retain-on-failure`) records a video of each test in `test-results`.
-
-For example:
-
-```bash
-GIT2CPP_TEST_WASM=lite pytest -v --headed --slowmo 100 test_git.py::test_version
-```
-
 ### Manually running the test servers
 
 If wasm tests are failing it can be helpful to run the test servers and manually run `cockle`

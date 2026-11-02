@@ -28,8 +28,8 @@ LITE_URL = "http://localhost:8001/lab/index.html"
 
 # Files in the JupyterLite drive that a command's stdout and stderr are written to.
 # Terminal path /drive/<name> corresponds to JupyterLite contents path <name>.
-STDOUT_FILE = "lite_stdout.txt"
-STDERR_FILE = "lite_stderr.txt"
+STDOUT_FILE = "stdout.txt"
+STDERR_FILE = "stderr.txt"
 
 # Command line that writes the exit code of the previous command line and the shell's cwd to the
 # terminal, as lines such as '?=0' and 'PWD=/drive'.
