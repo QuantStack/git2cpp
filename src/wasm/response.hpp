@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 
 #    include <map>
 #    include <optional>
@@ -40,4 +40,4 @@ private:
     std::multimap<const std::string, const std::string> m_response_headers;
 };
 
-#endif  // EMSCRIPTEN
+#endif  // __EMSCRIPTEN__

@@ -1,4 +1,4 @@
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 
 #    include "stream.hpp"
 
@@ -654,4 +654,4 @@ int wasm_http_stream_write(git_smart_subtransport_stream* s, const char* buffer,
     return write(stream, buffer, buffer_size);
 }
 
-#endif  // EMSCRIPTEN
+#endif  // __EMSCRIPTEN__

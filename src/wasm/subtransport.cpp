@@ -1,4 +1,4 @@
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 
 #    include "subtransport.hpp"
 
@@ -100,4 +100,4 @@ int create_wasm_http_subtransport(git_smart_subtransport** out, git_transport* o
     return 0;
 }
 
-#endif  // EMSCRIPTEN
+#endif  // __EMSCRIPTEN__

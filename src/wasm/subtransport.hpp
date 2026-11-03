@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 
 #    include <string>
 
@@ -24,4 +24,4 @@ struct wasm_http_subtransport
 // git_smart_subtransport_cb
 int create_wasm_http_subtransport(git_smart_subtransport** out, git_transport* owner, void* param);
 
-#endif  // EMSCRIPTEN
+#endif  // __EMSCRIPTEN__
