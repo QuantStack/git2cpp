@@ -1,6 +1,6 @@
 #include "config_overrides.hpp"
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #    include <iterator>
 
 #    include <git2/sys/config.h>
@@ -10,7 +10,7 @@
 
 void apply_config_overrides([[maybe_unused]] git_repository* repo)
 {
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
     // Config values to override, each in "name=value" form. core.filemode is disabled because
     // the emscripten filesystem does support executable file permissions but some JupyterLite
     // drive implementations do not.

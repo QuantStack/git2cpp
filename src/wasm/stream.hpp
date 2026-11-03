@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 
 #    include <git2/sys/transport.h>
 
@@ -43,4 +43,4 @@ int wasm_http_stream_read_response(
 
 int wasm_http_stream_write(git_smart_subtransport_stream* s, const char* buffer, size_t buffer_size);
 
-#endif  // EMSCRIPTEN
+#endif  // __EMSCRIPTEN__

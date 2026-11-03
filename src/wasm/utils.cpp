@@ -1,4 +1,4 @@
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 
 #    include "utils.hpp"
 
@@ -77,4 +77,4 @@ bool maybe_prompt_to_download(double bytes)
     return true;
 }
 
-#endif  // EMSCRIPTEN
+#endif  // __EMSCRIPTEN__

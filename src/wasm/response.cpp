@@ -1,4 +1,4 @@
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 
 #    include "response.hpp"
 
@@ -82,4 +82,4 @@ void wasm_http_response::set_git_error(std::string_view url) const
     );
 }
 
-#endif  // EMSCRIPTEN
+#endif  // __EMSCRIPTEN__

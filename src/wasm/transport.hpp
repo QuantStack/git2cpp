@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 
 #    include <git2/sys/transport.h>
 
@@ -8,4 +8,4 @@
 // http(s) transport.
 int create_wasm_http_transport(git_transport** out, git_remote* owner, void* param);
 
-#endif  // EMSCRIPTEN
+#endif  // __EMSCRIPTEN__

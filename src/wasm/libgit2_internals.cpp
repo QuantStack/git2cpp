@@ -1,4 +1,4 @@
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 
 #    include "libgit2_internals.hpp"
 
@@ -63,4 +63,4 @@ std::optional<http_service> select_service(git_smart_service_t action)
     return std::nullopt;
 }
 
-#endif  // EMSCRIPTEN
+#endif  // __EMSCRIPTEN__

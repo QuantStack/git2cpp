@@ -1,4 +1,4 @@
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 
 #    include "read_buffer.hpp"
 
@@ -9,4 +9,4 @@ read_buffer_t::read_buffer_t(char* buffer, size_t buffer_size, size_t* bytes_rea
 {
 }
 
-#endif  // EMSCRIPTEN
+#endif  // __EMSCRIPTEN__

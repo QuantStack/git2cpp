@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 
 // Get wasm http request timeout in milliseconds from environment variable or default value.
 unsigned long get_request_timeout_ms();
@@ -9,4 +9,4 @@ unsigned long get_request_timeout_ms();
 // May or may not prompt the user for input depending on the size of the download.
 bool maybe_prompt_to_download(double bytes);
 
-#endif  // EMSCRIPTEN
+#endif  // __EMSCRIPTEN__

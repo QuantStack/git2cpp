@@ -1,4 +1,4 @@
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 
 #    include "transport.hpp"
 
@@ -14,4 +14,4 @@ int create_wasm_http_transport(git_transport** out, git_remote* owner, void* par
     return git_transport_smart(out, owner, &definition);
 }
 
-#endif  // EMSCRIPTEN
+#endif  // __EMSCRIPTEN__

@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 
 #    include <optional>
 #    include <string>
@@ -63,4 +63,4 @@ std::string name_for_method(git_http_method method);
 
 std::optional<http_service> select_service(git_smart_service_t action);
 
-#endif  // EMSCRIPTEN
+#endif  // __EMSCRIPTEN__

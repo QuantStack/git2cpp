@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 
 #    include <stddef.h>
 
@@ -15,4 +15,4 @@ struct read_buffer_t
     size_t* m_bytes_read;
 };
 
-#endif  // EMSCRIPTEN
+#endif  // __EMSCRIPTEN__
