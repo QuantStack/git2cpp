@@ -12,5 +12,7 @@ cockle/
 lite-deploy/package.json
 recipe/em-forge-recipes/
 serve/dist/*/
-test/assets/*/
-test/lib/
+test-cockle/assets/*/
+test-cockle/lib/
+test-lite/dist/
+test-lite/serve.log

@@ -390,3 +390,68 @@ def test_checkout_tag(repo_init_with_commit, git2cpp_path, tmp_path):
     p_branch = subprocess.run(branch_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_branch.returncode == 0
     assert "*" not in p_branch.stdout
+
+
+def test_checkout_rmdir_bug(commit_env_config, git2cpp_path, tmp_path):
+    # Regression test for a bug in jupyterlite <= 0.8.6 that does not always handle `rmdir`
+    # correctly and was fixed by https://github.com/jupyterlite/jupyterlite/pull/2102.
+
+    # git init . -b main
+    init_cmd = [git2cpp_path, "init", ".", "-b", "main"]
+    p_init = subprocess.run(init_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_init.returncode == 0
+
+    # mkdir dir
+    (tmp_path / "dir").mkdir()
+
+    # echo Hello > dir/a.txt
+    (tmp_path / "dir" / "a.txt").write_text("Hello")
+
+    # git add dir/a.txt
+    add_cmd = [git2cpp_path, "add", "dir/a.txt"]
+    p_add = subprocess.run(add_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_add.returncode == 0
+
+    # git commit -m "first"
+    commit_cmd = [git2cpp_path, "commit", "-m", "first"]
+    p_commit = subprocess.run(commit_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_commit.returncode == 0
+
+    # echo Other > dir/b.txt
+    (tmp_path / "dir" / "b.txt").write_text("Other")
+
+    # git add dir/b.txt
+    add_cmd2 = [git2cpp_path, "add", "dir/b.txt"]
+    p_add2 = subprocess.run(add_cmd2, capture_output=True, cwd=tmp_path, text=True)
+    assert p_add2.returncode == 0
+
+    # git commit -m "second"
+    commit_cmd2 = [git2cpp_path, "commit", "-m", "second"]
+    p_commit2 = subprocess.run(commit_cmd2, capture_output=True, cwd=tmp_path, text=True)
+    assert p_commit2.returncode == 0
+
+    # git status
+    status_cmd = [git2cpp_path, "status"]
+    p_status = subprocess.run(status_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_status.returncode == 0
+    assert "Nothing to commit, working tree clean" in p_status.stdout
+
+    # git checkout HEAD~1
+    checkout_cmd = [git2cpp_path, "checkout", "HEAD~1"]
+    p_checkout = subprocess.run(checkout_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_checkout.returncode == 0
+
+    # git status
+    p_status2 = subprocess.run(status_cmd, capture_output=True, cwd=tmp_path, text=True)
+    assert p_status2.returncode == 0
+    assert "Nothing to commit, working tree clean" in p_status2.stdout
+    # The bug that is fixed in jupyterlite PR 2102 is that stdout here is the following instead of
+    # the above line:
+    #    On branch HEAD
+    #    Changes not staged for commit:
+    #      (use "git add <file>..." to update what will be committed)
+    #            deleted:   dir/a.txt
+    #
+    #    no changes added to commit  (use "git add" and/or "git commit -a")
+    assert "Changes not staged" not in p_status2.stdout
+    assert "deleted:" not in p_status2.stdout

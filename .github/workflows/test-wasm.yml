@@ -1,4 +1,4 @@
-# Test WebAssembly build in cockle deployment
+# Build WebAssembly package and test it in cockle and JupyterLite terminal deployments
 name: Test WebAssembly
 
 on:
@@ -13,7 +13,7 @@ jobs:
       (github.event.action == 'labeled' && github.event.label.name == 'run-wasm-ci') ||
       (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'run-wasm-ci'))
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
+      group: ${{ github.workflow }}-${{ github.ref }}-build
       cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -37,19 +37,66 @@ jobs:
         working-directory: wasm
         run: |
           cmake .
-          make build-recipe
-          make build-test
-
-      - name: Install playwright chromium
-        shell: bash -l {0}
-        working-directory: wasm/test
-        run: |
-          npx playwright install chromium
+          make build
 
       - name: Upload artifact containing emscripten-forge package
         uses: actions/upload-pages-artifact@v5
         with:
           path: ./wasm/recipe/em-forge-recipes/output/
+
+      # Tar the wasm directory (except the emscripten-forge recipes checkout) to preserve
+      # symlinks in node_modules, for use in the test jobs.
+      - name: Archive wasm build
+        run: |
+          tar -czf wasm-build.tar.gz --exclude=wasm/recipe/em-forge-recipes wasm
+
+      - name: Upload artifact containing wasm build
+        uses: actions/upload-artifact@v7
+        with:
+          name: wasm-build
+          path: wasm-build.tar.gz
+          retention-days: 1
+
+  test:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [test-cockle, test-lite]
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.target }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    name: ${{ matrix.target }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+
+      - name: Install mamba
+        uses: mamba-org/setup-micromamba@v3
+        with:
+          environment-file: wasm/wasm-environment.yml
+          cache-environment: true
+
+      - name: Download artifact containing wasm build
+        uses: actions/download-artifact@v8
+        with:
+          name: wasm-build
+
+      - name: Extract wasm build
+        run: |
+          tar -xzf wasm-build.tar.gz
+
+      - name: Install playwright chromium
+        shell: bash -l {0}
+        run: |
+          playwright install chromium
 
       - name: Run WebAssembly tests
         shell: bash -l {0}
@@ -57,4 +104,4 @@ jobs:
         env:
           GIT2CPP_TEST_PRIVATE_TOKEN: ${{ secrets.GIT2CPP_TEST_PRIVATE_TOKEN }}
         run: |
-          make test
+          make ${{ matrix.target }}

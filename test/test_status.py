@@ -4,7 +4,7 @@ import subprocess
 
 import pytest
 
-from .conftest import strip_ansi_colours
+from .conftest import GIT2CPP_TEST_LITE, strip_ansi_colours
 
 
 @pytest.mark.parametrize("short_flag", ["", "-s", "--short"])
@@ -207,6 +207,7 @@ def test_status_mixed_changes(repo_init_with_commit, git2cpp_path, tmp_path, sho
         assert "untracked.txt" in p.stdout
 
 
+@pytest.mark.skipif(GIT2CPP_TEST_LITE, reason="JupyterLite drive does not support symlinks")
 @pytest.mark.parametrize("short_flag", ["", "-s"])
 def test_status_typechange(repo_init_with_commit, git2cpp_path, tmp_path, short_flag):
     """Test status shows typechange (file to symlink or vice versa)"""

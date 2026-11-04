@@ -5,10 +5,16 @@ from pathlib import Path
 
 import pytest
 
-GIT2CPP_TEST_WASM = os.getenv("GIT2CPP_TEST_WASM") == "1"
+# GIT2CPP_TEST_WASM=cockle tests in cockle, GIT2CPP_TEST_WASM=lite tests in a JupyterLite terminal.
+GIT2CPP_TEST_COCKLE = os.getenv("GIT2CPP_TEST_WASM") == "cockle"
+GIT2CPP_TEST_LITE = os.getenv("GIT2CPP_TEST_WASM") == "lite"
+# Testing WebAssembly build in either cockle or JupyterLite.
+GIT2CPP_TEST_WASM = GIT2CPP_TEST_COCKLE or GIT2CPP_TEST_LITE
 
-if GIT2CPP_TEST_WASM:
-    from .conftest_wasm import *
+if GIT2CPP_TEST_COCKLE:
+    from .conftest_cockle import *
+elif GIT2CPP_TEST_LITE:
+    from .conftest_lite import *
 
 
 # Fixture to run test in current tmp_path

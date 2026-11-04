@@ -1,0 +1,19 @@
+{
+    "name": "lite-test",
+    "version": "1.0.0",
+    "description": "JupyterLite terminal tests",
+    "license": "BSD-3-Clause",
+    "author": "Ian Thomas",
+    "private": true,
+    "scripts": {
+        "serve": "concurrently 'npm run serve:lite' 'npm run serve:cors'",
+        "serve:lite": "npx static-handler --port 8001 --cors --coop --coep --corp dist",
+        "serve:cors": "HOST=localhost PORT=8881 node node_modules/cors-anywhere/server.js "
+    },
+    "devDependencies": {
+        "@jupyterlite/cockle": "file:../cockle",
+        "concurrently": "^10.0.5",
+        "cors-anywhere": "^0.4.4",
+        "static-handler": "^0.5.3"
+    }
+}

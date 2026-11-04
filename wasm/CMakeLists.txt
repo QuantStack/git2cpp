@@ -8,13 +8,14 @@ add_subdirectory(recipe)
 add_subdirectory(cockle-deploy)
 add_subdirectory(lite-deploy)
 add_subdirectory(serve)
-add_subdirectory(test)
+add_subdirectory(test-cockle)
+add_subdirectory(test-lite)
 
 # Build everything (package, cockle and lite deployments, tests).
-add_custom_target(build ALL DEPENDS build-recipe build-cockle build-lite build-serve build-test)
+add_custom_target(build ALL DEPENDS build-recipe build-cockle build-lite build-serve build-test-cockle build-test-lite)
 
 # Rebuild after change in C++ code.
-add_custom_target(rebuild DEPENDS rebuild-recipe rebuild-cockle rebuild-lite rebuild-test)
+add_custom_target(rebuild DEPENDS rebuild-recipe rebuild-cockle rebuild-lite rebuild-test-cockle rebuild-test-lite)
 
 if (USE_COCKLE_RELEASE)
     execute_process(COMMAND npm view @jupyterlite/cockle version OUTPUT_VARIABLE COCKLE_BRANCH)
