@@ -59,7 +59,7 @@ HOST=localhost PORT=8881 node node_modules/cors-anywhere/server.js
 ```
 
 This will start the CORS proxy server listening on `http://localhost:8881/`. To use this in your
-local `cockle` or `JupyterLite terminal` deployment in your browser set the `CORS_PROXY_URL` to be
+local `cockle` or `JupyterLite terminal` deployment in your browser, set `GIT_CORS_PROXY` to:
 ```bash
 export GIT_CORS_PROXY=http://localhost:8881/
 ```
@@ -79,7 +79,7 @@ Once you have access, you can try this out in one of the public deployments such
 [https://jupyterlite.github.io/cockle](https://jupyterlite.github.io/cockle) or
 [https://jupyterlite.github.io/terminal](https://jupyterlite.github.io/terminal).
 
-Set the `CORS_PROXY_URL` to be
+Set `GIT_CORS_PROXY` to:
 ```bash
 export GIT_CORS_PROXY=https://cors-anywhere.herokuapp.com/
 ```
