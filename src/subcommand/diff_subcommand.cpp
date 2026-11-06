@@ -14,7 +14,7 @@ diff_subcommand::diff_subcommand(const libgit2_object&, CLI::App& app)
 {
     auto* sub = app.add_subcommand("diff", "Show changes between commits, commit and working tree, etc");
 
-    sub->add_option("<files>", m_files, "tree-ish objects to compare")->expected(0, 2);
+    sub->add_option("<files>", m_files, "Tree-ish objects to compare")->expected(0, 2);
 
     sub->add_flag("--stat", m_stat_flag, "Generate a diffstat");
     sub->add_flag("--shortstat", m_shortstat_flag, "Output only the last line of --stat");

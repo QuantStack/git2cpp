@@ -27,10 +27,10 @@ config_subcommand::config_subcommand(const libgit2_object&, CLI::App& app)
         "Unset value for one or more config options. By default, this command refuses to unset multi-valued keys. Passing --all will unset all multi-valued config options, whereas --value will unset all config options whose values match the given pattern."
     );
 
-    get->add_option("<name>", m_name, "");
-    set->add_option("<name>", m_name, "");
-    set->add_option("<value>", m_value, "");
-    unset->add_option("<name>", m_name, "");
+    get->add_option("<name>", m_name, "Name of the config variable to get, e.g. user.name");
+    set->add_option("<name>", m_name, "Name of the config variable to set");
+    set->add_option("<value>", m_value, "Value to set the config variable to");
+    unset->add_option("<name>", m_name, "Name of the config variable to unset");
 
     // TODO:
     // sub->add_flag("--local", m_local_flag, "");
