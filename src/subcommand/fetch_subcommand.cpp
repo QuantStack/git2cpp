@@ -15,12 +15,12 @@ fetch_subcommand::fetch_subcommand(const libgit2_object&, CLI::App& app)
     auto* sub = app.add_subcommand("fetch", "Download objects and refs from another repository");
 
     sub->add_option("<remote>", m_remote_name, "The remote to fetch from")->default_val("origin");
-    sub->add_option("--depth", m_depth, "deepen or shorten history of shallow clone");
-    sub->add_option("--deepen", m_deepen, "deepen history of shallow clone");
+    sub->add_option("--depth", m_depth, "Deepen or shorten history of shallow clone");
+    sub->add_option("--deepen", m_deepen, "Deepen history of shallow clone");
     // sub->add_option("--shallow-since", m_shallow_since, "<time>\ndeepen history of shallow repository based
     // on time."); sub->add_option("--shallow-exclude", m_shallow_exclude, "<ref>\ndeepen history of shallow
     // clone, excluding ref");
-    sub->add_flag("--unshallow", m_unshallow, "convert to a complete repository");
+    sub->add_flag("--unshallow", m_unshallow, "Convert to a complete repository");
     // sub->add_flag("--update-shallow", m_update_shallow, "accept refs that update .git/shallow");
 
     sub->callback(

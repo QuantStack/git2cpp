@@ -10,7 +10,7 @@
 
 clone_subcommand::clone_subcommand(const libgit2_object&, CLI::App& app)
 {
-    auto* sub = app.add_subcommand("clone", "Clone a directory into a new repository");
+    auto* sub = app.add_subcommand("clone", "Clone a repository into a new directory");
 
     sub->add_option("<repository>", m_repository, "The (possibly remote) repository to clone from.")->required();
     sub->add_option("<directory>", m_directory, "The name of a new directory to clone into.");

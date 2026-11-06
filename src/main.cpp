@@ -42,8 +42,6 @@ int main(int argc, char** argv)
         auto version = app.add_flag("-v,--version", "Show version");
 
         // Sub commands
-        init_subcommand init(lg2_obj, app);
-        status_subcommand status(lg2_obj, app);
         add_subcommand add(lg2_obj, app);
         branch_subcommand branch(lg2_obj, app);
         checkout_subcommand checkout(lg2_obj, app);
@@ -52,19 +50,21 @@ int main(int argc, char** argv)
         config_subcommand config(lg2_obj, app);
         diff_subcommand diff(lg2_obj, app);
         fetch_subcommand fetch(lg2_obj, app);
-        reset_subcommand reset(lg2_obj, app);
+        init_subcommand init(lg2_obj, app);
         log_subcommand log(lg2_obj, app);
         merge_subcommand merge(lg2_obj, app);
         mv_subcommand mv(lg2_obj, app);
         push_subcommand push(lg2_obj, app);
         rebase_subcommand rebase(lg2_obj, app);
         remote_subcommand remote(lg2_obj, app);
+        reset_subcommand reset(lg2_obj, app);
         revlist_subcommand revlist(lg2_obj, app);
         revparse_subcommand revparse(lg2_obj, app);
         rm_subcommand rm(lg2_obj, app);
-        stash_subcommand stash(lg2_obj, app);
-        tag_subcommand tag(lg2_obj, app);
         showref_subcommand showref(lg2_obj, app);
+        stash_subcommand stash(lg2_obj, app);
+        status_subcommand status(lg2_obj, app);
+        tag_subcommand tag(lg2_obj, app);
 
         app.require_subcommand(/* min */ 0, /* max */ 1);
 
