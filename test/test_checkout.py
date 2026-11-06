@@ -35,6 +35,7 @@ def test_checkout_b(repo_init_with_commit, git2cpp_path, tmp_path):
     p_checkout = subprocess.run(checkout_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_checkout.returncode == 0
     assert "Switched to a new branch 'foregone'" in p_checkout.stdout
+    assert "Switched to branch 'foregone'" not in p_checkout.stdout
 
     branch_cmd = [git2cpp_path, "branch"]
     p_branch = subprocess.run(branch_cmd, capture_output=True, cwd=tmp_path, text=True)
@@ -65,6 +66,7 @@ def test_checkout_B_force_create(repo_init_with_commit, git2cpp_path, tmp_path):
     p_checkout = subprocess.run(checkout_cmd, capture_output=True, cwd=tmp_path, text=True)
     assert p_checkout.returncode == 0
     assert "Switched to a new branch 'resetme'" in p_checkout.stdout
+    assert "Switched to branch 'resetme'" not in p_checkout.stdout
 
     # Verify we're on the branch
     branch_cmd = [git2cpp_path, "branch"]

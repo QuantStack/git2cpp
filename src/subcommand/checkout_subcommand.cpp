@@ -150,6 +150,7 @@ void checkout_subcommand::run()
         update_head(repo, annotated_commit, target_name);
 
         std::cout << "Switched to a new branch '" << target_name << "'" << std::endl;
+        return;
     }
     else if (!pathspecs.empty())
     {
