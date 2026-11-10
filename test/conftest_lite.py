@@ -32,9 +32,10 @@ STDOUT_FILE = "stdout.txt"
 STDERR_FILE = "stderr.txt"
 
 # Command line that writes the exit code of the previous command line and the shell's cwd to the
-# terminal, as lines such as '?=0' and 'PWD=/drive'.
+# terminal, as lines such as '?=0' and 'PWD=/drive'. Some versions of coreutils env quote the
+# '?' name as in "'?'=0", so allow an optional character either side of it.
 # Quote the grep pattern as cockle treats an unquoted '?' as a glob wildcard.
-EXIT_CODE_AND_PWD_LINE = "env | grep -E '^(\\?|PWD)='"
+EXIT_CODE_AND_PWD_LINE = "env | grep -E '^(.?\\?.?|PWD)='"
 
 # Collect the output of the open terminal so that we can tell when a command line has finished.
 COLLECT_OUTPUT_JS = """
@@ -230,7 +231,8 @@ def read_exit_code_and_pwd(page: Page) -> tuple[int | None, str]:
     output = run_line(page, EXIT_CODE_AND_PWD_LINE)
     # Remove ANSI escape sequences such as colours, as grep is aliased to 'grep --color=auto'.
     output = re.sub(r"\x1b\[[0-9;]*[A-Za-z]", "", output)
-    returncode = re.search(r"^\?=(-?\d+)\s*$", output, re.MULTILINE)
+    # The '?' name may or may not be quoted, depending on the version of coreutils env.
+    returncode = re.search(r"^'?\?'?=(-?\d+)\s*$", output, re.MULTILINE)
     pwd = re.search(r"^PWD=(.*?)\s*$", output, re.MULTILINE)
     if pwd is None:
         raise RuntimeError(f"Unable to read PWD from terminal output: {output!r}")
