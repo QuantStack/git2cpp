@@ -7,7 +7,7 @@ revlist_subcommand::revlist_subcommand(const libgit2_object&, CLI::App& app)
 {
     auto* sub = app.add_subcommand("rev-list", "Lists commit objects in reverse chronological order");
 
-    sub->add_option("<commit>", m_commit, "");
+    sub->add_option("<commit>", m_commit, "Commit to start listing from (e.g. HEAD, main, dae86e)");
     sub->add_option("-n,--max-count", m_max_count_flag, "Limit the output to <number> commits.");
 
     sub->callback(

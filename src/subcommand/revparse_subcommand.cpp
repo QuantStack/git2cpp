@@ -5,7 +5,7 @@
 
 revparse_subcommand::revparse_subcommand(const libgit2_object&, CLI::App& app)
 {
-    auto* sub = app.add_subcommand("rev-parse", "Pick out and message parameters");
+    auto* sub = app.add_subcommand("rev-parse", "Pick out and massage parameters");
 
     auto* bare_opt = sub->add_flag(
         "--is-bare-repository",

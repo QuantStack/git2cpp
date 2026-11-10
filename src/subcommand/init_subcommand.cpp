@@ -6,12 +6,16 @@
 
 init_subcommand::init_subcommand(const libgit2_object&, CLI::App& app)
 {
-    auto* sub = app.add_subcommand("init", "Explanation of init here");
+    auto* sub = app.add_subcommand("init", "Create an empty Git repository or reinitialize an existing one");
 
-    sub->add_flag("--bare", m_bare, "info about bare arg");
+    sub->add_flag("--bare", m_bare, "Create a bare repository");
 
     // If directory not specified, uses cwd.
-    sub->add_option("directory", m_directory, "info about directory arg")
+    sub->add_option(
+           "directory",
+           m_directory,
+           "Directory to create the repository in, created if it does not exist. Defaults to the current directory."
+    )
         ->check(CLI::ExistingDirectory | CLI::NonexistentPath)
         ->default_val(get_current_git_path());
     sub->add_option(

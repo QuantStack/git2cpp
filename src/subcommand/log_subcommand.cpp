@@ -16,7 +16,7 @@
 
 log_subcommand::log_subcommand(const libgit2_object&, CLI::App& app)
 {
-    auto* sub = app.add_subcommand("log", "Shows commit logs");
+    auto* sub = app.add_subcommand("log", "Show commit logs");
 
     sub->add_option(
         "--format",
