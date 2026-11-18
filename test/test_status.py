@@ -253,6 +253,7 @@ def test_status_untracked_directory(repo_init_with_commit, git2cpp_path, tmp_pat
     p = subprocess.run(cmd_status, capture_output=True, cwd=tmp_path, text=True)
 
     assert p.returncode == 0
+    p.stdout = strip_ansi_colours(p.stdout)
     if short_flag == "-s":
         assert "?? " in p.stdout
     else:
