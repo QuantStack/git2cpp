@@ -186,3 +186,11 @@ def test_init_filemode(git2cpp_path, tmp_path):
         assert filemode_lines == ["core.filemode=false", "core.filemode=false"]
     else:
         assert filemode_lines == ["core.filemode=false"]
+
+
+def test_init_help_has_no_default_directory(git2cpp_path, tmp_path, run_in_tmp_path):
+    cmd = [git2cpp_path, "init", "--help"]
+    p = subprocess.run(cmd, capture_output=True, text=True)
+    assert p.returncode == 0
+    assert "directory" in p.stdout
+    assert str(tmp_path) not in p.stdout

@@ -16,8 +16,8 @@ init_subcommand::init_subcommand(const libgit2_object&, CLI::App& app)
            m_directory,
            "Directory to create the repository in, created if it does not exist. Defaults to the current directory."
     )
-        ->check(CLI::ExistingDirectory | CLI::NonexistentPath)
-        ->default_val(get_current_git_path());
+        ->check(CLI::ExistingDirectory | CLI::NonexistentPath);
+
     sub->add_option(
         "-b,--initial-branch",
         m_branch,
@@ -34,6 +34,11 @@ init_subcommand::init_subcommand(const libgit2_object&, CLI::App& app)
 
 void init_subcommand::run()
 {
+    if (m_directory.empty())
+    {
+        m_directory = get_current_git_path();
+    }
+
     std::filesystem::path target_dir = m_directory;
     bool reinit = std::filesystem::exists(target_dir / ".git" / "HEAD");
 
