@@ -98,6 +98,78 @@ bool repository_wrapper::is_head_unborn() const
     return git_repository_head_unborn(*this) == 1;
 }
 
+bool repository_wrapper::is_head_detached() const
+{
+    return git_repository_head_detached(*this) == 1;
+}
+
+std::optional<repository_wrapper::detached_head_info> repository_wrapper::get_detached_head_info() const
+{
+    git_reflog* reflog = nullptr;
+    throw_if_error(git_reflog_read(&reflog, *this, "HEAD"));
+
+    std::optional<detached_head_info> result;
+    constexpr std::string_view prefix = "checkout: moving from ";
+    const size_t count = git_reflog_entrycount(reflog);
+    for (size_t i = 0; i < count; ++i)  // index 0 is the most recent entry
+    {
+        const git_reflog_entry* entry = git_reflog_entry_byindex(reflog, i);
+        const char* msg = git_reflog_entry_message(entry);
+        if (msg == nullptr)
+        {
+            continue;
+        }
+        std::string_view message(msg);
+        if (!message.starts_with(prefix))
+        {
+            continue;
+        }
+        auto to_pos = message.find(" to ", prefix.size());
+        if (to_pos == std::string_view::npos)
+        {
+            continue;
+        }
+        std::string target(message.substr(to_pos + 4));
+        if (auto nl = target.find('\n'); nl != std::string::npos)
+        {
+            target.erase(nl);
+        }
+
+        const git_oid new_oid = *git_reflog_entry_id_new(entry);
+        auto checked_out = this->find_commit(new_oid);
+
+        detached_head_info info;
+        // As in git, a checkout to "HEAD" is relative, so use the abbreviated SHA instead
+        auto ref = (target == "HEAD") ? std::nullopt : this->find_reference_dwim(target);
+        if (ref && git_oid_equal(&ref->peel<commit_wrapper>().oid(), &new_oid))
+        {
+            std::string_view name = git_reference_name(*ref);
+            for (std::string_view p : {"refs/tags/", "refs/remotes/"})
+            {
+                if (name.starts_with(p))
+                {
+                    name.remove_prefix(p.size());
+                    break;
+                }
+            }
+            info.name = name;
+        }
+        else
+        {
+            git_buf abbrev = GIT_BUF_INIT;
+            throw_if_error(git_object_short_id(&abbrev, checked_out));
+            info.name = abbrev.ptr;
+            git_buf_dispose(&abbrev);
+        }
+        info.is_at = git_oid_equal(&new_oid, &this->find_commit("HEAD").oid());
+        result = info;
+        break;
+    }
+
+    git_reflog_free(reflog);
+    return result;
+}
+
 reference_wrapper repository_wrapper::head() const
 {
     git_reference* ref;
