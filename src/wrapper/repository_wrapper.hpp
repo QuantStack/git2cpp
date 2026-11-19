@@ -58,6 +58,15 @@ public:
 
     // Head
     bool is_head_unborn() const;
+    bool is_head_detached() const;
+
+    struct detached_head_info
+    {
+        std::string name;  // e.g. "v1.0", "origin/main", or an abbreviated SHA
+        bool is_at;        // true: "detached at", false: "detached from"
+    };
+
+    std::optional<detached_head_info> get_detached_head_info() const;
     reference_wrapper head() const;
     std::string head_short_name() const;
 

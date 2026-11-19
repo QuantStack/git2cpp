@@ -259,7 +259,7 @@ namespace
         std::sort(untracked_items.begin(), untracked_items.end());
         for (const auto& it : untracked_items)
         {
-            std::cout << colour << "?? " << termcolor::reset << it << std::endl;
+            std::cout << colour << "??" << termcolor::reset << " " << it << std::endl;
         }
 
         std::sort(ignored_items.begin(), ignored_items.end());
@@ -425,8 +425,8 @@ void print_tracking_info(repository_wrapper& repo, status_list_wrapper& sl, bool
                 }
                 std::cout << "]";
             }
-            std::cout << std::endl;
         }
+        std::cout << std::endl;
     }
 }
 
@@ -618,18 +618,41 @@ void status_run(status_subcommand_options options)
     bool is_long;
     is_long = ((of == output_format::DEFAULT) || (of == output_format::LONG));
 
-    auto branch_name = repo.head_short_name();
+    bool is_detached = repo.is_head_detached();
+    std::string branch_name = is_detached ? "HEAD (no branch)" : repo.head_short_name();
     bool is_coloured = true;
     bool branch_flag = options.m_branch_flag;
     if (is_long)
     {
-        std::cout << "On branch " << branch_name << std::endl;
+        if (is_detached)
+        {
+            if (auto info = repo.get_detached_head_info())
+            {
+                std::cout << termcolor::red << "HEAD detached " << (info->is_at ? "at " : "from ")
+                          << termcolor::reset << info->name << std::endl;
+            }
+            else
+            {
+                std::cout << termcolor::red << "Not currently on any branch." << termcolor::reset << std::endl;
+            }
+        }
+        else
+        {
+            std::cout << "On branch " << branch_name << std::endl;
+        }
     }
     else if (branch_flag)
     {
         if (is_coloured)
         {
-            std::cout << "## " << termcolor::green << branch_name << termcolor::reset;
+            if (is_detached)
+            {
+                std::cout << "## " << termcolor::red << branch_name << termcolor::reset;
+            }
+            else
+            {
+                std::cout << "## " << termcolor::green << branch_name << termcolor::reset;
+            }
         }
         else
         {

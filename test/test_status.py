@@ -253,6 +253,7 @@ def test_status_untracked_directory(repo_init_with_commit, git2cpp_path, tmp_pat
     p = subprocess.run(cmd_status, capture_output=True, cwd=tmp_path, text=True)
 
     assert p.returncode == 0
+    p.stdout = strip_ansi_colours(p.stdout)
     if short_flag == "-s":
         assert "?? " in p.stdout
     else:
@@ -427,3 +428,115 @@ def test_status_modified_staged_then_modified(repo_init_with_commit, git2cpp_pat
     assert "Changes not staged for commit" in out
     # Ensure the filename appears (it should appear in one or both sections)
     assert "initial.txt" in out
+
+
+def test_status_detached_at_tag(repo_init_with_commit, git2cpp_path, tmp_path):
+    subprocess.run([git2cpp_path, "tag", "v1.0"], cwd=tmp_path, check=True)
+    subprocess.run([git2cpp_path, "checkout", "v1.0"], cwd=tmp_path, check=True)
+
+    p = subprocess.run(
+        [git2cpp_path, "status"], capture_output=True, cwd=tmp_path, text=True, check=True
+    )
+    out = strip_ansi_colours(p.stdout)
+    assert out.splitlines()[0] == "HEAD detached at v1.0"
+    assert "On branch" not in out
+
+
+def test_status_detached_at_sha(repo_init_with_commit, git2cpp_path, tmp_path):
+    p_sha = subprocess.run(
+        [git2cpp_path, "rev-parse", "HEAD"],
+        capture_output=True,
+        cwd=tmp_path,
+        text=True,
+        check=True,
+    )
+    sha = p_sha.stdout.strip()
+    subprocess.run([git2cpp_path, "checkout", sha], cwd=tmp_path, check=True)
+
+    p = subprocess.run(
+        [git2cpp_path, "status"], capture_output=True, cwd=tmp_path, text=True, check=True
+    )
+    out = strip_ansi_colours(p.stdout)
+    assert out.splitlines()[0] == f"HEAD detached at {sha[:7]}"
+    assert "On branch" not in out
+
+
+def test_status_detached_from(repo_init_with_commit, git2cpp_path, tmp_path):
+    subprocess.run([git2cpp_path, "tag", "v1.0"], cwd=tmp_path, check=True)
+    subprocess.run([git2cpp_path, "checkout", "v1.0"], cwd=tmp_path, check=True)
+
+    second = tmp_path / "second.txt"
+    second.write_text("second")
+    subprocess.run([git2cpp_path, "add", "second.txt"], cwd=tmp_path, check=True)
+    subprocess.run([git2cpp_path, "commit", "-m", "Second commit"], cwd=tmp_path, check=True)
+
+    p = subprocess.run(
+        [git2cpp_path, "status"], capture_output=True, cwd=tmp_path, text=True, check=True
+    )
+    out = strip_ansi_colours(p.stdout)
+    assert out.splitlines()[0] == "HEAD detached from v1.0"
+    assert "On branch" not in out
+
+
+def test_status_detached_at_remote_branch(commit_env_config, git2cpp_path, tmp_path):
+    repo_path = tmp_path / "repo"
+    repo_path.mkdir()
+    subprocess.run([git2cpp_path, "init", "-b", "main"], cwd=repo_path, check=True)
+    (repo_path / "file.txt").write_text("initial")
+    subprocess.run([git2cpp_path, "add", "file.txt"], cwd=repo_path, check=True)
+    subprocess.run([git2cpp_path, "commit", "-m", "initial"], cwd=repo_path, check=True)
+
+    clone_path = tmp_path / "clone"
+    subprocess.run([git2cpp_path, "clone", str(repo_path), str(clone_path)], check=True)
+    subprocess.run([git2cpp_path, "checkout", "origin/main"], cwd=clone_path, check=True)
+
+    p = subprocess.run(
+        [git2cpp_path, "status"], capture_output=True, cwd=clone_path, text=True, check=True
+    )
+    out = strip_ansi_colours(p.stdout)
+    assert out.splitlines()[0] == "HEAD detached at origin/main"
+    assert "On branch" not in out
+
+
+def test_status_detached_no_reflog(repo_init_with_commit, git2cpp_path, tmp_path):
+    p_sha = subprocess.run(
+        [git2cpp_path, "rev-parse", "HEAD"],
+        capture_output=True,
+        cwd=tmp_path,
+        text=True,
+        check=True,
+    )
+    sha = p_sha.stdout.strip()
+    subprocess.run([git2cpp_path, "checkout", sha], cwd=tmp_path, check=True)
+    os.remove(tmp_path / ".git" / "logs" / "HEAD")
+
+    p = subprocess.run(
+        [git2cpp_path, "status"], capture_output=True, cwd=tmp_path, text=True, check=True
+    )
+    out = strip_ansi_colours(p.stdout)
+    assert out.splitlines()[0] == "Not currently on any branch."
+    assert "On branch" not in out
+
+
+def test_status_short_branch_detached(repo_init_with_commit, git2cpp_path, tmp_path):
+    subprocess.run([git2cpp_path, "tag", "v1.0"], cwd=tmp_path, check=True)
+    subprocess.run([git2cpp_path, "checkout", "v1.0"], cwd=tmp_path, check=True)
+
+    p = subprocess.run(
+        [git2cpp_path, "status", "-sb"], capture_output=True, cwd=tmp_path, text=True, check=True
+    )
+    assert strip_ansi_colours(p.stdout) == "## HEAD (no branch)\n"
+
+
+@pytest.mark.parametrize("dirty", [False, True])
+def test_status_short_branch_newline(repo_init_with_commit, git2cpp_path, tmp_path, dirty):
+    if dirty:
+        (tmp_path / "new.txt").write_text("new")
+        expected = "## main\n?? new.txt\n"
+    else:
+        expected = "## main\n"
+
+    p = subprocess.run(
+        [git2cpp_path, "status", "-sb"], capture_output=True, cwd=tmp_path, text=True, check=True
+    )
+    assert strip_ansi_colours(p.stdout) == expected
